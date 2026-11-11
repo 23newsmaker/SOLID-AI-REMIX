@@ -14,7 +14,8 @@ import { getSettings, enforceBudgets, costRecord } from "../src/lib/operations/c
 import { saveFact, reviewFact, facts, reviewSource } from "../src/lib/operations/facts";
 import { captureVersion, versions } from "../src/lib/operations/versions";
 import { finalChecklist, finalTransition, finalStale, filePermission } from "../src/lib/operations/final-review";
-import { csvCell, report, reportFilter } from "../src/lib/operations/reports";
+import { csvCell, report, reportCsv, reportFilter } from "../src/lib/operations/reports";
+import { GetVideoJobResponse, GetOperationsReportResponse } from "@workspace/api-zod";
 import { retentionPreview, approveRetention } from "../src/lib/operations/retention";
 import { createJob, readJob, videoConfig, cancelJob, serializeJob } from "../src/lib/video/service";
 import { quotaDay } from "../src/lib/video/policy";
@@ -25,7 +26,7 @@ import { videoFile } from "../src/lib/video/storage";
 const ids = Array.from({ length: 4 }, () => `test_d_${randomUUID()}`);
 const categoryId = randomUUID(), characterId = randomUUID(), sourceId = randomUUID(), conceptId = randomUUID(), logoId = randomUUID();
 const objectPaths = [`/objects/concepts/${randomUUID()}.png`, `/objects/concepts/${randomUUID()}.png`];
-const out = path.resolve("../../generated-artifacts/phase-d");
+const out = path.resolve("../../generated-artifacts", process.argv[2] === "phase-e" ? "phase-e" : "phase-d");
 const results: { test: string; status: string; evidence: unknown }[] = [];
 const record = (test: string, evidence: unknown) => results.push({ test, status: "PASS", evidence });
 async function denied(test: string, fn: () => unknown | Promise<unknown>) {
@@ -96,6 +97,13 @@ async function main() {
     await new Promise(r => setTimeout(r, 500)); job = await readJob(job.id, creator!);
   }
   assert.equal(job.status, "COMPLETED", job.error ?? "Render belum selesai");
+  const measured = GetVideoJobResponse.parse(await serializeJob(job, creator!)).diagnostics;
+  assert(measured && measured.queueMs !== null && measured.renderMs! > 0 && measured.validationMs! > 0 && measured.storageMs! > 0 && measured.totalMs! > 0);
+  assert.equal(measured.rendererVersion, "hemat-2");
+  assert(measured.quality.some(q => q.id === "DECODE" && q.status === "PASS"));
+  assert(measured.quality.some(q => q.id === "CONTENT" && q.status === "MANUAL_REVIEW_REQUIRED"));
+  assert(measured.quality.some(q => q.id === "NARRATION" && q.status === "WARNING"));
+  record("E: hasil nyata menyimpan waktu, byte, versi dan QC tanpa narasi", measured);
   await videoFile(job.resultPath!).download({ destination: path.join(out, "demo-review-hemat.mp4") });
   assert.equal(costRecord(job).actualUsd, null); assert.equal(costRecord(job).providerUsd, 0); assert(!costRecord(job).legacy);
   record("ModeHemat nyata dan biaya terstruktur", { status: job.status, hash: job.resultHash, cost: costRecord(job) });
@@ -133,6 +141,18 @@ async function main() {
   record("Reservasi selesai dilepas dari eksposur", "Hanya biaya aktual/diketahui + reservasi aktif dihitung; unknown bukan nol.");
   const r = await report({ userId: creator!.id }, admin!);
   assert.equal(r.summary.jobs, 3); assert.equal(r.summary.actualUsd, null); assert.equal(r.summary.approved, 1);
+  const parsed = GetOperationsReportResponse.parse(r);
+  assert.equal(parsed.summary.optimization?.actualPerPublishableUsd, null);
+  assert.equal(parsed.summary.optimization?.technicalPass, 1);
+  assert.equal(parsed.summary.optimization?.untested, 2);
+  assert.equal(parsed.summary.optimization?.timedJobs, 1);
+  record("E: kontrak laporan tidak mengarang biaya atau waktu legacy", parsed.summary.optimization);
+  assert.equal((await report({ userId: creator!.id, mode: "AI" }, admin!)).summary.jobs, 0);
+  assert.equal((await report({ userId: creator!.id, provider: "local-compositor", mode: "HEMAT" }, admin!)).summary.jobs, 3);
+  const csv = await reportCsv({ userId: creator!.id, mode: "HEMAT" }, admin!);
+  assert(csv.includes('"RendererVersion"')); assert(csv.includes('"hemat-2"')); assert(csv.includes('"NOT TESTED"'));
+  await writeFile(path.join(out, "contoh-laporan-optimasi.csv"), csv);
+  record("E: filter mode/provider dan ekspor menyertakan QC dan waktu", "AI:0; lokal Hemat:3; CSV rendererVersion/UNKNOWN/NOT TESTED.");
   record("Laporan filter anggota, failed/cancelled, estimasi/aktual/unknown", { count: r.summary.jobs, actual: r.summary.actualUsd, unknown: r.summary.unknownCosts });
   assert(csvCell('=HYPERLINK("evil")').startsWith('"\'='));
   assert(csvCell(" \t@SUM(1)").startsWith('"\''));
@@ -148,6 +168,10 @@ async function main() {
   assert((await finalStale(job)).stale);
   const revokedJob = await serializeJob(job);
   assert.equal(revokedJob.publicationUrl, null); assert.equal(revokedJob.publicationStatus, "REVISION_REQUIRED");
+  const revokedReport = await report({ userId: creator!.id }, admin!);
+  assert.equal(revokedReport.summary.approved, 0);
+  assert.equal(revokedReport.summary.optimization.approvalPercent, 0);
+  record("E: persetujuan usang tidak masuk video layak", revokedReport.summary.optimization);
   assert(!(await facts(creator!)).some(f => f.id === factId));
   record("Pencabutan fakta membatalkan izin publikasi, bukan merusak MP4", { render: revokedJob.status, publication: revokedJob.publicationStatus, publicationUrl: revokedJob.publicationUrl });
   await denied("Keputusan sumber lama ditolak bila sumber berubah", () => reviewSource(sourceId, { revision: "old", validation: "APPROVED",

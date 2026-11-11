@@ -111,6 +111,31 @@ export interface CostRecord {
   legacy: boolean;
 }
 
+export interface OptimizationMetrics {
+  /** @nullable */
+  approvalPercent: number | null;
+  /** @nullable */
+  failurePercent: number | null;
+  /** @nullable */
+  retryPercent: number | null;
+  /** @nullable */
+  actualPerSuccessfulUsd: number | null;
+  /** @nullable */
+  actualPerPublishableUsd: number | null;
+  /** @nullable */
+  averageQueueMs: number | null;
+  /** @nullable */
+  averageRenderMs: number | null;
+  /** @nullable */
+  averageTotalMs: number | null;
+  timedJobs: number;
+  measuredBytes: number;
+  technicalPass: number;
+  technicalFail: number;
+  untested: number;
+  characterConsistency: string;
+}
+
 export interface OperationsGroup {
   id: string;
   name: string;
@@ -127,6 +152,42 @@ export interface OperationsGroup {
   approved: number;
   rejected: number;
   waiting: number;
+  optimization?: OptimizationMetrics;
+}
+
+export type VideoQualityCheckStatus = typeof VideoQualityCheckStatus[keyof typeof VideoQualityCheckStatus];
+
+
+export const VideoQualityCheckStatus = {
+  PASS: 'PASS',
+  WARNING: 'WARNING',
+  FAIL: 'FAIL',
+  MANUAL_REVIEW_REQUIRED: 'MANUAL_REVIEW_REQUIRED',
+} as const;
+
+export interface VideoQualityCheck {
+  id: string;
+  status: VideoQualityCheckStatus;
+  detail: string;
+}
+
+export interface VideoDiagnostics {
+  rendererVersion: string;
+  /** @nullable */
+  queueMs: number | null;
+  /** @nullable */
+  materialMs: number | null;
+  /** @nullable */
+  renderMs: number | null;
+  /** @nullable */
+  validationMs: number | null;
+  /** @nullable */
+  storageMs: number | null;
+  /** @nullable */
+  totalMs: number | null;
+  /** @nullable */
+  bytes: number | null;
+  quality: VideoQualityCheck[];
 }
 
 export type VideoJobStatus = typeof VideoJobStatus[keyof typeof VideoJobStatus];
@@ -197,6 +258,7 @@ export interface VideoRenderOptions {
 }
 
 export interface VideoJob {
+  diagnostics?: VideoDiagnostics | null;
   publicationStatus?: string;
   /** @nullable */
   retentionNoticeAt?: string | null;
@@ -939,7 +1001,20 @@ from?: string;
  */
 to?: string;
 userId?: string;
+mode?: GetOperationsReportMode;
+/**
+ * @maxLength 120
+ */
+provider?: string;
 };
+
+export type GetOperationsReportMode = typeof GetOperationsReportMode[keyof typeof GetOperationsReportMode];
+
+
+export const GetOperationsReportMode = {
+  HEMAT: 'HEMAT',
+  AI: 'AI',
+} as const;
 
 export type ExportOperationsReportParams = {
 /**
@@ -951,7 +1026,20 @@ from?: string;
  */
 to?: string;
 userId?: string;
+mode?: ExportOperationsReportMode;
+/**
+ * @maxLength 120
+ */
+provider?: string;
 };
+
+export type ExportOperationsReportMode = typeof ExportOperationsReportMode[keyof typeof ExportOperationsReportMode];
+
+
+export const ExportOperationsReportMode = {
+  HEMAT: 'HEMAT',
+  AI: 'AI',
+} as const;
 
 export type ListKnowledgeParams = {
 /**

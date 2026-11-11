@@ -5,6 +5,7 @@ import { CreativeError, libraryAdmin } from "../creative-policy";
 import { quotaDay } from "../video/policy";
 import { serializeJob } from "../video/service";
 import { costRecord, knownSpend, getSettings, settingsView, localRuntime } from "./controls";
+import { optimizationMetrics } from "../video/metrics";
 
 export function reportFilter(raw: unknown) {
   const input = GetOperationsReportQueryParams.parse(raw);
@@ -18,6 +19,7 @@ export function group(id: string, name: string, rows: VideoJobRow[]) {
   const unknownCosts = rows.filter(j => j.actualCostUsd === null).length;
   const pending = rows.filter(j => ["QUEUED", "READY", "PROCESSING", "SUBMITTED", "UNKNOWN"].includes(j.status));
   return { id, name, jobs: rows.length, successful: rows.filter(j => j.status === "COMPLETED").length,
+    optimization: optimizationMetrics(rows),
     failed: rows.filter(j => j.status === "FAILED").length, retries: rows.reduce((s, j) => s + Math.max(0, j.attempts - 1), 0),
     actualUsd: unknownCosts ? null : rows.reduce((s, j) => s + j.actualCostUsd!, 0),
     knownSubtotalUsd: rows.reduce((s, j) => s + knownSpend(j), 0), unknownCosts,
@@ -30,7 +32,8 @@ export async function report(raw: unknown, me: MemberRecord, all = false) {
   if (me.status !== "ACTIVE" || !libraryAdmin(me)) throw new CreativeError(403, "Laporan operasional hanya admin.");
   const f = reportFilter(raw);
   const allJobs = await db.select().from(videoJobs).orderBy(desc(videoJobs.createdAt));
-  const selected = allJobs.filter(j => j.quotaDay >= f.from && j.quotaDay <= f.to && (!f.userId || j.ownerId === f.userId));
+  const selected = allJobs.filter(j => j.quotaDay >= f.from && j.quotaDay <= f.to && (!f.userId || j.ownerId === f.userId) &&
+    (!f.mode || j.mode === f.mode) && (!f.provider || j.provider === f.provider));
   const real = selected.filter(j => !j.simulation);
   const people = await db.select().from(members);
   const chars = await db.select().from(characters);
@@ -42,6 +45,7 @@ export async function report(raw: unknown, me: MemberRecord, all = false) {
   const c = await getSettings(), runtime = await localRuntime();
   const warnings = [
     "USD saja; biaya estimasi bukan aktual. Subtotal diketahui belum mencakup komponen unknown. CPU/storage belum terukur.",
+    "Metrik E mengecualikan simulasi. Kelayakan = persetujuan akhir yang masih valid / render selesai; gagal dan retry = persentase seluruh job. Rata-rata waktu hanya sampel terukur, bukan janji waktu selesai. Total produksi mencakup persiapan, render, QC dan penyimpanan; bukan waktu unduh di perangkat.",
     `${real.reduce((n, j) => { const c = costRecord(j); return n + [c.providerUsd, c.renderUsd, c.ttsUsd, c.retryUsd].filter(v => v === null).length; }, 0)} komponen biaya belum diketahui dalam filter ini (provider/render/TTS/retry), bukan dianggap nol.`,
     `Biaya aktual rata-rata/video: ${summary.actualUsd !== null && summary.jobs ? `USD${(summary.actualUsd / summary.jobs).toFixed(4)}` : "tidak diketahui/tidak tersedia"}; biaya total per video layak publikasi: ${summary.actualUsd !== null && summary.approved ? `USD${(summary.actualUsd / summary.approved).toFixed(4)}` : "tidak diketahui/tidak tersedia"}. Biaya gagal/batal termasuk dalam total.`,
     `Renderer lokal: ${c.localEnabled ? "diaktifkan" : "dinonaktifkan"}; pemeriksaan binary: ${runtime.available ? "tersedia" : "tidak tersedia"}. AI berbayar belum dikonfigurasi.`,
@@ -71,13 +75,15 @@ export const csvCell = (value: unknown) => {
 export async function reportCsv(raw: unknown, me: MemberRecord) {
   const r = await report(raw, me, true);
   const concepts = await db.select().from(creativeConcepts), people = await db.select().from(members);
-  const headers = ["JobID", "UserID", "TanggalJakarta", "Mode", "Provider", "Model", "Status", "FinalReview", "Detik", "Resolusi", "Currency", "Estimated", "Actual", "ProviderUSD", "Rendering", "TTS", "RetryCost", "Retries", "Reserved", "CostSource", "ActualPerPublishable", "RowType", "ConceptID", "ConceptVersion", "ConceptStatus", "MemberName", "Metric", "Value"];
+  const headers = ["JobID", "UserID", "TanggalJakarta", "Mode", "Provider", "Model", "Status", "FinalReview", "Detik", "Resolusi", "Currency", "Estimated", "Actual", "ProviderUSD", "Rendering", "TTS", "RetryCost", "Retries", "Reserved", "CostSource", "ActualPerPublishable", "RowType", "ConceptID", "ConceptVersion", "ConceptStatus", "MemberName", "Metric", "Value", "RendererVersion", "QueueMs", "RenderMs", "ValidationMs", "StorageMs", "TotalMs", "Bytes", "TechnicalQC"];
   const rows = r.jobs.map(j => {
     const c = j.cost!;
     return [j.id, j.ownerId, quotaDay(new Date(j.createdAt)), j.mode, j.provider, c.model, j.status, j.publicationStatus, j.durationSeconds, `${j.width}x${j.height}`,
       c.currency, c.estimatedUsd, c.actualUsd, c.providerUsd, c.renderUsd, c.ttsUsd, c.retryUsd, c.retries, c.reservedUsd, c.source,
       j.publicationStatus === "APPROVED_FOR_PUBLICATION" ? c.actualUsd : null, "VIDEO", j.conceptId, j.conceptVersion,
-      concepts.find(x => x.id === j.conceptId)?.status ?? "DELETED_OR_UNAVAILABLE", people.find(x => x.id === j.ownerId)?.name ?? "Anggota terdahulu", "", ""];
+      concepts.find(x => x.id === j.conceptId)?.status ?? "DELETED_OR_UNAVAILABLE", people.find(x => x.id === j.ownerId)?.name ?? "Anggota terdahulu", "", "",
+      j.diagnostics?.rendererVersion, j.diagnostics?.queueMs, j.diagnostics?.renderMs, j.diagnostics?.validationMs, j.diagnostics?.storageMs,
+      j.diagnostics?.totalMs, j.diagnostics?.bytes, j.diagnostics?.quality.map(q => `${q.id}:${q.status}`).join(";") ?? "NOT TESTED"];
   });
   for (const [metric, value] of Object.entries({
     Jobs: r.summary.jobs, Failed: r.summary.failed, Retries: r.summary.retries, SimulatedExcluded: r.simulations,
@@ -85,6 +91,7 @@ export async function reportCsv(raw: unknown, me: MemberRecord) {
     FinalApproved: r.summary.approved, FinalRejected: r.summary.rejected, FinalWaiting: r.summary.waiting,
     KnownSubtotalUSD: r.summary.knownSubtotalUsd, ActualTotalUSD: r.summary.actualUsd,
     JobsWithUnknownActual: r.summary.unknownCosts,
+    ...r.summary.optimization,
     ActualUSDPerVideo: r.summary.actualUsd !== null && r.summary.jobs ? r.summary.actualUsd / r.summary.jobs : null,
     ActualUSDPerPublishable: r.summary.actualUsd !== null && r.summary.approved ? r.summary.actualUsd / r.summary.approved : null,
   })) {

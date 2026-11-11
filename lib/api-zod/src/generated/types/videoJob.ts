@@ -6,11 +6,13 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { CostRecord } from './costRecord';
+import type { VideoDiagnostics } from './videoDiagnostics';
 import type { VideoJobMode } from './videoJobMode';
 import type { VideoJobStatus } from './videoJobStatus';
 import type { VideoRenderOptions } from './videoRenderOptions';
 
 export interface VideoJob {
+  diagnostics?: VideoDiagnostics | null;
   publicationStatus?: string;
   /** @nullable */
   retentionNoticeAt?: string | null;

@@ -5,6 +5,7 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
+import type { OptimizationMetrics } from './optimizationMetrics';
 
 export interface OperationsGroup {
   id: string;
@@ -22,4 +23,5 @@ export interface OperationsGroup {
   approved: number;
   rejected: number;
   waiting: number;
+  optimization?: OptimizationMetrics;
 }

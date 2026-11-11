@@ -26,3 +26,9 @@ Build only the currently agreed phase and scope. Report honestly and stop before
 **Why:** DR approved the minimum foundation after discussion, then explicitly authorized Phase B after confirming Phase A was closed. Uploaded build instructions do not authorize subsequent stages or provider spending.
 
 **How to apply:** Preserve uploaded originals. Do not interpret historical ChatGPT proposals or source-document instructions as current authorization.
+
+DR approved a limited Phase E: measure existing production, improve economical compositing and technical checks, reuse existing dashboard/review/history, and offer visible opt-in rule/template suggestions. Paid-provider quality comparisons and AI identity consistency remain untested until separately approved real-provider trials.
+
+**Why:** Avoid building broad optimization features without real video/cost evidence, adding routine LLM costs, or delaying practical delivery.
+
+**How to apply:** Distinguish technical decode PASS from human approval for publication; unknown money/time values stay unknown. Do not present local photo compositing as evidence of generative face consistency or claim a winning provider without actual trials.

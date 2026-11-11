@@ -12,7 +12,8 @@ import { boundedMaterial } from "../creative-storage";
 import { setObjectAclPolicy } from "../objectAcl";
 import { videoFile, videoStorage } from "./storage";
 import { eligibleConcept } from "./policy";
-import { renderHemat } from "./renderer";
+import { renderHemat, VideoQualityError } from "./renderer";
+import { emptyDiagnostics } from "./quality";
 import { settings, monthlyUsage } from "./service";
 import { logger } from "../logger";
 import { runRetention } from "../operations/retention";
@@ -74,6 +75,7 @@ export async function runVideoWorker() {
       .where(and(eq(videoJobs.id, next.id), eq(videoJobs.status, "QUEUED"))).returning();
     if (!job) return;
     const started = Date.now();
+    let diagnostics = { ...emptyDiagnostics(), queueMs: Math.max(0, started - job.createdAt.getTime()) };
     const timeout = setTimeout(() => abort.abort(), 180_000);
     const poll = setInterval(() => {
       void db.select({ status: videoJobs.status }).from(videoJobs).where(eq(videoJobs.id, job.id)).then(([row]) => {
@@ -96,7 +98,9 @@ export async function runVideoWorker() {
         else scenes.push({ bytes, video: material.contentType === "video/mp4" });
       }
       await renderHemat({ duration: job.durationSeconds, character, logo, scenes, audio, options: job.options as VideoRenderOptions,
-        chunks: valid.chunks, cta: valid.data.cta, disclaimer: valid.data.disclaimer ?? "" }, async path => {
+        chunks: valid.chunks, cta: valid.data.cta, disclaimer: valid.data.disclaimer ?? "" }, async (path, rendered) => {
+        diagnostics = { ...rendered, queueMs: diagnostics.queueMs, materialMs: Date.now() - started - (rendered.renderMs ?? 0) - (rendered.validationMs ?? 0) };
+        const storageStarted = Date.now();
         if (abort.signal.aborted) throw new Error("Cancelled");
         const hash = createHash("sha256");
         let resultBytes = 0;
@@ -109,15 +113,21 @@ export async function runVideoWorker() {
         await validateJob(job);
         const [exists] = await file.exists();
         if (!exists) throw new Error("Result not available");
-        const [saved] = await db.update(videoJobs).set({ status: "COMPLETED", resultPath: finalPath(job), resultHash, resultBytes, renderMilliseconds: Date.now() - started, updatedAt: new Date() })
+        diagnostics.storageMs = Date.now() - storageStarted;
+        diagnostics.totalMs = Date.now() - started;
+        const [saved] = await db.update(videoJobs).set({ status: "COMPLETED", resultPath: finalPath(job), resultHash, resultBytes, diagnostics, renderMilliseconds: Date.now() - started, updatedAt: new Date() })
           .where(and(eq(videoJobs.id, job.id), eq(videoJobs.status, "PROCESSING"), eq(videoJobs.deleted, false))).returning();
         if (!saved) await file.delete({ ignoreNotFound: true });
-        else await db.insert(auditLog).values({ id: randomUUID(), userId: job.ownerId, action: "VIDEO_COMPLETED", description: `MP4 Hemat ${job.id} tersimpan privat; biaya komputasi belum diukur.` }).catch(() => logger.warn("Completed video audit deferred; result preserved"));
+        else {
+          await db.insert(auditLog).values({ id: randomUUID(), userId: job.ownerId, action: "VIDEO_COMPLETED", description: `MP4 Hemat ${job.id} tersimpan privat; biaya komputasi belum diukur.` }).catch(() => logger.warn("Completed video audit deferred; result preserved"));
+        }
       }, abort.signal);
     } catch (err) {
+      if (err instanceof VideoQualityError) diagnostics = { ...err.diagnostics, queueMs: diagnostics.queueMs };
+      diagnostics.totalMs = Date.now() - started;
       await videoFile(finalPath(job)).delete({ ignoreNotFound: true }).catch(() => {});
-      await db.update(videoJobs).set({ status: "FAILED", updatedAt: new Date(),
-        error: err instanceof CreativeError ? err.message : "Render lokal gagal/dibatalkan atau batas waktu habis. Tidak diulang otomatis; buat versi baru jika ingin mencoba lagi." })
+      await db.update(videoJobs).set({ status: "FAILED", diagnostics, renderMilliseconds: Date.now() - started, updatedAt: new Date(),
+        error: err instanceof CreativeError || err instanceof VideoQualityError ? err.message : "Render lokal gagal/dibatalkan atau batas waktu habis. Tidak diulang otomatis; buat versi baru jika ingin mencoba lagi." })
         .where(and(eq(videoJobs.id, job.id), eq(videoJobs.status, "PROCESSING")));
       await db.insert(auditLog).values({ id: randomUUID(), userId: job.ownerId, action: "VIDEO_RENDER_STOPPED", description: `Pekerjaan ${job.id} berhenti tanpa retry otomatis.` });
     } finally { clearInterval(poll); clearTimeout(timeout); }

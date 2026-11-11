@@ -31,6 +31,7 @@ export const videoJobs = pgTable("solid_video_jobs", {
   actualCostUsd: doublePrecision("actual_cost_usd"),
   providerCostUsd: doublePrecision("provider_cost_usd").default(0),
   renderMilliseconds: integer("render_milliseconds"),
+  diagnostics: jsonb("diagnostics"),
   model: text("model"),
   currency: text("currency").notNull().default("USD"),
   costSource: text("cost_source"),

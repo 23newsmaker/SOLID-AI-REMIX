@@ -33,14 +33,16 @@ export default function OperationsPage({ me }: { me: Member }) {
   );
 }
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const monthStart = () => today().slice(0, 8) + '01';
 
 function Report() {
   const [from, setFrom] = useState(monthStart);
   const [to, setTo] = useState(today);
   const [userId, setUserId] = useState('');
-  const params = useMemo<GetOperationsReportParams>(() => ({ from: from || undefined, to: to || undefined, userId: userId || undefined }), [from, to, userId]);
+  const [mode, setMode] = useState<'' | 'HEMAT' | 'AI'>('');
+  const [provider, setProvider] = useState('');
+  const params = useMemo<GetOperationsReportParams>(() => ({ from: from || undefined, to: to || undefined, userId: userId || undefined, mode: mode || undefined, provider: provider || undefined }), [from, to, userId, mode, provider]);
   const report = useGetOperationsReport(params, { query: { queryKey: getGetOperationsReportQueryKey(params), ...LIVE } });
   const r = report.data;
   const { toast } = useToast();
@@ -75,6 +77,10 @@ function Report() {
           </select>
         </Label>
       </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <Label label="Mode"><select value={mode} onChange={e => setMode(e.target.value as typeof mode)} className={inputCls} data-testid="select-report-mode"><option value="">Semua mode</option><option value="HEMAT">Hemat</option><option value="AI">AI (belum aktif)</option></select></Label>
+        <Label label="Provider"><select value={provider} onChange={e => setProvider(e.target.value)} className={inputCls} data-testid="select-report-provider"><option value="">Semua provider</option><option value="local-compositor">Renderer lokal</option>{(r?.providers ?? []).filter(p => p.id !== 'local-compositor').map(p => <option key={p.id} value={p.id}>{p.name}</option>)}{provider && provider !== 'local-compositor' && !r?.providers.some(p => p.id === provider) && <option value={provider}>{provider}</option>}</select></Label>
+      </div>
       {report.isLoading ? <Skeleton className="mt-4 h-64 rounded-2xl" /> : report.isError ? <div className="mt-4"><ErrorBox message={errMsg(report.error)} onRetry={() => report.refetch()} /></div> : r && (
         <div className="mt-5 space-y-5">
           {r.warnings.length > 0 && (
@@ -92,6 +98,20 @@ function Report() {
             <Stat label="Diproses" value={r.processing} sub={`Percobaan ulang ${r.summary.retries}`} />
             <Stat label="Karakter" value={r.characters} />
           </div>
+          {r.summary.optimization && <div className="space-y-3 rounded-2xl bg-muted/40 p-3" data-testid="panel-optimization">
+            <h3 className="font-display text-lg font-bold">Optimasi E · data terukur</h3>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <Stat label="Video layak" value={r.summary.approved} sub={`${percent(r.summary.optimization.approvalPercent)} dari render selesai; persetujuan masih valid`} />
+              <Stat label="Biaya/video layak" value={usd(r.summary.optimization.actualPerPublishableUsd)} sub="Total aktual semua job / video layak" />
+              <Stat label="Biaya/video berhasil" value={usd(r.summary.optimization.actualPerSuccessfulUsd)} sub="Termasuk biaya job gagal/batal" />
+              <Stat label="Kegagalan / retry" value={`${percent(r.summary.optimization.failurePercent)} / ${percent(r.summary.optimization.retryPercent)}`} sub="Persentase job dalam filter" />
+              <Stat label="Rata-rata antre" value={milliseconds(r.summary.optimization.averageQueueMs)} />
+              <Stat label="Rata-rata render" value={milliseconds(r.summary.optimization.averageRenderMs)} />
+              <Stat label="Rata-rata produksi" value={milliseconds(r.summary.optimization.averageTotalMs)} sub={`${r.summary.optimization.timedJobs} sampel total terukur; tidak termasuk antre`} />
+              <Stat label="QC teknis" value={`${r.summary.optimization.technicalPass} PASS / ${r.summary.optimization.technicalFail} FAIL`} sub={`${r.summary.optimization.untested} belum diuji; bukan izin publikasi`} />
+            </div>
+            <p className="text-xs text-muted-foreground">{r.summary.optimization.characterConsistency} Ukuran hasil terukur {(r.summary.optimization.measuredBytes / 1048576).toFixed(2)} MiB (bukan total penyimpanan atau biaya).</p>
+          </div>}
           <p className="font-mono text-[11px] text-muted-foreground">Periode {fmtDate(r.from)} sampai {fmtDate(r.to)} · batas harian {r.settings.dailyLimit} · {r.settings.paused ? 'produksi dijeda' : 'produksi berjalan'}</p>
           <GroupTable title="Per anggota" rows={r.users} />
           <GroupTable title="Per mode" rows={r.modes} />
@@ -139,13 +159,13 @@ function GroupTable({ title, rows }: { title: string; rows: OperationsGroup[] })
         <div className="overflow-x-auto rounded-2xl ring-1 ring-border/60">
           <table className="w-full min-w-[680px] text-left text-xs">
             <thead className="bg-muted/70 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-              <tr><th className="p-2">Nama</th><th className="p-2">Job</th><th className="p-2">Berhasil</th><th className="p-2">Gagal</th><th className="p-2">Ulang</th><th className="p-2">Aktual</th><th className="p-2">Diketahui</th><th className="p-2">Tak diketahui</th><th className="p-2">Konsep S/T/M</th></tr>
+              <tr><th className="p-2">Nama</th><th className="p-2">Job</th><th className="p-2">Berhasil</th><th className="p-2">Gagal</th><th className="p-2">Ulang</th><th className="p-2">Aktual</th><th className="p-2">Diketahui</th><th className="p-2">Tak diketahui</th><th className="p-2">Final S/T/M</th><th className="p-2">Biaya/layak</th><th className="p-2">Produksi</th></tr>
             </thead>
             <tbody>
               {rows.map((g) => (
                 <tr key={g.id} className="border-t border-border/60">
                   <td className="p-2 font-medium">{g.name}</td><td className="p-2">{g.jobs}</td><td className="p-2">{g.successful}</td><td className="p-2">{g.failed}</td><td className="p-2">{g.retries}</td>
-                  <td className="p-2">{usd(g.actualUsd)}</td><td className="p-2">{usd(g.knownSubtotalUsd)}</td><td className="p-2">{g.unknownCosts}</td><td className="p-2">{g.approved}/{g.rejected}/{g.waiting}</td>
+                  <td className="p-2">{usd(g.actualUsd)}</td><td className="p-2">{usd(g.knownSubtotalUsd)}</td><td className="p-2">{g.unknownCosts}</td><td className="p-2">{g.approved}/{g.rejected}/{g.waiting}</td><td className="p-2">{usd(g.optimization?.actualPerPublishableUsd)}</td><td className="p-2">{milliseconds(g.optimization?.averageTotalMs)}</td>
                 </tr>
               ))}
             </tbody>
@@ -155,6 +175,8 @@ function GroupTable({ title, rows }: { title: string; rows: OperationsGroup[] })
     </div>
   );
 }
+const milliseconds = (v: number | null | undefined) => v == null ? 'Belum terukur' : `${(v / 1000).toFixed(2)} dtk`;
+const percent = (v: number | null | undefined) => v == null ? 'Belum tersedia' : `${v.toFixed(1)}%`;
 
 type Draft = { paused: boolean; dailyLimit: number; budgetUsd: string; dailyBudgetUsd: string; userBudgetUsd: string; warningPercent: number; retentionDays: string };
 const toDraft = (s: OperationsSettings): Draft => ({

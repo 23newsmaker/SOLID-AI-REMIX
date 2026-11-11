@@ -1,13 +1,14 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db, videoJobs, videoSettings, members, auditLog, type MemberRecord, type VideoJobRow } from "@workspace/db";
-import { CreateVideoJobBody, type VideoJobInput, type VideoRenderOptions, type VideoSettingsInput } from "@workspace/api-zod";
+import { CreateVideoJobBody, type VideoDiagnostics, type VideoJobInput, type VideoRenderOptions, type VideoSettingsInput } from "@workspace/api-zod";
 import { ownerLock } from "../creative-service";
 import { CreativeError } from "../creative-policy";
 import { costNote, eligibleConcept, quotaDay } from "./policy";
 import { videoFile } from "./storage";
 import { getSettings, costRecord, enforceBudgets } from "../operations/controls";
 import { finalStale, filePermission } from "../operations/final-review";
+import { prepareText, TextLayoutError } from "./layout";
 
 export const globalVideoLock = (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => tx.execute(sql`SELECT pg_advisory_xact_lock(7101700)`);
 export const videoAdmin = (me: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(me.role);
@@ -47,6 +48,7 @@ export async function serializeJob(job: VideoJobRow, viewer?: MemberRecord) {
   const canServe = !viewer || filePermission(job, viewer);
   const publish = job.publicationStatus === "APPROVED_FOR_PUBLICATION" && !state.stale && !job.deleted;
   return { ...job, options: job.options as VideoRenderOptions,
+    diagnostics: job.simulation ? null : job.diagnostics as VideoDiagnostics | null,
     cost: costRecord(job), publicationStale: state.stale,
     retentionNoticeAt: job.retentionNoticeAt?.toISOString() ?? null,
     publicationStatus: job.publicationStatus === "APPROVED_FOR_PUBLICATION" && state.stale ? "REVISION_REQUIRED" : job.publicationStatus,
@@ -81,6 +83,11 @@ export async function createJob(raw: unknown, me: MemberRecord) {
       return old;
     }
     const valid = await eligibleConcept(input.conceptId, input.version, me, input.options, tx);
+    try { await prepareText(valid.chunks, valid.data.cta, valid.data.disclaimer ?? ""); }
+    catch (err) {
+      if (err instanceof TextLayoutError) throw new CreativeError(400, err.message);
+      throw err;
+    }
     const conf = await getSettings(tx);
     enforceBudgets(conf, await tx.select().from(videoJobs), me.id, 0, false);
     const [count] = await tx.select({ n: sql<number>`count(*)::int` }).from(videoJobs).where(and(

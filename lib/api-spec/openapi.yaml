@@ -18,6 +18,8 @@ paths:
         - {in: query, name: from, schema: {type: string, pattern: '^\d{4}-\d{2}-\d{2}$'}}
         - {in: query, name: to, schema: {type: string, pattern: '^\d{4}-\d{2}-\d{2}$'}}
         - {in: query, name: userId, schema: {type: string}}
+        - {in: query, name: mode, schema: {type: string, enum: [HEMAT, AI]}}
+        - {in: query, name: provider, schema: {type: string, maxLength: 120}}
       responses:
         "200":
           description: Filtered operational report, production separated from simulations
@@ -31,6 +33,8 @@ paths:
         - {in: query, name: from, schema: {type: string, pattern: '^\d{4}-\d{2}-\d{2}$'}}
         - {in: query, name: to, schema: {type: string, pattern: '^\d{4}-\d{2}-\d{2}$'}}
         - {in: query, name: userId, schema: {type: string}}
+        - {in: query, name: mode, schema: {type: string, enum: [HEMAT, AI]}}
+        - {in: query, name: provider, schema: {type: string, maxLength: 120}}
       responses:
         "200": {description: Authorized CSV with formula injection protection}
   /operations/settings:
@@ -809,6 +813,45 @@ components:
         approved: {type: integer}
         rejected: {type: integer}
         waiting: {type: integer}
+        optimization: {$ref: "#/components/schemas/OptimizationMetrics"}
+    OptimizationMetrics:
+      type: object
+      required: [approvalPercent, failurePercent, retryPercent, actualPerSuccessfulUsd, actualPerPublishableUsd, averageQueueMs, averageRenderMs, averageTotalMs, timedJobs, measuredBytes, technicalPass, technicalFail, untested, characterConsistency]
+      properties:
+        approvalPercent: {type: [number, "null"]}
+        failurePercent: {type: [number, "null"]}
+        retryPercent: {type: [number, "null"]}
+        actualPerSuccessfulUsd: {type: [number, "null"]}
+        actualPerPublishableUsd: {type: [number, "null"]}
+        averageQueueMs: {type: [number, "null"]}
+        averageRenderMs: {type: [number, "null"]}
+        averageTotalMs: {type: [number, "null"]}
+        timedJobs: {type: integer}
+        measuredBytes: {type: integer}
+        technicalPass: {type: integer}
+        technicalFail: {type: integer}
+        untested: {type: integer}
+        characterConsistency: {type: string}
+    VideoQualityCheck:
+      type: object
+      required: [id, status, detail]
+      properties:
+        id: {type: string}
+        status: {type: string, enum: [PASS, WARNING, FAIL, MANUAL_REVIEW_REQUIRED]}
+        detail: {type: string}
+    VideoDiagnostics:
+      type: object
+      required: [rendererVersion, queueMs, materialMs, renderMs, validationMs, storageMs, totalMs, bytes, quality]
+      properties:
+        rendererVersion: {type: string}
+        queueMs: {type: [number, "null"]}
+        materialMs: {type: [number, "null"]}
+        renderMs: {type: [number, "null"]}
+        validationMs: {type: [number, "null"]}
+        storageMs: {type: [number, "null"]}
+        totalMs: {type: [number, "null"]}
+        bytes: {type: [integer, "null"]}
+        quality: {type: array, items: {$ref: "#/components/schemas/VideoQualityCheck"}}
     OperationsReport:
       type: object
       required: [from, to, users, modes, providers, jobs, summary, activeMembers, pendingMembers, characters, concepts, approvedConcepts, rejectedConcepts, waitingConcepts, processing, simulations, settings, warnings]
@@ -961,6 +1004,10 @@ components:
       type: object
       required: [id, conceptId, conceptVersion, characterId, title, ownerId, status, mode, provider, simulation, durationSeconds, width, height, attempts, createdAt, updatedAt, submittedAt, error, estimatedCostUsd, actualCostUsd, providerCostUsd, resultUrl, rawResultUrl, deleted, options]
       properties:
+        diagnostics:
+          oneOf:
+            - {$ref: "#/components/schemas/VideoDiagnostics"}
+            - {type: "null"}
         publicationStatus: {type: string}
         retentionNoticeAt: {type: [string, "null"]}
         retentionNoticeVersion: {type: [integer, "null"]}

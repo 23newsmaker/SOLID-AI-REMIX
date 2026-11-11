@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { MotionSuggestion } from '@/components/motion-suggestion';
 import { Link, useSearch } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -246,7 +247,7 @@ export default function CreativePage({ me }: { me: Member }) {
               )}
               <div key={view} className="rise">
                 {view === 'edit' && (character
-                  ? <Editor form={form} setForm={setForm} lib={lib.data} character={character} onNext={() => setView('summary')} validation={validation} toast={toast} />
+                  ? <Editor key={`${selectedId ?? 'new'}-${concept?.version ?? 0}`} form={form} setForm={setForm} lib={lib.data} character={character} onNext={() => setView('summary')} validation={validation} toast={toast} />
                   : <Composed icon={<AlertTriangle className="h-5 w-5" />} title="Karakter sudah dihapus">Konsep lama tetap dapat dibaca atau dihapus. <Link href="/character" className="underline">Siapkan karakter baru</Link> sebelum menyimpan perubahan.</Composed>)}
                 {view === 'summary' && (
                   <div className="rounded-[28px] bg-card p-5 ring-1 ring-card-border md:p-7">
@@ -456,6 +457,7 @@ function Editor({ form, setForm, lib, character, onNext, validation, toast }: {
         </button>
         {adv && (
           <div className="rise space-y-4 border-t px-5 py-5 md:px-6">
+            <MotionSuggestion key={`${form.style}-${form.mode}-${form.templateId ?? ''}`} form={form} setForm={setForm} />
             {([
               ['scenes', 'Adegan', 4000, 3], ['characterMotion', 'Gerakan karakter', 2000, 2], ['cameraMotion', 'Gerakan kamera', 2000, 2],
               ['visual', 'Visual', 2000, 2], ['narration', 'Narasi', 4000, 3], ['subtitle', 'Subtitle (maks 108 kata untuk video)', 4000, 2], ['cta', 'CTA (maks 90 karakter untuk video)', 1000, 1], ['disclaimer', 'Disclaimer (wajib untuk video, maks 220 karakter)', 220, 2],

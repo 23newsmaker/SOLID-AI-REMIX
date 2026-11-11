@@ -112,3 +112,45 @@ mtime_ms = 1794386754432
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/26da95ba-af38-4463-9309-08516996b3f0/acd9e37a-229d-497b-b540-ff44ebcc8f3c"
 storage_version_token = "1794387825118697"
 content_type = "video/mp4"
+
+[[outputs]]
+id = "-PQlIseBmWe86-2hBxYiA"
+uri = "file://generated-artifacts/phase-e/laporan-tahap-e.html"
+type = "html"
+title = "Laporan Tahap E Terbatas"
+description = "Hasil, perbandingan sebelum–sesudah, pengujian, biaya yang belum diketahui dan batas kemampuan AI."
+logical_id = "14720a54-c34f-4703-810d-6dcc514b963c"
+content_hash = "sha256:865ba70d586fe90f96a89b1d09f5e56b3647b0c7d7659c4c00205a16ea304489"
+size = 9754
+mtime_ms = 1794394687053
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/14720a54-c34f-4703-810d-6dcc514b963c/8aa9bc17-4580-48b8-9c4e-58e4bccd315b"
+storage_version_token = "1794394742381646"
+content_type = "text/html"
+
+[[outputs]]
+id = "f4ybS7d0ZssVFPxKoxV1N"
+uri = "file://generated-artifacts/phase-e/after-ZOOM_IN.mp4"
+type = "video"
+title = "Contoh hasil Hemat setelah optimasi"
+description = "MP4 nyata 10 detik memakai bentuk geometris, logo DEMO dan nada uji; bukan AI, narasi atau materi promosi perusahaan."
+logical_id = "dbecf222-f46f-4863-8329-36a573b98e46"
+content_hash = "sha256:3bb4151e754923dbc5f9e15a553f46706c100434a3511fe3285398b16a7093e3"
+size = 1194141
+mtime_ms = 1794394510601
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/dbecf222-f46f-4863-8329-36a573b98e46/217a1621-36e9-401a-b1a1-d83758bc583c"
+storage_version_token = "1794394743726672"
+content_type = "video/mp4"
+
+[[outputs]]
+id = "r3BMf6yq5_wmPyKfywhYs"
+uri = "file://generated-artifacts/phase-e/contoh-laporan-optimasi.csv"
+type = "table"
+title = "Contoh CSV optimasi"
+description = "Data pengujian sintetis dengan waktu, QC, versi renderer dan biaya UNKNOWN; bukan statistik produksi perusahaan."
+logical_id = "489bf0ba-16d2-4f64-8878-010251de4413"
+content_hash = "sha256:3d79f3fb35c02f3c3e1c28a4e16423af01dc9cb63d802a254de54b114d8e7438"
+size = 5772
+mtime_ms = 1794394550025
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/489bf0ba-16d2-4f64-8878-010251de4413/a4874693-4120-47c8-9dd8-11fa0902530b"
+storage_version_token = "1794394745025843"
+content_type = "text/csv"

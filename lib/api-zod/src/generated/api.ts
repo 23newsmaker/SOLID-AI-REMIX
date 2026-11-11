@@ -10,12 +10,16 @@ import * as zod from 'zod';
 
 export const getOperationsReportQueryFromRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const getOperationsReportQueryToRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getOperationsReportQueryProviderMax = 120;
+
 
 
 export const GetOperationsReportQueryParams = zod.object({
   "from": zod.coerce.string().regex(getOperationsReportQueryFromRegExp).optional(),
   "to": zod.coerce.string().regex(getOperationsReportQueryToRegExp).optional(),
-  "userId": zod.coerce.string().optional()
+  "userId": zod.coerce.string().optional(),
+  "mode": zod.enum(['HEMAT', 'AI']).optional(),
+  "provider": zod.coerce.string().max(getOperationsReportQueryProviderMax).optional()
 })
 
 
@@ -60,7 +64,23 @@ export const GetOperationsReportResponse = zod.object({
   "estimatedPendingUsd": zod.number().nullable(),
   "approved": zod.number().int(),
   "rejected": zod.number().int(),
-  "waiting": zod.number().int()
+  "waiting": zod.number().int(),
+  "optimization": zod.object({
+  "approvalPercent": zod.number().nullable(),
+  "failurePercent": zod.number().nullable(),
+  "retryPercent": zod.number().nullable(),
+  "actualPerSuccessfulUsd": zod.number().nullable(),
+  "actualPerPublishableUsd": zod.number().nullable(),
+  "averageQueueMs": zod.number().nullable(),
+  "averageRenderMs": zod.number().nullable(),
+  "averageTotalMs": zod.number().nullable(),
+  "timedJobs": zod.number().int(),
+  "measuredBytes": zod.number().int(),
+  "technicalPass": zod.number().int(),
+  "technicalFail": zod.number().int(),
+  "untested": zod.number().int(),
+  "characterConsistency": zod.string()
+}).optional()
 })),
   "modes": zod.array(zod.object({
   "id": zod.string(),
@@ -75,7 +95,23 @@ export const GetOperationsReportResponse = zod.object({
   "estimatedPendingUsd": zod.number().nullable(),
   "approved": zod.number().int(),
   "rejected": zod.number().int(),
-  "waiting": zod.number().int()
+  "waiting": zod.number().int(),
+  "optimization": zod.object({
+  "approvalPercent": zod.number().nullable(),
+  "failurePercent": zod.number().nullable(),
+  "retryPercent": zod.number().nullable(),
+  "actualPerSuccessfulUsd": zod.number().nullable(),
+  "actualPerPublishableUsd": zod.number().nullable(),
+  "averageQueueMs": zod.number().nullable(),
+  "averageRenderMs": zod.number().nullable(),
+  "averageTotalMs": zod.number().nullable(),
+  "timedJobs": zod.number().int(),
+  "measuredBytes": zod.number().int(),
+  "technicalPass": zod.number().int(),
+  "technicalFail": zod.number().int(),
+  "untested": zod.number().int(),
+  "characterConsistency": zod.string()
+}).optional()
 })),
   "providers": zod.array(zod.object({
   "id": zod.string(),
@@ -90,9 +126,40 @@ export const GetOperationsReportResponse = zod.object({
   "estimatedPendingUsd": zod.number().nullable(),
   "approved": zod.number().int(),
   "rejected": zod.number().int(),
-  "waiting": zod.number().int()
+  "waiting": zod.number().int(),
+  "optimization": zod.object({
+  "approvalPercent": zod.number().nullable(),
+  "failurePercent": zod.number().nullable(),
+  "retryPercent": zod.number().nullable(),
+  "actualPerSuccessfulUsd": zod.number().nullable(),
+  "actualPerPublishableUsd": zod.number().nullable(),
+  "averageQueueMs": zod.number().nullable(),
+  "averageRenderMs": zod.number().nullable(),
+  "averageTotalMs": zod.number().nullable(),
+  "timedJobs": zod.number().int(),
+  "measuredBytes": zod.number().int(),
+  "technicalPass": zod.number().int(),
+  "technicalFail": zod.number().int(),
+  "untested": zod.number().int(),
+  "characterConsistency": zod.string()
+}).optional()
 })),
   "jobs": zod.array(zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),
@@ -161,7 +228,23 @@ export const GetOperationsReportResponse = zod.object({
   "estimatedPendingUsd": zod.number().nullable(),
   "approved": zod.number().int(),
   "rejected": zod.number().int(),
-  "waiting": zod.number().int()
+  "waiting": zod.number().int(),
+  "optimization": zod.object({
+  "approvalPercent": zod.number().nullable(),
+  "failurePercent": zod.number().nullable(),
+  "retryPercent": zod.number().nullable(),
+  "actualPerSuccessfulUsd": zod.number().nullable(),
+  "actualPerPublishableUsd": zod.number().nullable(),
+  "averageQueueMs": zod.number().nullable(),
+  "averageRenderMs": zod.number().nullable(),
+  "averageTotalMs": zod.number().nullable(),
+  "timedJobs": zod.number().int(),
+  "measuredBytes": zod.number().int(),
+  "technicalPass": zod.number().int(),
+  "technicalFail": zod.number().int(),
+  "untested": zod.number().int(),
+  "characterConsistency": zod.string()
+}).optional()
 }),
   "activeMembers": zod.number().int(),
   "pendingMembers": zod.number().int(),
@@ -192,12 +275,16 @@ export const GetOperationsReportResponse = zod.object({
 
 export const exportOperationsReportQueryFromRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const exportOperationsReportQueryToRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const exportOperationsReportQueryProviderMax = 120;
+
 
 
 export const ExportOperationsReportQueryParams = zod.object({
   "from": zod.coerce.string().regex(exportOperationsReportQueryFromRegExp).optional(),
   "to": zod.coerce.string().regex(exportOperationsReportQueryToRegExp).optional(),
-  "userId": zod.coerce.string().optional()
+  "userId": zod.coerce.string().optional(),
+  "mode": zod.enum(['HEMAT', 'AI']).optional(),
+  "provider": zod.coerce.string().max(exportOperationsReportQueryProviderMax).optional()
 })
 
 export const ExportOperationsReportResponse = zod.unknown()
@@ -381,6 +468,21 @@ export const GetRetentionPreviewResponse = zod.object({
 })),
   "warning": zod.string(),
   "candidates": zod.array(zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),
@@ -493,6 +595,21 @@ export const ApproveRetentionPolicyResponse = zod.object({
 })),
   "warning": zod.string(),
   "candidates": zod.array(zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),
@@ -799,6 +916,21 @@ export const getFinalVideoReviewResponseJobOptionsCuesMax = 12;
 
 export const GetFinalVideoReviewResponse = zod.object({
   "job": zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),
@@ -900,6 +1032,21 @@ export const transitionFinalVideoReviewResponseJobOptionsCuesMax = 12;
 
 export const TransitionFinalVideoReviewResponse = zod.object({
   "job": zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),
@@ -1001,6 +1148,21 @@ export const listVideoJobsResponseOptionsCuesMax = 12;
 
 
 export const ListVideoJobsResponseItem = zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),
@@ -1100,6 +1262,21 @@ export const createVideoJobResponseOptionsCuesMax = 12;
 
 
 export const CreateVideoJobResponse = zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),
@@ -1173,6 +1350,21 @@ export const getVideoJobResponseOptionsCuesMax = 12;
 
 
 export const GetVideoJobResponse = zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),
@@ -1255,6 +1447,21 @@ export const cancelVideoJobResponseOptionsCuesMax = 12;
 
 
 export const CancelVideoJobResponse = zod.object({
+  "diagnostics": zod.union([zod.object({
+  "rendererVersion": zod.string(),
+  "queueMs": zod.number().nullable(),
+  "materialMs": zod.number().nullable(),
+  "renderMs": zod.number().nullable(),
+  "validationMs": zod.number().nullable(),
+  "storageMs": zod.number().nullable(),
+  "totalMs": zod.number().nullable(),
+  "bytes": zod.number().int().nullable(),
+  "quality": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['PASS', 'WARNING', 'FAIL', 'MANUAL_REVIEW_REQUIRED']),
+  "detail": zod.string()
+}))
+}),zod.null()]).optional(),
   "publicationStatus": zod.string().optional(),
   "retentionNoticeAt": zod.string().nullish(),
   "retentionNoticeVersion": zod.number().int().nullish(),

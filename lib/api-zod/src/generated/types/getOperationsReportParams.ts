@@ -5,6 +5,7 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
+import type { GetOperationsReportMode } from './getOperationsReportMode';
 
 export type GetOperationsReportParams = {
 /**
@@ -16,4 +17,9 @@ from?: string;
  */
 to?: string;
 userId?: string;
+mode?: GetOperationsReportMode;
+/**
+ * @maxLength 120
+ */
+provider?: string;
 };

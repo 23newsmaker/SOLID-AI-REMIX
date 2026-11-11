@@ -40,6 +40,13 @@ export function JobCard({ j, onCancel, onDelete, onNewVersion, pending, canManag
         <div><dt className="text-muted-foreground">Percobaan</dt><dd>{j.attempts}</dd></div>
         <div><dt className="text-muted-foreground">Biaya total</dt><dd>{usd(actualCost(j))}</dd><dt className="text-muted-foreground">Provider saja</dt><dd>{usd(j.providerCostUsd)}</dd></div>
       </dl>
+      {j.diagnostics ? <details className="mt-3 rounded-xl bg-muted/40 p-3 text-xs" data-testid={`diagnostics-${j.id}`}>
+        <summary className="cursor-pointer font-semibold">Waktu & pemeriksaan teknis · {j.diagnostics.rendererVersion}</summary>
+        <p className="mt-2">Antre {time(j.diagnostics.queueMs)} · Bahan {time(j.diagnostics.materialMs)} · Render {time(j.diagnostics.renderMs)} · QC {time(j.diagnostics.validationMs)} · Simpan {time(j.diagnostics.storageMs)} · Total produksi {time(j.diagnostics.totalMs)} (tanpa antre).</p>
+        <p className="mt-1 text-muted-foreground">{j.diagnostics.bytes == null ? 'Ukuran belum terukur' : `${(j.diagnostics.bytes / 1048576).toFixed(2)} MiB`} · Waktu terukur, bukan estimasi pekerjaan berikutnya. Waktu unduh tergantung perangkat/jaringan.</p>
+        <ul className="mt-2 space-y-1">{j.diagnostics.quality.map(q => <li key={q.id}><strong>{q.status.replaceAll('_', ' ')}</strong> · {q.detail}</li>)}</ul>
+        {!j.diagnostics.quality.length && <p className="mt-2">Pemeriksaan teknis belum selesai / NOT TESTED.</p>}
+      </details> : !j.simulation && <p className="mt-2 text-[11px] text-muted-foreground">QC & rincian waktu belum terukur untuk job ini (NOT TESTED). Riwayat lama tidak diisi dengan perkiraan.</p>}
       <div className="mt-3 flex flex-wrap gap-2">
         {playable && j.publicationUrl && isPublishApproved(j) && <a href={j.publicationUrl} download className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground" data-testid={`link-publication-download-${j.id}`}><Download className="h-3.5 w-3.5" /> Unduh publikasi</a>}
         {playable && j.resultUrl && <a href={`${j.resultUrl}?download=1`} download className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-3 py-1.5 text-xs" data-testid={`link-download-${j.id}`}><Download className="h-3.5 w-3.5" /> {isPublishApproved(j) ? 'Unduh MP4' : 'Unduh MP4 · REVIEW NOT APPROVED'}</a>}
@@ -64,6 +71,7 @@ export function JobCard({ j, onCancel, onDelete, onNewVersion, pending, canManag
     </li>
   );
 }
+const time = (v: number | null | undefined) => v == null ? 'belum terukur' : `${(v / 1000).toFixed(2)} dtk`;
 
 export function RetentionNotice({ j }: { j: VideoJob }) {
   const n = retentionNotice(j);
