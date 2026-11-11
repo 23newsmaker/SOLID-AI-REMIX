@@ -61,7 +61,14 @@ export const requireMember: RequestHandler = async (req, res, next) => {
       return created!;
     });
     next();
-  } catch (error) { next(error); }
+  } catch (error) {
+    // A recently deleted Clerk identity can still have a short-lived JWT in an open tab.
+    // Deny that session instead of reporting a server failure or recreating membership.
+    if (typeof error === "object" && error && "status" in error && error.status === 404) {
+      res.status(401).json({ error: "Sesi akun tidak lagi berlaku. Silakan masuk kembali." }); return;
+    }
+    next(error);
+  }
 };
 
 export const requireActive: RequestHandler = (req, res, next) => {

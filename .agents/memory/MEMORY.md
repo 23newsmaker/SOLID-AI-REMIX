@@ -1,3 +1,4 @@
 - [Product boundaries](product-boundaries.md) — owner-agreed scope, simple character-first workflow and phased cost constraints.
 - [Source provenance](source-provenance.md) — task workspaces may carry unrelated source-attachment deletions; preserve originals when reconciling with main.
 - [Authenticated test safety](authenticated-test-safety.md) — let programmatic Clerk sessions settle; clean only recorded synthetic identities, never owner accounts.
+- [HTTP query dates](http-query-dates.md) — keep date query parameters as ISO strings; generated date validators may incorrectly expect JavaScript Date objects.

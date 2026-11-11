@@ -15,8 +15,8 @@ paths:
     get:
       operationId: getOperationsReport
       parameters:
-        - {in: query, name: from, schema: {type: string, format: date}}
-        - {in: query, name: to, schema: {type: string, format: date}}
+        - {in: query, name: from, schema: {type: string, pattern: '^\d{4}-\d{2}-\d{2}$'}}
+        - {in: query, name: to, schema: {type: string, pattern: '^\d{4}-\d{2}-\d{2}$'}}
         - {in: query, name: userId, schema: {type: string}}
       responses:
         "200":
@@ -28,8 +28,8 @@ paths:
     get:
       operationId: exportOperationsReport
       parameters:
-        - {in: query, name: from, schema: {type: string, format: date}}
-        - {in: query, name: to, schema: {type: string, format: date}}
+        - {in: query, name: from, schema: {type: string, pattern: '^\d{4}-\d{2}-\d{2}$'}}
+        - {in: query, name: to, schema: {type: string, pattern: '^\d{4}-\d{2}-\d{2}$'}}
         - {in: query, name: userId, schema: {type: string}}
       responses:
         "200": {description: Authorized CSV with formula injection protection}

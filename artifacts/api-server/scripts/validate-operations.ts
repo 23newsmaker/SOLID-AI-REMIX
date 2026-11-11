@@ -62,6 +62,7 @@ async function main() {
   await denied("CREATOR tidak dapat menulis registry fakta", () => saveFact(null, { sourceId, claim: fact.claim, quote: fact.quote }, creator!));
   await denied("Kutipan tidak persis ditolak", () => saveFact(null, { sourceId, claim: fact.claim, quote: "Tidak ada kutipan ini dalam sumber." }, admin!));
   const input = parseConcept({ title: "DEMO D — BUKAN UNTUK PUBLIK", characterId, categoryId, segments: ["NONE"], style: "UGC", mode: "HEMAT",
+    templateId: null, direction: "", characterMotion: "", cameraMotion: "zoom",
     purpose: "Pengujian teknis", scenes: "Bentuk geometris", visual: "Foto sintetis", narration: "Ini contoh sintetis untuk validasi teknis internal.",
     subtitle: "Ini contoh sintetis untuk validasi teknis internal.", cta: "DEMO INTERNAL", disclaimer: "BUKAN KONTEN PERUSAHAAN.",
     durationSeconds: 10, sourceIds: [], factIds: [factId], noFactualClaims: false, publicMode: true, materialConsent: true, format: "9:16" });

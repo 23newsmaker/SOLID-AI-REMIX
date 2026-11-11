@@ -8,9 +8,13 @@
 import * as zod from 'zod';
 
 
+export const getOperationsReportQueryFromRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getOperationsReportQueryToRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetOperationsReportQueryParams = zod.object({
-  "from": zod.date().optional(),
-  "to": zod.date().optional(),
+  "from": zod.coerce.string().regex(getOperationsReportQueryFromRegExp).optional(),
+  "to": zod.coerce.string().regex(getOperationsReportQueryToRegExp).optional(),
   "userId": zod.coerce.string().optional()
 })
 
@@ -186,9 +190,13 @@ export const GetOperationsReportResponse = zod.object({
 })
 
 
+export const exportOperationsReportQueryFromRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const exportOperationsReportQueryToRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const ExportOperationsReportQueryParams = zod.object({
-  "from": zod.date().optional(),
-  "to": zod.date().optional(),
+  "from": zod.coerce.string().regex(exportOperationsReportQueryFromRegExp).optional(),
+  "to": zod.coerce.string().regex(exportOperationsReportQueryToRegExp).optional(),
   "userId": zod.coerce.string().optional()
 })
 

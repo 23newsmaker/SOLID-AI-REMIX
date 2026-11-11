@@ -35,7 +35,10 @@ export async function runRetention() {
   const c = await getSettings();
   if (c.retentionDays === null || c.retentionApprovedVersion !== c.retentionVersion || !c.retentionApprovedBy) return;
   const jobs = await db.select().from(videoJobs).where(and(eq(videoJobs.deleted, false), eq(videoJobs.status, "COMPLETED"),
-    lt(videoJobs.createdAt, new Date(Date.now() - c.retentionDays * 86400_000)))).limit(20);
+    lt(videoJobs.createdAt, new Date(Date.now() - c.retentionDays * 86400_000)),
+    // Waiting notices must not occupy all 20 slots and starve older results behind them.
+    sql`(${videoJobs.retentionNoticeVersion} IS DISTINCT FROM ${c.retentionVersion} OR ${videoJobs.retentionNoticeAt} IS NULL OR ${videoJobs.retentionNoticeAt} <= ${new Date(Date.now() - 86400_000)})`,
+  )).limit(20);
   for (const job of jobs) {
     if (!job.retentionNoticeAt || job.retentionNoticeVersion !== c.retentionVersion) {
       await db.transaction(async tx => {

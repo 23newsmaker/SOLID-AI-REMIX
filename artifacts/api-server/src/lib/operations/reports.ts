@@ -9,6 +9,7 @@ import { costRecord, knownSpend, getSettings, settingsView, localRuntime } from 
 export function reportFilter(raw: unknown) {
   const input = GetOperationsReportQueryParams.parse(raw);
   const today = quotaDay(), from = input.from ?? `${today.slice(0, 7)}-01`, to = input.to ?? today;
+  if (![from, to].every(v => Number.isFinite(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v)) throw new CreativeError(400, "Tanggal kalender tidak valid.");
   const start = Date.parse(`${from}T00:00:00+07:00`), end = Date.parse(`${to}T00:00:00+07:00`) + 86400_000;
   if (!Number.isFinite(start) || !Number.isFinite(end) || end < start || end - start > 366 * 86400_000) throw new CreativeError(400, "Rentang tanggal maksimal366hari, awal tidak boleh setelah akhir.");
   return { ...input, from, to, start, end };
@@ -41,6 +42,8 @@ export async function report(raw: unknown, me: MemberRecord, all = false) {
   const c = await getSettings(), runtime = await localRuntime();
   const warnings = [
     "USD saja; biaya estimasi bukan aktual. Subtotal diketahui belum mencakup komponen unknown. CPU/storage belum terukur.",
+    `${real.reduce((n, j) => { const c = costRecord(j); return n + [c.providerUsd, c.renderUsd, c.ttsUsd, c.retryUsd].filter(v => v === null).length; }, 0)} komponen biaya belum diketahui dalam filter ini (provider/render/TTS/retry), bukan dianggap nol.`,
+    `Biaya aktual rata-rata/video: ${summary.actualUsd !== null && summary.jobs ? `USD${(summary.actualUsd / summary.jobs).toFixed(4)}` : "tidak diketahui/tidak tersedia"}; biaya total per video layak publikasi: ${summary.actualUsd !== null && summary.approved ? `USD${(summary.actualUsd / summary.approved).toFixed(4)}` : "tidak diketahui/tidak tersedia"}. Biaya gagal/batal termasuk dalam total.`,
     `Renderer lokal: ${c.localEnabled ? "diaktifkan" : "dinonaktifkan"}; pemeriksaan binary: ${runtime.available ? "tersedia" : "tidak tersedia"}. AI berbayar belum dikonfigurasi.`,
     ...(real.length > 200 && !all ? ["Rincian200terbaru ditampilkan; total dan CSV mencakup semua pekerjaan sesuai filter."] : []),
   ];
@@ -67,13 +70,29 @@ export const csvCell = (value: unknown) => {
 };
 export async function reportCsv(raw: unknown, me: MemberRecord) {
   const r = await report(raw, me, true);
-  const headers = ["JobID", "UserID", "TanggalJakarta", "Mode", "Provider", "Model", "Status", "FinalReview", "Detik", "Resolusi", "Currency", "Estimated", "Actual", "Provider", "Rendering", "TTS", "RetryCost", "Retries", "Reserved", "CostSource", "ActualPerPublishable"];
-  return "\uFEFF" + [headers, ...r.jobs.map(j => {
+  const concepts = await db.select().from(creativeConcepts), people = await db.select().from(members);
+  const headers = ["JobID", "UserID", "TanggalJakarta", "Mode", "Provider", "Model", "Status", "FinalReview", "Detik", "Resolusi", "Currency", "Estimated", "Actual", "ProviderUSD", "Rendering", "TTS", "RetryCost", "Retries", "Reserved", "CostSource", "ActualPerPublishable", "RowType", "ConceptID", "ConceptVersion", "ConceptStatus", "MemberName", "Metric", "Value"];
+  const rows = r.jobs.map(j => {
     const c = j.cost!;
     return [j.id, j.ownerId, quotaDay(new Date(j.createdAt)), j.mode, j.provider, c.model, j.status, j.publicationStatus, j.durationSeconds, `${j.width}x${j.height}`,
       c.currency, c.estimatedUsd, c.actualUsd, c.providerUsd, c.renderUsd, c.ttsUsd, c.retryUsd, c.retries, c.reservedUsd, c.source,
-      j.publicationStatus === "APPROVED_FOR_PUBLICATION" ? c.actualUsd : null];
-  })].map(row => row.map(csvCell).join(",")).join("\r\n");
+      j.publicationStatus === "APPROVED_FOR_PUBLICATION" ? c.actualUsd : null, "VIDEO", j.conceptId, j.conceptVersion,
+      concepts.find(x => x.id === j.conceptId)?.status ?? "DELETED_OR_UNAVAILABLE", people.find(x => x.id === j.ownerId)?.name ?? "Anggota terdahulu", "", ""];
+  });
+  for (const [metric, value] of Object.entries({
+    Jobs: r.summary.jobs, Failed: r.summary.failed, Retries: r.summary.retries, SimulatedExcluded: r.simulations,
+    ConceptApproved: r.approvedConcepts, ConceptRejected: r.rejectedConcepts, ConceptWaiting: r.waitingConcepts,
+    FinalApproved: r.summary.approved, FinalRejected: r.summary.rejected, FinalWaiting: r.summary.waiting,
+    KnownSubtotalUSD: r.summary.knownSubtotalUsd, ActualTotalUSD: r.summary.actualUsd,
+    JobsWithUnknownActual: r.summary.unknownCosts,
+    ActualUSDPerVideo: r.summary.actualUsd !== null && r.summary.jobs ? r.summary.actualUsd / r.summary.jobs : null,
+    ActualUSDPerPublishable: r.summary.actualUsd !== null && r.summary.approved ? r.summary.actualUsd / r.summary.approved : null,
+  })) {
+    const row: unknown[] = Array(headers.length).fill("");
+    row[21] = "SUMMARY"; row[26] = metric; row[27] = value;
+    rows.push(row as typeof rows[number]);
+  }
+  return "\uFEFF" + [headers, ...rows].map(row => row.map(csvCell).join(",")).join("\r\n");
 }
 export async function auditRows(me: MemberRecord) {
   if (!libraryAdmin(me) || me.status !== "ACTIVE") throw new CreativeError(403, "Audit tim hanya admin.");

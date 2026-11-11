@@ -33,12 +33,16 @@ See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 - `lib/api-spec/openapi.yaml` — contract; title must remain Api.
 - `lib/db/src/schema/` — members, consumed bootstrap grants, characters/upload tickets, sources, audit.
 
-## Current limitations
+## Current capabilities and limitations
 
 - Creative Engine at `/creative`: versioned concepts, deterministic JSON prompts, private optional attachments, and separate compliance review. Library management at `/creative/library` is ADMIN/SUPER_ADMIN only.
-- No video jobs, TTS, rendering, provider integration, or UI for approving KB sources. A concept approval never grants approval to its sources.
+- Mode Hemat produces private 720×1280 MP4s with photo motion, compositing, subtitles and optional uploaded narration. No paid AI video/TTS provider is activated; mock/simulation is never real AI.
+- Phase D: `/operations` for Admin/Super reports, CSV, budgets, quota 1–3/day Jakarta, audit and retention proposals; `/providers` is Super-only; `/facts` manages individually sourced claims. Source approval is not approval of every claim in a document.
+- Final video review at `/video-review` is independent from render COMPLETED. Publication approval binds the result hash and concept/material/fact versions; creators cannot approve their own work, including privileged creators. Review downloads remain private and do not imply permission to publish.
+- Retention defaults to manual. Automatic result deletion requires explicit Super approval of the exact policy version and at least24hours notice; do not treat phase approval as deletion consent. Original KB, character/material assets and evidence are preserved.
+- Local CPU/storage cost remains unknown. Provider-only zero is not total cost; unknown charges are not zero. Paid jobs without a reliable upper cost bound must be refused.
 - Initial import: 77 source entries (including 58 legacy nodes). Markdown full text searchable. PDF/DOCX/PPTX are metadata-only until extraction is implemented. Original binary bytes are preserved privately.
-- Every initial source is unapproved for publication. Public results correctly remain empty.
+- Initial sources are unapproved for publication. Populate public claims only by explicit individual compliance decisions; never approve the original KB in bulk.
 - First-admin grant and KB import were prepared in development. Production has a separate Clerk user store/database: on publishing, bootstrap env prepares that environment's grant, but production KB DATA must be imported explicitly before use; never assume dev rows migrate with schema.
 - Saved character photo is not a trained digital avatar and does not establish identity consistency.
 - Character photos retained until replaced/deleted; upload tickets expire after 15 minutes. Abandoned uploads are cleaned when their owner next requests an upload; periodic global cleanup is not implemented.
@@ -52,8 +56,8 @@ See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 - Auth, API and private responses are no-store. Service worker only caches app icons/manifest.
 - Preserve source originals; imported legacy PUBLIC labels are not approval grants. Source-selected conflict resolution does not approve whole documents or cross-segment values.
 - No startup schema migrations or production SQL mutation from agent tools.
-- Concept edits and attachment finalization/removal increment versions and reset status to Draft. Review decisions are audit records, never permission for self-approval; ADMIN is not a compliance approver.
+- Concept edits and attachment changes increment versions, revoke readiness and reset to DRAFT/REVISED. Immutable snapshots retain the old evidence. ADMIN oversight is not compliance approval; REVIEWER_COMPLIANCE/SUPER_ADMIN decisions must be independent.
 - Quotas: 10 saved concepts/member; 3 JPG/PNG/WebP up to 5 MiB each + 1 MP4 up to 20 MiB, total 35 MiB/concept. Pending/tombstoned reservations count. No OCR, transcription, media interpretation, or provider-format promises.
-- `ffmpeg` is a declared system dependency solely for local `ffprobe` MP4 container/stream validation; no video generation occurs. If unavailable, MP4 validation fails explicitly.
+- `ffmpeg`/`ffprobe` validate media and produce real local Hemat videos. The local renderer is not image-to-video AI or lip-sync. Missing binaries fail explicitly.
 - Removed attachments stop being served immediately; bytes are cleaned after signed PUT expiry plus a safety delay. Cleanup runs every five minutes and at startup, with a paginated sweep for untracked final objects older than one hour.
 - Concept snapshots contain character identity/revision but never a copy of its photo/path. Stale references invalidate production readiness and block approval until re-saved. Revoked source permissions hide stored prompts.
