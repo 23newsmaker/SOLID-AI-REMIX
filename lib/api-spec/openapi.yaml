@@ -2,8 +2,8 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 1.0.0
+  description: SOLID AI REMIX — fondasi internal tanpa generasi video.
 servers:
   - url: /api
     description: Base API path
@@ -11,6 +11,161 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /app-info:
+    get:
+      operationId: getAppInfo
+      responses:
+        "200":
+          description: Informasi publik tanpa data perusahaan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppInfo"
+  /me:
+    get:
+      operationId: getMe
+      responses:
+        "200":
+          description: Keanggotaan sesi saat ini
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+  /overview:
+    get:
+      operationId: getOverview
+      responses:
+        "200":
+          description: Ringkasan nyata, bukan data demo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Overview"
+  /character:
+    get:
+      operationId: getCharacter
+      responses:
+        "200":
+          description: Satu karakter milik pengguna
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CharacterResult"
+    put:
+      operationId: saveCharacter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CharacterInput"
+      responses:
+        "200":
+          description: Foto diverifikasi dan karakter disimpan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Character"
+    delete:
+      operationId: deleteCharacter
+      responses:
+        "200":
+          description: Karakter dan foto privat dihapus
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+  /character/uploads:
+    post:
+      operationId: requestCharacterUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadInput"
+      responses:
+        "200":
+          description: Unggah langsung ke penyimpanan privat, kemudian saveCharacter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadTicket"
+  /character/photo:
+    get:
+      operationId: getCharacterPhoto
+      responses:
+        "200":
+          description: Foto hanya untuk pemilik yang aktif
+          content:
+            image/jpeg:
+              schema: {type: string, format: binary}
+  /knowledge:
+    get:
+      operationId: listKnowledge
+      parameters:
+        - {name: q, in: query, schema: {type: string, maxLength: 200}}
+        - {name: segment, in: query, schema: {type: string, enum: [ALL, COMPANY, MIKRO, MINI, REGULAR]}}
+        - {name: mode, in: query, schema: {type: string, enum: [PUBLIC, INTERNAL]}}
+      responses:
+        "200":
+          description: Hanya sumber sesuai akses dan mode
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeList"
+  /knowledge/{id}:
+    get:
+      operationId: getKnowledgeSource
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Isi sumber dengan sumber asli dan peringatan validasi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeDetail"
+  /activity:
+    get:
+      operationId: getActivity
+      responses:
+        "200":
+          description: Aktivitas pengguna, admin melihat aktivitas tim
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Activity"}
+  /team:
+    get:
+      operationId: listTeam
+      responses:
+        "200":
+          description: Hanya SUPER_ADMIN, maksimal sepuluh anggota aktif
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Member"}
+  /team/{id}:
+    patch:
+      operationId: updateTeamMember
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberUpdate"
+      responses:
+        "200":
+          description: Keanggotaan diperbarui dan diaudit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
   /healthz:
     get:
       operationId: healthCheck
@@ -26,6 +181,132 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    AppInfo:
+      type: object
+      required: [name, stage, generationEnabled, llmEnabled, dailyLimit, maxMembers]
+      properties:
+        name: {type: string}
+        stage: {type: string}
+        generationEnabled: {type: boolean}
+        llmEnabled: {type: boolean}
+        dailyLimit: {type: integer}
+        maxMembers: {type: integer}
+    Role:
+      type: string
+      enum: [SUPER_ADMIN, ADMIN, CREATOR, REVIEWER_COMPLIANCE, VIEWER]
+    Member:
+      type: object
+      required: [id, name, email, role, status, createdAt]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        email: {type: string}
+        role: {$ref: "#/components/schemas/Role"}
+        status: {type: string, enum: [PENDING, ACTIVE, SUSPENDED]}
+        createdAt: {type: string}
+    MemberUpdate:
+      type: object
+      required: [role, status]
+      properties:
+        role: {$ref: "#/components/schemas/Role"}
+        status: {type: string, enum: [PENDING, ACTIVE, SUSPENDED]}
+    Character:
+      type: object
+      required: [id, name, photoUrl, updatedAt, consentAt]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        photoUrl: {type: string}
+        updatedAt: {type: string}
+        consentAt: {type: string}
+    CharacterResult:
+      type: object
+      required: [character]
+      properties:
+        character:
+          oneOf:
+            - {$ref: "#/components/schemas/Character"}
+            - {type: "null"}
+    CharacterInput:
+      type: object
+      required: [name, uploadId, consent]
+      properties:
+        name: {type: string, minLength: 1, maxLength: 80}
+        uploadId: {type: string}
+        consent: {type: boolean}
+    UploadInput:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name: {type: string, maxLength: 200}
+        size: {type: integer, minimum: 1, maximum: 5242880}
+        contentType: {type: string, enum: [image/jpeg, image/png, image/webp]}
+    UploadTicket:
+      type: object
+      required: [uploadId, uploadURL]
+      properties:
+        uploadId: {type: string}
+        uploadURL: {type: string}
+    Source:
+      type: object
+      required: [id, title, sourceId, segment, category, validation, access, version, fileName, warnings]
+      properties:
+        id: {type: string}
+        title: {type: string}
+        sourceId: {type: string}
+        segment: {type: string}
+        category: {type: string}
+        validation: {type: string}
+        access: {type: string}
+        version: {type: string}
+        fileName: {type: string}
+        warnings:
+          type: array
+          items: {type: string}
+    KnowledgeList:
+      type: object
+      required: [items, total, publicApproved, notice]
+      properties:
+        items:
+          type: array
+          items: {$ref: "#/components/schemas/Source"}
+        total: {type: integer}
+        publicApproved: {type: integer}
+        notice: {type: string}
+    KnowledgeDetail:
+      type: object
+      required: [source, content]
+      properties:
+        source: {$ref: "#/components/schemas/Source"}
+        content: {type: string}
+    Activity:
+      type: object
+      required: [id, action, description, createdAt]
+      properties:
+        id: {type: string}
+        action: {type: string}
+        description: {type: string}
+        createdAt: {type: string}
+    Overview:
+      type: object
+      required: [characterReady, sourceCount, approvedPublicCount, activeMembers, maxMembers, dailyLimit, dailyUsed, generationEnabled, llmEnabled, phase, nextStep]
+      properties:
+        characterReady: {type: boolean}
+        sourceCount: {type: integer}
+        approvedPublicCount: {type: integer}
+        activeMembers: {type: integer}
+        maxMembers: {type: integer}
+        dailyLimit: {type: integer}
+        dailyUsed: {type: integer}
+        generationEnabled: {type: boolean}
+        llmEnabled: {type: boolean}
+        phase: {type: string}
+        nextStep: {type: string}
+    Success:
+      type: object
+      required: [ok]
+      properties:
+        ok: {type: boolean}
     HealthStatus:
       type: object
       properties:

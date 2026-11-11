@@ -1,0 +1,323 @@
+# SOLID AI REMIX — MASTER BUILD INSTRUCTION
+## Versi: 2.0 — BUILD FIRST, COST CONTROLLED
+## Status: MULAI PEMBANGUNAN BERTAHAP
+
+### 1. PERAN DAN TUJUAN
+
+Bertindak sebagai Senior Full-Stack Developer, AI Video Integration Engineer, UI/UX Designer, dan Software Architect.
+
+Bangun aplikasi internal bernama **SOLID AI REMIX** untuk PT Solid Gold Berjangka.
+
+Aplikasi ditujukan untuk membantu maksimal 10 pengguna dari tim kreator/marketing menghasilkan video promosi, edukasi, brand awareness, iklan, dan konten pendukung bisnis.
+
+Aplikasi harus sederhana, mobile-first, mudah digunakan, dan memiliki pengalaman seperti AI Cast/Remix. Jangan membuatnya seperti editor video profesional yang rumit atau chatbot umum.
+
+Pembangunan dimulai sekarang. Jangan hanya membuat proposal, analisis, atau mockup. Implementasikan aplikasi secara bertahap dengan checkpoint yang jelas.
+
+### 2. PRINSIP PEMBANGUNAN
+
+1. Utamakan arsitektur sederhana, stabil, dan ekonomis.
+2. Hindari layanan berbayar yang tidak diperlukan.
+3. Jangan mengaktifkan API atau layanan berbayar tanpa persetujuan administrator.
+4. Jangan mengunci aplikasi pada satu penyedia AI video.
+5. Gunakan satu aplikasi dengan pemisahan frontend dan backend secara arsitektur, tanpa memisahkan hosting menjadi beberapa layanan jika tidak diperlukan.
+6. Jangan membangun fitur tambahan yang tidak diminta.
+7. Jangan mengubah atau menghapus dokumen sumber KB.
+8. Pertahankan seluruh keputusan dan batasan dalam instruksi ini.
+9. Jangan menganggap simulasi sebagai hasil AI video sungguhan.
+10. Prioritaskan fungsi yang benar-benar bisa digunakan, bukan sekadar tampilan.
+
+### 3. SPESIFIKASI PENGGUNA DAN KARAKTER
+
+- Maksimal 10 pengguna.
+- Setiap pengguna memiliki satu karakter utama yang tersimpan.
+- Karakter didaftarkan melalui foto wajah.
+- Foto karakter dapat digunakan kembali untuk proses video berikutnya.
+- Pengguna tidak perlu mengunggah foto wajah setiap kali membuat video.
+- Sediakan penggantian foto karakter dengan pengaturan akses yang sesuai.
+- Lindungi foto karakter dan seluruh bahan yang diunggah.
+- Jangan mengirimkan bahan internal ke provider eksternal tanpa pengaturan dan persetujuan yang sesuai.
+
+Penyimpanan karakter tidak boleh dianggap sebagai pelatihan wajah otomatis. Kemampuan mempertahankan identitas karakter bergantung pada provider video yang digunakan.
+
+### 4. ALUR PENGGUNA
+
+Buat alur penggunaan berikut:
+
+1. Pengguna login.
+2. Memilih karakter yang sudah tersimpan.
+3. Mengunggah bahan pendukung secara opsional:
+   - Gambar.
+   - Screenshot.
+   - Video, jika provider mendukungnya.
+4. Menulis arahan atau memilih contoh ide.
+5. Memilih kategori konten dan produk:
+   - Mikro.
+   - Mini.
+   - Regular.
+6. Memilih gaya:
+   - UGC.
+   - Sinematik.
+7. Memilih mode:
+   - Mode Hemat.
+   - Mode AI.
+8. Sistem menampilkan ringkasan instruksi, durasi, format, dan estimasi biaya jika tersedia.
+9. Pengguna mengonfirmasi.
+10. Proses generate berjalan.
+11. Pengguna melihat preview dan mengunduh hasil.
+
+Satu proses menghasilkan satu video.
+
+Batas maksimal 3 video per pengguna per hari. Sistem harus menghitung proses generate yang benar-benar dikirim ke provider, termasuk percobaan ulang yang berpotensi dikenakan biaya.
+
+### 5. DUA MODE VIDEO
+
+#### A. MODE HEMAT
+
+Mode ini menggunakan foto karakter dengan gerakan kamera seperti zoom, pan, dan pergerakan sederhana.
+
+Dapat dilengkapi:
+- Narasi bahasa Indonesia.
+- Subtitle.
+- Musik jika tersedia dan penggunaannya memiliki izin.
+- Elemen grafis tambahan.
+
+Mode ini berfungsi sebagai alternatif ekonomis.
+
+#### B. MODE AI
+
+Ini adalah tujuan utama SOLID AI REMIX.
+
+Mode ini harus menggunakan model image-to-video atau teknologi sejenis untuk menghasilkan gerakan subjek dan adegan berdasarkan foto karakter serta instruksi pengguna.
+
+Target:
+- Format vertikal 9:16.
+- Durasi sasaran 10–15 detik, mengikuti kemampuan model.
+- Gerakan karakter dan lingkungan terlihat alami.
+- Identitas karakter dipertahankan semaksimal kemampuan provider.
+- Mendukung gaya UGC dan sinematik.
+- Bahan pendukung digunakan sesuai kemampuan provider.
+
+Jangan mengklaim lip-sync tersedia. Fitur lip-sync belum termasuk versi awal.
+
+### 6. KNOWLEDGE BASE
+
+Gunakan paket KB SOLID AI REMIX yang telah disediakan.
+
+Jangan membangun ulang seluruh KB atau memperluas pembahasan ke luar kebutuhan perusahaan dan produk Solid Gold.
+
+Kelompokkan informasi berdasarkan:
+- Perusahaan.
+- Produk Mikro.
+- Produk Mini.
+- Produk Regular.
+- Edukasi trading.
+- Layanan pelanggan.
+- Legalitas dan kepatuhan.
+- Strategi konten dan brand.
+
+Peraturan KB:
+
+1. Jangan mencampur fakta antarsegmen produk.
+2. Setiap angka harus memiliki sumber dan status validasi.
+3. Catat konflik sumber secara terpisah.
+4. Persetujuan satu parameter tidak berarti seluruh dokumen sumber disetujui.
+5. Data yang belum terverifikasi tidak boleh ditampilkan sebagai fakta publik.
+6. Dokumen internal tidak otomatis boleh digunakan untuk konten publik.
+7. Label PUBLIC lama pada dokumen bukan bukti persetujuan publik yang berlaku.
+8. Jika data tidak ditemukan, jangan mengarang.
+
+Pisahkan:
+- INTERNAL MODE: dapat menggunakan informasi internal sesuai hak akses.
+- PUBLIC CONTENT MODE: hanya menggunakan fakta dan klaim yang telah disetujui untuk publik.
+
+### 7. MESIN PROMPT DAN PUSTAKA KREATIF
+
+Bangun sistem template yang ekonomis.
+
+Sediakan pustaka:
+- Template prompt.
+- Ide konten.
+- Adegan.
+- Gerakan kamera.
+- Gaya UGC.
+- Gaya sinematik.
+- Pola narasi.
+- CTA yang disetujui.
+- Disclaimer sesuai kategori konten.
+
+Utamakan aturan, template, dan data terstruktur.
+
+Jangan menggunakan API LLM berbayar untuk setiap proses rutin jika dapat dilakukan melalui template.
+
+Prompt bebas tetap dapat diberikan pengguna, tetapi jangan mengklaim sistem memahami semua instruksi kompleks tanpa bantuan model bahasa.
+
+Jika pengguna memberikan arahan yang tidak jelas, tampilkan peringatan atau minta pengguna memperjelasnya.
+
+### 8. AKURASI VISUAL DAN KEPATUHAN
+
+Logo, angka produk, tulisan, screenshot aplikasi, dan informasi penting tidak boleh diserahkan kepada model generatif untuk digambar ulang.
+
+Gunakan proses compositing/rendering untuk menambahkan elemen grafis secara akurat setelah video dibuat.
+
+Konten publik harus:
+- Tidak menjanjikan keuntungan.
+- Tidak membuat klaim produk tanpa dasar.
+- Tidak mengubah angka spesifikasi.
+- Tidak menghilangkan disclaimer yang diwajibkan.
+- Memiliki proses review dan persetujuan compliance.
+
+Pembuat konten tidak boleh menyetujui kontennya sendiri sebagai pengganti persetujuan compliance.
+
+Jika naskah atau video yang telah disetujui diedit, persetujuan versi sebelumnya harus gugur.
+
+### 9. ARSITEKTUR VIDEO PROVIDER
+
+Buat provider adapter agar mesin video dapat diganti tanpa membangun ulang aplikasi.
+
+Pisahkan:
+- Pengelolaan karakter.
+- Penyusunan prompt.
+- Pengiriman pekerjaan generate.
+- Pemantauan status pekerjaan.
+- Pengambilan hasil.
+- Pencatatan biaya.
+
+Gunakan mock provider hanya untuk pengujian UI dan alur kerja. Beri label yang terlihat jelas:
+
+SIMULATION — NOT A REAL AI VIDEO
+
+Jangan pernah menampilkan video simulasi seolah-olah merupakan hasil AI sungguhan.
+
+Provider video sesungguhnya dapat diintegrasikan setelah konfigurasi dan persetujuan administrator.
+
+API key wajib disimpan di Replit Secrets atau server-side secret storage. Jangan pernah menaruh API key di frontend, file KB, atau kode yang dapat dilihat pengguna.
+
+Jika provider mengalami timeout:
+- Periksa status pekerjaan terlebih dahulu.
+- Jangan otomatis mengirim ulang pekerjaan yang mungkin sudah diproses.
+- Gunakan job ID dan mekanisme idempotency jika didukung.
+- Catat biaya dan status setiap pekerjaan.
+
+### 10. PENGENDALIAN BIAYA
+
+Buat pencatatan:
+- Pengguna.
+- Tanggal dan waktu.
+- Mode video.
+- Provider.
+- Durasi.
+- Resolusi.
+- Status pekerjaan.
+- Jumlah percobaan.
+- Estimasi biaya.
+- Biaya aktual jika tersedia.
+
+Sediakan:
+- Batas generate harian.
+- Riwayat penggunaan.
+- Ringkasan biaya.
+- Pengaturan batas anggaran oleh administrator.
+- Peringatan ketika anggaran mendekati batas.
+
+Utamakan opsi ekonomis, tetapi jangan mengorbankan tujuan utama menghasilkan video AI yang layak.
+
+Jangan mengaktifkan layanan berbayar, membeli kredit, atau menjalankan generate berbayar tanpa persetujuan administrator.
+
+### 11. HAK AKSES
+
+Gunakan role:
+- SUPER_ADMIN
+- ADMIN
+- CREATOR
+- REVIEWER_COMPLIANCE
+- VIEWER
+
+Setiap role memiliki hak akses sesuai tugasnya.
+
+Pengguna tidak boleh melihat dokumen internal yang tidak menjadi kewenangannya.
+
+### 12. TAHAP PEMBANGUNAN
+
+Bangun secara bertahap.
+
+**TAHAP A — FONDASI APLIKASI**
+
+Implementasikan:
+- Struktur aplikasi.
+- UI mobile-first.
+- PWA.
+- Login.
+- Role dan hak akses.
+- Database.
+- Penyimpanan privat.
+- Pengelolaan karakter.
+- Struktur Knowledge Base.
+- Pencarian KB.
+- Dashboard dasar.
+
+**TAHAP B — CREATIVE ENGINE**
+
+Implementasikan:
+- Pemilihan produk.
+- Pemilihan kategori konten.
+- Pemilihan gaya.
+- Template prompt.
+- Pustaka ide dan adegan.
+- Input prompt bebas.
+- Ringkasan sebelum generate.
+
+**TAHAP C — VIDEO ENGINE**
+
+Implementasikan:
+- Mode Hemat.
+- Provider adapter.
+- Integrasi provider AI video.
+- Status pekerjaan.
+- Preview.
+- Download.
+- Riwayat video.
+
+**TAHAP D — COST CONTROL DAN COMPLIANCE**
+
+Implementasikan:
+- Batas generate.
+- Pencatatan biaya.
+- Retry control.
+- Persetujuan konten.
+- Penguncian versi yang disetujui.
+- Audit log.
+
+**TAHAP E — OPTIMASI**
+
+Evaluasi:
+- Konsistensi karakter.
+- Kualitas gerakan.
+- Pemanfaatan bahan pendukung.
+- Waktu proses.
+- Biaya per video layak.
+- Pengalaman pengguna.
+
+### 13. INSTRUKSI EKSEKUSI SEKARANG
+
+MULAI IMPLEMENTASI TAHAP A SEKARANG.
+
+Jangan hanya memberikan rencana atau contoh kode. Buat fondasi aplikasi yang benar-benar berjalan.
+
+Namun, jangan membangun seluruh tahap sekaligus.
+
+Setelah Tahap A selesai:
+1. Pastikan aplikasi dapat dijalankan.
+2. Uji login dan hak akses.
+3. Uji penyimpanan karakter.
+4. Uji akses dan pencarian KB.
+5. Laporkan struktur aplikasi dan database.
+6. Laporkan bagian yang sudah berfungsi dan yang belum.
+7. Laporkan keputusan teknis yang memerlukan persetujuan administrator.
+8. Berhenti dan tunggu instruksi berikutnya sebelum melanjutkan Tahap B.
+
+Jika terdapat kendala, jelaskan dengan bahasa sederhana dan berikan solusi yang paling ekonomis.
+
+Jangan mengubah tujuan utama SOLID AI REMIX, jangan mengarang kemampuan provider, dan jangan mengaktifkan pengeluaran berbayar tanpa persetujuan.
+
+**TUJUAN AKHIR: APLIKASI INTERNAL YANG SEDERHANA, EKONOMIS, MUDAH DIGUNAKAN, DAN MAMPU MENGHASILKAN VIDEO AI BERKUALITAS DENGAN KARAKTER YANG KONSISTEN.**

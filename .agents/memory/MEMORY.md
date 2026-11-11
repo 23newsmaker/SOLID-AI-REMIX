@@ -1,0 +1,1 @@
+- [Product boundaries](product-boundaries.md) — owner-agreed scope, simple character-first workflow and phased cost constraints.

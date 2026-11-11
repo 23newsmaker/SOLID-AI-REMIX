@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "SOLID AI REMIX"
+description = "Studio konten internal Solid Gold: karakter pribadi tersimpan, pengetahuan produk tervalidasi, dan fondasi produksi video sederhana dengan pengendalian biaya. Tahap A, tanpa generasi AI berbayar."
+version = "1.0.0"
+id = "artifacts/solid-ai-remix"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19639
+
+[services.development]
+run = "pnpm --filter @workspace/solid-ai-remix run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/solid-ai-remix", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/solid-ai-remix/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19639"
+BASE_PATH = "/"
