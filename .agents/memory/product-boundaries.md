@@ -21,7 +21,7 @@ DR agreed to at most ten users and three videos per user/day, with expected aver
 
 **How to apply:** Avoid routine ChatGPT/LLM calls; prioritize structured KB and approved templates. Be explicit about limited free-text understanding without LLM. Provider tests and paid generation require separate owner approval. The discussed monthly budget was a provisional planning allowance, not unconditional spending consent.
 
-Build only the agreed Phase A foundation and Phase B concept/prompt engine. Report honestly and stop before Phase C until separately approved.
+Build only the currently agreed phase and scope. Report honestly and stop before subsequent stages until separately approved.
 
 **Why:** DR approved the minimum foundation after discussion, then explicitly authorized Phase B after confirming Phase A was closed. Uploaded build instructions do not authorize subsequent stages or provider spending.
 
