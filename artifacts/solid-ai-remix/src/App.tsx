@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { ClerkProvider, Show, useClerk } from '@clerk/react';
+import { ClerkProvider, Show, useClerk, useAuth } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
@@ -112,6 +112,8 @@ function ClerkQueryClientCacheInvalidator() {
 }
 
 function HomeRedirect() {
+  const { isLoaded } = useAuth();
+  if (!isLoaded) return <SessionLoading />;
   return (
     <>
       <Show when="signed-in"><Redirect to="/studio" /></Show>
@@ -121,13 +123,23 @@ function HomeRedirect() {
 }
 
 function Private({ render }: { render: (me: Member) => ReactNode }) {
+  const { isLoaded } = useAuth();
+  if (!isLoaded) return <SessionLoading />;
   return (
     <>
       <Show when="signed-in">
         <MemberGate>{(me) => <AppShell me={me}>{render(me)}</AppShell>}</MemberGate>
       </Show>
-      <Show when="signed-out"><Redirect to="/" /></Show>
+      <Show when="signed-out"><Redirect to="/sign-in" /></Show>
     </>
+  );
+}
+
+function SessionLoading() {
+  return (
+    <div role="status" aria-live="polite" className="grid min-h-[100dvh] place-items-center p-6 text-sm text-muted-foreground">
+      Memuat sesi Anda...
+    </div>
   );
 }
 
