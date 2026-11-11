@@ -17,8 +17,11 @@ import { emptyDiagnostics } from "./quality";
 import { settings, monthlyUsage } from "./service";
 import { logger } from "../logger";
 import { runRetention } from "../operations/retention";
+import { DemandRunner, type WorkOutcome } from "../demand-runner";
+import { onVideoWork } from "./signals";
 
 let running = false;
+let lastMaintenanceAt = 0;
 const finalPath = (job: VideoJobRow) => `/objects/videos/${job.id}-final.mp4`;
 async function validateJob(job: VideoJobRow) {
   if (!job.conceptId) throw new CreativeError(409, "Konsep sudah dihapus.");
@@ -42,20 +45,21 @@ async function reconcile(job: VideoJobRow) {
   await file.delete({ ignoreNotFound: true });
   await db.update(videoJobs).set({ status: "UNKNOWN", error: "Proses sebelumnya terhenti. Tidak dikirim/render ulang otomatis; admin perlu meninjau dan pengguna dapat membuat versi baru dengan konfirmasi.", updatedAt: new Date() }).where(eq(videoJobs.id, job.id));
 }
-export async function runVideoWorker() {
-  if (running) return;
+export async function runVideoWorker(): Promise<WorkOutcome> {
+  if (running) return "contended";
   running = true;
   const conn = await pool.connect().catch(() => null);
-  if (!conn) { running = false; return; }
+  if (!conn) { running = false; return "contended"; }
   const abort = new AbortController();
   const connectionError = () => abort.abort();
   conn.on("error", connectionError);
   let locked = false;
   try {
     locked = (await conn.query("SELECT pg_try_advisory_lock(7101702) AS locked")).rows[0].locked;
-    if (!locked) return;
+    if (!locked) return "contended";
     const interrupted = await db.select().from(videoJobs).where(inArray(videoJobs.status, ["PROCESSING", "SUBMITTED"]));
     for (const job of interrupted) await reconcile(job);
+    if (Date.now() - lastMaintenanceAt >= 60 * 60_000) {
     // Orphan temporaries after process termination: only our namespace, older
     // than the maximum rendering window, never another feature's uploads.
     for (const name of await readdir(tmpdir())) {
@@ -67,13 +71,15 @@ export async function runVideoWorker() {
     const deleted = await db.select().from(videoJobs).where(and(eq(videoJobs.deleted, true), eq(videoJobs.status, "COMPLETED"))).limit(20);
     for (const job of deleted) await videoFile(finalPath(job)).delete({ ignoreNotFound: true });
     await runRetention();
+    lastMaintenanceAt = Date.now();
+    }
     const config = await settings();
-    if (config.paused || !config.localEnabled) return;
+    if (config.paused || !config.localEnabled) return "idle";
     const [next] = await conn.query("SELECT id FROM solid_video_jobs WHERE status='QUEUED' ORDER BY created_at LIMIT 1").then(r => r.rows);
-    if (!next) return;
+    if (!next) return "idle";
     const [job] = await db.update(videoJobs).set({ status: "PROCESSING", attempts: 1, submittedAt: new Date(), updatedAt: new Date() })
       .where(and(eq(videoJobs.id, next.id), eq(videoJobs.status, "QUEUED"))).returning();
-    if (!job) return;
+    if (!job) return "worked";
     const started = Date.now();
     let diagnostics = { ...emptyDiagnostics(), queueMs: Math.max(0, started - job.createdAt.getTime()) };
     const timeout = setTimeout(() => abort.abort(), 180_000);
@@ -131,7 +137,8 @@ export async function runVideoWorker() {
         .where(and(eq(videoJobs.id, job.id), eq(videoJobs.status, "PROCESSING")));
       await db.insert(auditLog).values({ id: randomUUID(), userId: job.ownerId, action: "VIDEO_RENDER_STOPPED", description: `Pekerjaan ${job.id} berhenti tanpa retry otomatis.` });
     } finally { clearInterval(poll); clearTimeout(timeout); }
-  } catch { logger.warn("Video worker deferred; no content or private paths logged"); }
+    return "worked"; // Drain the next queued row without needing browser polling.
+  } catch { logger.warn("Video worker deferred; no content or private paths logged"); return "contended"; }
   finally {
     if (locked) await conn.query("SELECT pg_advisory_unlock(7101702)").catch(() => {});
     conn.removeListener("error", connectionError);
@@ -139,8 +146,15 @@ export async function runVideoWorker() {
     running = false;
   }
 }
+const runner = new DemandRunner(runVideoWorker, () => logger.warn("Video worker deferred"));
+let unsubscribe: (() => void) | undefined;
 export function startVideoWorker() {
-  void runVideoWorker();
-  const timer = setInterval(() => void runVideoWorker(), 4000);
-  timer.unref();
+  if (unsubscribe) return;
+  unsubscribe = onVideoWork(() => runner.wake());
+  runner.start();
+}
+export function stopVideoWorker() {
+  runner.stop();
+  unsubscribe?.();
+  unsubscribe = undefined;
 }

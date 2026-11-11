@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { MotionSuggestion } from '@/components/motion-suggestion';
+import { ACTIVITY_REFRESH } from '@/lib/activity-polling';
 import { Link, useSearch } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -65,7 +66,7 @@ export default function CreativePage({ me }: { me: Member }) {
 
   const conceptSearch = useSearch();
   const [selectedId, setSelectedId] = useState<string | null>(() => new URLSearchParams(conceptSearch).get('concept'));
-  const detail = useGetCreativeConcept(selectedId ?? '', { query: { enabled: !!selectedId, refetchOnWindowFocus: true, refetchInterval: 20000, queryKey: getGetCreativeConceptQueryKey(selectedId ?? '') } });
+  const detail = useGetCreativeConcept(selectedId ?? '', { query: { ...ACTIVITY_REFRESH, enabled: !!selectedId, queryKey: getGetCreativeConceptQueryKey(selectedId ?? '') } });
   const [form, setForm] = useState<CreativeConceptInput>(() => emptyInput());
   const [concept, setConcept] = useState<CreativeConcept | null>(null);
   const [view, setView] = useState<View>('edit');
@@ -78,12 +79,25 @@ export default function CreativePage({ me }: { me: Member }) {
     if (character && !concept && !form.characterId) setForm((f) => ({ ...f, characterId: character.id }));
   }, [character, concept, form.characterId]);
 
-  // load selected own concept into form exactly once per id
+  // Refresh remote decisions without replacing unsaved local input or silently
+  // advancing the version used by an unsaved edit.
   const readOnly = !detail.isError && detail.data && (detail.data.ownerId !== me.id || !canWrite) ? detail.data : null;
   useEffect(() => { setPreview(null); }, [form]);
   useEffect(() => {
     const d = detail.data;
-    if (!d || d.id !== selectedId || loadedFor.current === d.id) return;
+    if (!d || d.id !== selectedId) return;
+    if (loadedFor.current === d.id) {
+      if (d.ownerId === me.id && concept &&
+        (d.version !== concept.version || d.status !== concept.status || d.stale !== concept.stale)) {
+        if (JSON.stringify(toInput(concept)) !== JSON.stringify(form)) {
+          if (d.version !== concept.version) setConflict(true);
+        } else {
+          setConcept(d);
+          setForm(toInput(d));
+        }
+      }
+      return;
+    }
     loadedFor.current = d.id;
     if (d.ownerId === me.id) {
       setConcept(d);

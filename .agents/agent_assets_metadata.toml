@@ -182,3 +182,31 @@ mtime_ms = 1794396683644
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/f96109ad-815f-434a-a5aa-cfa7392d979f/4dd55a56-f80a-4365-a858-0aa80e0efac6"
 storage_version_token = "1794396710290316"
 content_type = "text/html"
+
+[[outputs]]
+id = "o2wcotOMySqr3Pyda_XLE"
+uri = "file://generated-artifacts/phase-f/laporan-tahap-f.html"
+type = "html"
+title = "Laporan Tahap F — optimasi dan hasil UAT"
+description = "98 pemeriksaan backend/domain lolos; idle probe 27→0 query/14 detik. MP4 browser nyata berhasil. Kesimpulan NOT READY untuk persetujuan akhir Autoscale; kekurangan pengujian dicatat."
+logical_id = "20b62a42-f027-418a-9ffd-626553d764fe"
+content_hash = "sha256:34e36794628da609efc0e95b401c0258f9d5657d67f48f174d11d0fda21841c8"
+size = 35619
+mtime_ms = 1794398525404
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/20b62a42-f027-418a-9ffd-626553d764fe/65a7cdf8-620a-48af-bd8e-e2f00afa4562"
+storage_version_token = "1794398572280794"
+content_type = "text/html"
+
+[[outputs]]
+id = "HwT0sjKHEAmZjj2Ckujv-"
+uri = "file://generated-artifacts/phase-f/hemat-644480a1-f9ac-4768-8534-4ea98e9a7767.mp4"
+type = "video"
+title = "Contoh MP4 nyata dari pengujian F"
+description = "Video geometris sintetis Mode Hemat, 10 detik, 720×1280. Berhasil diputar dan diunduh; bukan AI Motion atau materi perusahaan yang sudah disetujui."
+logical_id = "6976f58a-7218-479c-9da4-c4ecb52af844"
+content_hash = "sha256:aa0a32df3d85e11be6d599509705dd771bc3a49928c4d06fe413b9c90ebe919a"
+size = 721350
+mtime_ms = 1794397888029
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/6976f58a-7218-479c-9da4-c4ecb52af844/ea29d9fa-aee9-4729-a9d0-c5cc1a17e1b8"
+storage_version_token = "1794398573692611"
+content_type = "video/mp4"

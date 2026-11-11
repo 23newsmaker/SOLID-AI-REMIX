@@ -3,3 +3,4 @@
 - [Authenticated test safety](authenticated-test-safety.md) — let programmatic Clerk sessions settle; clean only recorded synthetic identities, never owner accounts.
 - [HTTP query dates](http-query-dates.md) — keep date query parameters as ISO strings; generated date validators may incorrectly expect JavaScript Date objects.
 - [Raster text bounds](text-rendering.md) — SVG textLength is ignored by local rasterization; fit using glyph-aware wrapping and inspect actual dimensions.
+- [Worker lifecycle boundary](worker-lifecycle-boundary.md) — idle optimization and page-close tests do not prove that renders survive Autoscale instance shutdown.

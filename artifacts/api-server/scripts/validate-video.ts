@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
@@ -17,7 +19,8 @@ import { runVideoWorker } from "../src/lib/video/worker";
 import { mockVideoProvider } from "../src/lib/video/provider";
 import type { VideoJobInput } from "@workspace/api-zod";
 
-const output = path.resolve("../../generated-artifacts/phase-c");
+const stageF = process.argv[2] === "phase-f";
+const output = path.resolve("../../generated-artifacts", stageF ? "phase-f/video" : "phase-c");
 const uid = `phase-c-test-${randomUUID()}`;
 const other = `phase-c-test-${randomUUID()}`;
 const category = randomUUID(), characterId = randomUUID(), conceptId = randomUUID();
@@ -106,6 +109,33 @@ async function main() {
   await runVideoWorker();
   assert.equal((await readJob(two.id, me!)).status, "UNKNOWN");
   record("Pemulihan setelah proses terhenti", "PROCESSING tanpa hasil -> UNKNOWN; tidak dikirim ulang.");
+  if (stageF && third.status === "fulfilled") {
+    // Only this synthetic cancelled fixture is staged back into QUEUED, to test
+    // a real process interruption without consuming a fourth user quota slot.
+    const interruptedId = third.value.id;
+    await db.update(videoJobs).set({ status: "QUEUED", error: null }).where(eq(videoJobs.id, interruptedId));
+    const childArgs = ["--import", "tsx", "scripts/worker-probe.ts"];
+    const child = spawn(process.execPath, childArgs, { detached: true, stdio: "ignore" });
+    const exited = once(child, "exit");
+    let processing = false;
+    try {
+      for (let i = 0; i < 200; i++) {
+        if ((await readJob(interruptedId, me!)).status === "PROCESSING") { processing = true; break; }
+        await new Promise(resolve => setTimeout(resolve, 40));
+      }
+      assert(processing, "Child must begin real processing before interruption");
+    } finally {
+      if (child.pid) { try { process.kill(-child.pid, "SIGKILL"); } catch { /* already exited */ } }
+      await exited;
+    }
+    const restarted = spawn(process.execPath, childArgs, { stdio: "ignore" });
+    const [code] = await once(restarted, "exit");
+    assert.equal(code, 0);
+    const recovered = await readJob(interruptedId, me!);
+    assert.equal(recovered.status, "UNKNOWN");
+    assert.equal(recovered.attempts, 1);
+    record("Restart proses nyata: SIGKILL dan rekonsiliasi", "Worker anak dihentikan saat PROCESSING; proses baru mempertahankan job UNKNOWN dengan satu percobaan, tanpa render ulang. Bukan uji scale-down Replit.");
+  }
   const mock = await mockVideoProvider.submit({ requestKey: "TEST", publicVisualPrompt: "TEST" });
   assert.equal(await mockVideoProvider.status(mock.providerJobId), "SIMULATED");
   assert.equal(await mockVideoProvider.result(mock.providerJobId), null);

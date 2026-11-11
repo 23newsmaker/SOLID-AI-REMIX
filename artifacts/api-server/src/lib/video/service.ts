@@ -9,6 +9,7 @@ import { videoFile } from "./storage";
 import { getSettings, costRecord, enforceBudgets } from "../operations/controls";
 import { finalStale, filePermission } from "../operations/final-review";
 import { prepareText, TextLayoutError } from "./layout";
+import { notifyVideoWork } from "./signals";
 
 export const globalVideoLock = (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => tx.execute(sql`SELECT pg_advisory_xact_lock(7101700)`);
 export const videoAdmin = (me: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(me.role);
@@ -74,7 +75,7 @@ export async function createJob(raw: unknown, me: MemberRecord) {
   if (me.status !== "ACTIVE" || me.role === "VIEWER" || !input.confirmed) throw new CreativeError(403, "Hak tulis aktif dan konfirmasi pekerjaan diperlukan.");
   if (input.mode !== "HEMAT") throw new CreativeError(409, "AI belum memiliki provider disetujui. Mock adalah simulasi, bukan hasil video AI.");
   const requestHash = createHash("sha256").update(JSON.stringify(input)).digest("hex");
-  return db.transaction(async tx => {
+  const queued = await db.transaction(async tx => {
     await ownerLock(tx, me.id);
     await globalVideoLock(tx);
     const [old] = await tx.select().from(videoJobs).where(and(eq(videoJobs.ownerId, me.id), eq(videoJobs.requestKey, input.requestKey)));
@@ -103,6 +104,9 @@ export async function createJob(raw: unknown, me: MemberRecord) {
     await tx.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "VIDEO_QUEUED", description: `Pekerjaan Hemat ${job!.id} masuk antrean; tanpa panggilan AI berbayar.` });
     return job!;
   });
+  // Only wake after commit; a worker must never observe an uncommitted job.
+  if (queued.status === "QUEUED") notifyVideoWork();
+  return queued;
 }
 export async function cancelJob(id: string, me: MemberRecord) {
   if (me.role === "VIEWER") throw new CreativeError(403, "Pengamat hanya dapat membaca.");
@@ -133,5 +137,6 @@ export async function updateSettings(input: VideoSettingsInput, me: MemberRecord
     await tx.insert(videoSettings).values({ id: "main", ...input }).onConflictDoUpdate({ target: videoSettings.id, set: input });
     await tx.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "VIDEO_SETTINGS", description: "Batas anggaran/jeda video diubah; provider AI tetap nonaktif." });
   });
+  notifyVideoWork(); // Resume already-persisted work after an authorized unpause.
   return monthlyUsage();
 }

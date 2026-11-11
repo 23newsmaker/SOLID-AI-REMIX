@@ -26,7 +26,7 @@ import { videoFile } from "../src/lib/video/storage";
 const ids = Array.from({ length: 4 }, () => `test_d_${randomUUID()}`);
 const categoryId = randomUUID(), characterId = randomUUID(), sourceId = randomUUID(), conceptId = randomUUID(), logoId = randomUUID();
 const objectPaths = [`/objects/concepts/${randomUUID()}.png`, `/objects/concepts/${randomUUID()}.png`];
-const out = path.resolve("../../generated-artifacts", process.argv[2] === "phase-e" ? "phase-e" : "phase-d");
+const out = path.resolve("../../generated-artifacts", process.argv[2] === "phase-f" ? "phase-f/operations" : process.argv[2] === "phase-e" ? "phase-e" : "phase-d");
 const results: { test: string; status: string; evidence: unknown }[] = [];
 const record = (test: string, evidence: unknown) => results.push({ test, status: "PASS", evidence });
 async function denied(test: string, fn: () => unknown | Promise<unknown>) {

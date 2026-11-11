@@ -15,6 +15,7 @@ import { VideoAdminPanel } from '@/components/video-admin';
 import { useToast } from '@/hooks/use-toast';
 import { errMsg } from '@/lib/labels';
 import { isActive } from '@/lib/video';
+import { ACTIVITY_REFRESH, pollingInterval } from '@/lib/activity-polling';
 
 export default function VideosPage({ me }: { me: Member }) {
   const qc = useQueryClient();
@@ -24,10 +25,10 @@ export default function VideosPage({ me }: { me: Member }) {
   const canWrite = me.role !== 'VIEWER';
   const [conceptId, setConceptId] = useState(() => new URLSearchParams(search).get('concept') ?? '');
 
-  const jobs = useListVideoJobs({ query: { queryKey: getListVideoJobsQueryKey(), refetchOnWindowFocus: true, refetchInterval: (q) => ((q.state.data ?? []).some(isActive) ? 4000 : 20000) } });
-  const anyActive = (jobs.data ?? []).some(isActive);
-  const config = useGetVideoConfig({ query: { queryKey: getGetVideoConfigQueryKey(), refetchOnWindowFocus: true, refetchInterval: anyActive ? 4000 : 20000 } });
-  const concepts = useListCreativeConcepts({ query: { refetchOnWindowFocus: true, refetchInterval: 20000 } });
+  const jobs = useListVideoJobs({ query: { ...ACTIVITY_REFRESH, queryKey: getListVideoJobsQueryKey(),
+    refetchInterval: (q) => pollingInterval((q.state.data ?? []).some(isActive) ? 4000 : 30000, (q.state.data ?? []).some(isActive)) } });
+  const config = useGetVideoConfig({ query: { ...ACTIVITY_REFRESH, queryKey: getGetVideoConfigQueryKey() } });
+  const concepts = useListCreativeConcepts({ query: ACTIVITY_REFRESH });
   const ch = useGetCharacter();
   const mine = (concepts.data ?? []).filter((c) => c.ownerId === me.id);
   const approved = mine.filter((c) => c.status === 'APPROVED' && !c.stale);

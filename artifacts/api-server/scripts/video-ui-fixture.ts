@@ -53,7 +53,7 @@ async function run() {
     purpose: "Pengujian teknis", direction: "", scenes: "Bentuk sintetis", characterMotion: "", cameraMotion: "zoom", visual: "",
     narration: "Ini contoh video sintetis untuk pemeriksaan aplikasi internal.", subtitle: "Ini contoh video sintetis untuk pemeriksaan aplikasi internal.",
     cta: "CONTOH TEKNIS", disclaimer: "DEMO SINTETIS — BUKAN KONTEN PERUSAHAAN.", format: "9:16", durationSeconds: 10,
-    sourceIds: [], publicMode: true, materialConsent: true,
+    sourceIds: [], factIds: [], noFactualClaims: true, publicMode: true, materialConsent: true,
   });
   const built = await buildCreative(data, owner!);
   await db.insert(creativeConcepts).values({ id: conceptId, ownerId, version: 3, status: "APPROVED", data, snapshot: built.snapshot, prompt: built.prompt,

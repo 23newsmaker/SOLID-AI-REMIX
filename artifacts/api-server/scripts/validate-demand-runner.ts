@@ -1,0 +1,44 @@
+import assert from "node:assert/strict";
+import { mkdir, writeFile } from "node:fs/promises";
+import { DemandRunner } from "../src/lib/demand-runner";
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const checks: string[] = [];
+let calls = 0, remaining = 2;
+const runner = new DemandRunner(async () => {
+  calls++;
+  if (remaining > 0) { remaining--; return "worked"; }
+  return "idle";
+}, () => assert.fail("Unexpected task error"), 150, 600);
+runner.start();
+await wait(80);
+assert.equal(calls, 3);
+checks.push("Startup drains two queued tasks and stops at empty queue without browser");
+await wait(45);
+assert.equal(calls, 3);
+checks.push("No repeated idle work before fallback deadline");
+runner.wake(); runner.wake(); runner.wake();
+await wait(30);
+assert.equal(calls, 4);
+checks.push("Bursts coalesce into one wake");
+runner.stop();
+await wait(180);
+assert.equal(calls, 4);
+checks.push("Stop cancels future fallback");
+let release!: () => void;
+let during = 0;
+const concurrent = new DemandRunner(async () => {
+  during++;
+  if (during === 1) await new Promise<void>(resolve => { release = resolve; });
+  return "idle";
+}, () => assert.fail(), 1000);
+concurrent.start();
+await wait(15);
+concurrent.wake();
+release();
+await wait(30);
+assert.equal(during, 2);
+concurrent.stop();
+checks.push("Wake during work is not lost and does not run concurrently");
+await mkdir("../../generated-artifacts/phase-f", { recursive: true });
+await writeFile("../../generated-artifacts/phase-f/scheduler-tests.json", JSON.stringify({ status: "PASS", method: "Unit tests with shortened real timer intervals, no provider simulation", checks }, null, 2));
+console.info(JSON.stringify({ scheduler: "PASS", checks: checks.length }));

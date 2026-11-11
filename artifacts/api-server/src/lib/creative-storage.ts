@@ -5,6 +5,7 @@ import { db, conceptAttachments } from "@workspace/db";
 import { ObjectStorageService, objectStorageClient } from "./objectStorage";
 import { CreativeError, limits } from "./creative-policy";
 import { logger } from "./logger";
+import { DemandRunner } from "./demand-runner";
 
 export const creativeStorage = new ObjectStorageService();
 export function creativeFile(path: string) {
@@ -142,8 +143,10 @@ export async function cleanupCreativeObjects() {
   } finally { cleaning = false; }
 }
 export function startCreativeCleanup() {
-  const run = () => cleanupCreativeObjects().catch(() => logger.warn("Creative attachment cleanup will retry; no user content logged"));
-  void run();
-  const interval = setInterval(run, 5 * 60_000);
-  interval.unref();
+  creativeCleanup.start();
 }
+const creativeCleanup = new DemandRunner(async () => {
+  await cleanupCreativeObjects();
+  return "idle";
+}, () => logger.warn("Creative attachment cleanup deferred; no user content logged"), 60 * 60_000, 6 * 60 * 60_000);
+export function stopCreativeCleanup() { creativeCleanup.stop(); }

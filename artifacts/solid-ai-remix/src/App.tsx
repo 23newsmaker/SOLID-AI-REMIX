@@ -26,6 +26,7 @@ import ProvidersPage from '@/pages/providers';
 import FactsPage from '@/pages/facts';
 import VideoReviewPage from '@/pages/video-review';
 import { registerServiceWorker } from '@/lib/pwa';
+import { installActivityRefresh } from '@/lib/activity-polling';
 
 registerServiceWorker();
 
@@ -103,6 +104,9 @@ function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
   const qc = useQueryClient();
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
+  useEffect(() => installActivityRefresh(() => {
+    void qc.refetchQueries({ type: 'active', stale: true }, { cancelRefetch: false });
+  }), [qc]);
 
   useEffect(() => {
     const unsubscribe = addListener(({ user }) => {

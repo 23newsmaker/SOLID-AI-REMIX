@@ -10,8 +10,8 @@ export const btnPrimary = 'inline-flex items-center justify-center gap-1.5 round
 export const btnMuted = 'inline-flex items-center justify-center gap-1.5 rounded-xl bg-muted px-3 py-2 text-sm disabled:opacity-50';
 export const btnDanger = 'inline-flex items-center justify-center gap-1.5 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-50';
 
-/** Shared review/list refetch: on focus plus a finite interval. */
-export const LIVE = { refetchOnWindowFocus: true, refetchInterval: 20000 } as const;
+/** Refresh reviews during interaction; resume on return without endless idle requests. */
+export { ACTIVITY_REFRESH as LIVE } from '@/lib/activity-polling';
 
 export const isSuper = (m: Member) => m.role === 'SUPER_ADMIN';
 export const isAdminRole = (m: Member) => m.role === 'SUPER_ADMIN' || m.role === 'ADMIN';

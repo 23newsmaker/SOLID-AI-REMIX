@@ -20,3 +20,9 @@ Overridden programmatic Clerk login claims can differ from the profile returned 
 **Why:** Cleanup encountered a mismatch between the recorded test claims and the actual Clerk profile. Deleting that profile would have relied on an unverified ownership assumption.
 
 **How to apply:** Verify the actual Clerk identity before deleting it. If it does not match, preserve it; clean only the precisely verified synthetic application rows and private objects, and report the skipped identity deletion honestly.
+
+Close every test-created browser page/context before deleting synthetic app memberships.
+
+**Why:** Authenticated pages left open after cleanup made fresh API calls and recreated PENDING memberships, even though their private fixture objects had been removed.
+
+**How to apply:** Close contexts first, verify exact recorded identities, remove their app/session rows, then verify those exact IDs are absent. Do not repeatedly delete rows while the browser remains active.
