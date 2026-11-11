@@ -1,0 +1,30 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "DH0OAw8DC2_VgSMjifbLn"
+uri = "file://generated-artifacts/phase-a-validation/laporan-validasi-tahap-a.html"
+type = "html"
+title = "Laporan Validasi Tahap A"
+description = "Tabel lengkap 36 pemeriksaan: 32 PASS, 0 FAIL tersisa, 4 NOT TESTED; perbaikan bug, bukti, batas pengujian dan pembersihan data uji."
+logical_id = "fbdac424-1262-4e87-bc69-dae1ad9f1368"
+content_hash = "sha256:f9410e538bdcd3707bb568fb4ffc7bbed6fc10a04ef47132da86d8a699421b3e"
+size = 15602
+mtime_ms = 1794380941464
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/fbdac424-1262-4e87-bc69-dae1ad9f1368/ecf59331-88a1-4b69-a9af-8eec02013b03"
+storage_version_token = "1794380977047753"
+content_type = "text/html"
+
+[[outputs]]
+id = "YdNNZkEFgYtb9WfJz9RmX"
+uri = "file://generated-artifacts/phase-a-validation/laporan-validasi-tahap-a.csv"
+type = "table"
+title = "Tabel Validasi Tahap A"
+description = "Versi CSV dengan hasil dan kolom yang sama untuk dibuka atau dibagikan ke ChatGPT."
+logical_id = "b015863c-b759-47be-9765-d4f0f78ad50b"
+content_hash = "sha256:7a9ff3cd830e27de20df682b1edd6644d1c0b6aea9eef33a890dd064da6dbb50"
+size = 9337
+mtime_ms = 1794380941461
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/b015863c-b759-47be-9765-d4f0f78ad50b/227cfc2b-96a1-4b77-9096-1a8ecea17022"
+storage_version_token = "1794380978353821"
+content_type = "text/csv"

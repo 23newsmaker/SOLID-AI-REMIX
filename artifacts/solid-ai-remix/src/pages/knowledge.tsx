@@ -70,8 +70,8 @@ export default function Knowledge() {
         ) : (
           <ul className={cn('space-y-2 transition-opacity', list.isFetching && 'opacity-60')}>
             {d.items.map((s) => (
-              <li key={s.id}>
-                <Link href={`/knowledge/${s.id}`} data-testid={`card-source-${s.id}`} className="block rounded-2xl bg-card p-4 ring-1 ring-card-border transition-transform hover:-translate-y-0.5 hover:ring-primary/40">
+               <li key={s.id} className="min-w-0">
+                 <Link href={`/knowledge/${s.id}`} data-testid={`card-source-${s.id}`} className="block min-w-0 rounded-2xl bg-card p-4 ring-1 ring-card-border transition-transform hover:-translate-y-0.5 hover:ring-primary/40">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-[11px] text-muted-foreground">{s.sourceId}</span>
                     <Pill>{s.segment}</Pill>
@@ -79,7 +79,7 @@ export default function Knowledge() {
                     <Pill tone="ink">{s.access}</Pill>
                     {s.warnings.length > 0 && <span className="inline-flex items-center gap-1 text-xs text-primary"><AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />{s.warnings.length} catatan</span>}
                   </div>
-                  <div className="mt-2 font-semibold">{s.title}</div>
+                   <div className="mt-2 [overflow-wrap:anywhere] font-semibold">{s.title}</div>
                   <div className="mt-1 text-xs text-muted-foreground">{s.category} — v{s.version}</div>
                 </Link>
               </li>
