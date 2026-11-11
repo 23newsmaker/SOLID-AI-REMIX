@@ -20,6 +20,7 @@ export async function eligibleConcept(id: string, version: number, me: MemberRec
   checkVersion(row.version, version);
   if (me.status !== "ACTIVE" || row.status !== "APPROVED") throw new CreativeError(409, "Konsep harus disetujui reviewer dan pembuat harus aktif.");
   const data = parseConcept(row.data);
+  if (data.publicMode && (row.snapshot as CreativeSnapshot).policyVersion !== 2) throw new CreativeError(409, "Persetujuan lama perlu diikat ke fakta spesifik atau deklarasi netral, lalu review ulang.");
   const materials = await readyMaterials(id, tx);
   const reasons = await staleReasons(row.snapshot as CreativeSnapshot, conn);
   const built = await buildCreative(data, me, conn, materials);

@@ -12,6 +12,8 @@ export type CreativeStatusInputStatus = typeof CreativeStatusInputStatus[keyof t
 export const CreativeStatusInputStatus = {
   DRAFT: 'DRAFT',
   READY_FOR_REVIEW: 'READY_FOR_REVIEW',
+  UNDER_REVIEW: 'UNDER_REVIEW',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
+  REVISED: 'REVISED',
 } as const;

@@ -9,19 +9,20 @@ import { requireMember, requireActive } from "../middlewares/member";
 import { CreativeError } from "../lib/creative-policy";
 import { createJob, videoConfig, listJobs, readJob, serializeJob, cancelJob, deleteResult, monthlyUsage, updateSettings, videoAdmin } from "../lib/video/service";
 import { videoFile } from "../lib/video/storage";
+import { filePermission, finalStale } from "../lib/operations/final-review";
 
 export const videoRouter = Router();
 videoRouter.use("/video", requireMember, requireActive);
 videoRouter.get("/video/config", async (req, res) => { res.json(GetVideoConfigResponse.parse(await videoConfig(req.member!))); });
-videoRouter.get("/video/jobs", async (req, res) => { res.json(ListVideoJobsResponse.parse((await listJobs(req.member!)).map(serializeJob))); });
-videoRouter.post("/video/jobs", async (req, res) => { res.json(CreateVideoJobResponse.parse(serializeJob(await createJob(req.body, req.member!)))); });
+videoRouter.get("/video/jobs", async (req, res) => { res.json(ListVideoJobsResponse.parse(await Promise.all((await listJobs(req.member!)).map(j => serializeJob(j, req.member!))))); });
+videoRouter.post("/video/jobs", async (req, res) => { res.json(CreateVideoJobResponse.parse(await serializeJob(await createJob(req.body, req.member!), req.member!))); });
 videoRouter.get("/video/jobs/:id", async (req, res) => {
   const { id } = GetVideoJobParams.parse(req.params);
-  res.json(GetVideoJobResponse.parse(serializeJob(await readJob(id, req.member!))));
+  res.json(GetVideoJobResponse.parse(await serializeJob(await readJob(id, req.member!), req.member!)));
 });
 videoRouter.post("/video/jobs/:id/cancel", async (req, res) => {
   const { id } = CancelVideoJobParams.parse(req.params);
-  res.json(CancelVideoJobResponse.parse(serializeJob(await cancelJob(id, req.member!))));
+  res.json(CancelVideoJobResponse.parse(await serializeJob(await cancelJob(id, req.member!), req.member!)));
 });
 videoRouter.delete("/video/jobs/:id", async (req, res) => {
   const { id } = DeleteVideoResultParams.parse(req.params);
@@ -31,6 +32,8 @@ videoRouter.delete("/video/jobs/:id", async (req, res) => {
 videoRouter.get("/video/jobs/:id/file", async (req, res, next) => {
   const { id } = GetVideoFileParams.parse(req.params);
   const job = await readJob(id, req.member!);
+  if (!filePermission(job, req.member!)) throw new CreativeError(404, "Ambil review sebelum mengakses berkas.");
+  if (req.query.publication === "1" && (job.publicationStatus !== "APPROVED_FOR_PUBLICATION" || (await finalStale(job, true)).stale)) throw new CreativeError(409, "Video belum/tidak lagi disetujui untuk publikasi.");
   if (job.status !== "COMPLETED" || !job.resultPath || job.deleted || job.simulation) throw new CreativeError(404, "Hasil belum tersedia atau sudah dihapus.");
   const file = videoFile(job.resultPath);
   const [meta] = await file.getMetadata();
@@ -51,7 +54,7 @@ videoRouter.get("/video/jobs/:id/file", async (req, res, next) => {
   res.set({
     "Content-Type": "video/mp4", "Content-Length": String(end - start + 1), "Accept-Ranges": "bytes",
     "Cache-Control": "private, no-store", "Cross-Origin-Resource-Policy": "same-origin",
-    "Content-Disposition": `${req.query.download === "1" ? "attachment" : "inline"}; filename="solid-${id}.mp4"`,
+    "Content-Disposition": `${req.query.download === "1" ? "attachment" : "inline"}; filename="solid-${req.query.publication === "1" ? "approved" : "review-only"}-${id}.mp4"`,
   });
   file.createReadStream({ start, end }).on("error", next).pipe(res);
 });

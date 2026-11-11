@@ -6,12 +6,13 @@ import { ownerLock } from "../creative-service";
 import { CreativeError } from "../creative-policy";
 import { costNote, eligibleConcept, quotaDay } from "./policy";
 import { videoFile } from "./storage";
+import { getSettings, costRecord, enforceBudgets } from "../operations/controls";
+import { finalStale, filePermission } from "../operations/final-review";
 
 export const globalVideoLock = (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => tx.execute(sql`SELECT pg_advisory_xact_lock(7101700)`);
 export const videoAdmin = (me: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(me.role);
 export async function settings() {
-  await db.insert(videoSettings).values({ id: "main" }).onConflictDoNothing();
-  return (await db.select().from(videoSettings).where(eq(videoSettings.id, "main")))[0]!;
+  return getSettings();
 }
 export async function monthlyUsage() {
   const month = quotaDay().slice(0, 7);
@@ -35,30 +36,40 @@ export async function videoConfig(me: MemberRecord) {
     eq(videoJobs.ownerId, me.id), eq(videoJobs.quotaDay, quotaDay()), eq(videoJobs.simulation, false),
   ));
   return {
-    paused: config.paused, aiEnabled: false, provider: "local-compositor", dailyLimit: 3, dailyUsed: count!.n,
+    paused: config.paused || !config.localEnabled, aiEnabled: false, provider: "local-compositor", dailyLimit: config.dailyLimit, dailyUsed: count!.n,
     timezone: "Asia/Jakarta", costNote,
     retentionNote: "Hasil privat disimpan sampai dihapus pemilik/admin; tidak ada penghapusan otomatis hasil asli. File temporer dibersihkan setelah proses.",
     narrationNote: "Tanpa TTS/LLM. Unggah satu MP3/WAV maksimal5MiB lewat bahan konsep dan review ulang, atau hasil tanpa narasi. Rekaman dipotong mengikuti durasi10–15detik; isi suara diperiksa manusia. Cue subtitle disesuaikan manual.",
   };
 }
-export function serializeJob(job: VideoJobRow) {
+export async function serializeJob(job: VideoJobRow, viewer?: MemberRecord) {
+  const state = job.reviewBinding ? await finalStale(job) : { stale: false };
+  const canServe = !viewer || filePermission(job, viewer);
+  const publish = job.publicationStatus === "APPROVED_FOR_PUBLICATION" && !state.stale && !job.deleted;
   return { ...job, options: job.options as VideoRenderOptions,
+    cost: costRecord(job), publicationStale: state.stale,
+    retentionNoticeAt: job.retentionNoticeAt?.toISOString() ?? null,
+    publicationStatus: job.publicationStatus === "APPROVED_FOR_PUBLICATION" && state.stale ? "REVISION_REQUIRED" : job.publicationStatus,
+    publicationUrl: publish && canServe ? `/api/video/jobs/${job.id}/file?publication=1&download=1` : null,
     createdAt: job.createdAt.toISOString(), updatedAt: job.updatedAt.toISOString(), submittedAt: job.submittedAt?.toISOString() ?? null,
-    resultUrl: job.status === "COMPLETED" && !job.deleted && job.resultPath ? `/api/video/jobs/${job.id}/file` : null,
+    resultUrl: canServe && job.status === "COMPLETED" && !job.deleted && job.resultPath ? `/api/video/jobs/${job.id}/file` : null,
     rawResultUrl: null,
   };
 }
 export async function listJobs(me: MemberRecord) {
-  return db.select().from(videoJobs).where(videoAdmin(me) ? undefined : eq(videoJobs.ownerId, me.id)).orderBy(desc(videoJobs.createdAt)).limit(100);
+  return db.select().from(videoJobs).where(videoAdmin(me) ? undefined : me.role === "REVIEWER_COMPLIANCE"
+    ? sql`${videoJobs.ownerId} = ${me.id} OR (${videoJobs.publicationStatus} = 'WAITING_FINAL_REVIEW' AND (${videoJobs.reviewerId} IS NULL OR ${videoJobs.reviewerId} = ${me.id})) OR ${videoJobs.reviewerId} = ${me.id}`
+    : eq(videoJobs.ownerId, me.id)).orderBy(desc(videoJobs.createdAt)).limit(100);
 }
 export async function readJob(id: string, me: MemberRecord) {
   const [job] = await db.select().from(videoJobs).where(eq(videoJobs.id, id));
-  if (!job || (job.ownerId !== me.id && !videoAdmin(me))) throw new CreativeError(404, "Video tidak ditemukan atau tidak diizinkan.");
+  if (me.status !== "ACTIVE" || !job || (job.ownerId !== me.id && !videoAdmin(me) &&
+    !(me.role === "REVIEWER_COMPLIANCE" && (job.reviewerId === me.id || (job.publicationStatus === "WAITING_FINAL_REVIEW" && !job.reviewerId))))) throw new CreativeError(404, "Video tidak ditemukan atau tidak diizinkan.");
   return job;
 }
 export async function createJob(raw: unknown, me: MemberRecord) {
   const input = CreateVideoJobBody.parse(raw);
-  if (me.role === "VIEWER" || !input.confirmed) throw new CreativeError(403, "Hak tulis dan konfirmasi pekerjaan diperlukan.");
+  if (me.status !== "ACTIVE" || me.role === "VIEWER" || !input.confirmed) throw new CreativeError(403, "Hak tulis aktif dan konfirmasi pekerjaan diperlukan.");
   if (input.mode !== "HEMAT") throw new CreativeError(409, "AI belum memiliki provider disetujui. Mock adalah simulasi, bukan hasil video AI.");
   const requestHash = createHash("sha256").update(JSON.stringify(input)).digest("hex");
   return db.transaction(async tx => {
@@ -70,18 +81,17 @@ export async function createJob(raw: unknown, me: MemberRecord) {
       return old;
     }
     const valid = await eligibleConcept(input.conceptId, input.version, me, input.options, tx);
-    const conf = await settings();
-    if (conf.paused) throw new CreativeError(409, "Generate dijeda admin.");
-    const usage = await monthlyUsage();
-    if (conf.budgetUsd !== null && usage.knownProviderUsd >= conf.budgetUsd) throw new CreativeError(409, "Batas anggaran provider tercapai. Admin perlu meninjau sebelum melanjutkan.");
+    const conf = await getSettings(tx);
+    enforceBudgets(conf, await tx.select().from(videoJobs), me.id, 0, false);
     const [count] = await tx.select({ n: sql<number>`count(*)::int` }).from(videoJobs).where(and(
       eq(videoJobs.ownerId, me.id), eq(videoJobs.quotaDay, quotaDay()), eq(videoJobs.simulation, false),
     ));
-    if (count!.n >= 3) throw new CreativeError(409, "Batas3 pekerjaan/hari tercapai (Asia/Jakarta), termasuk pekerjaan gagal atau dibatalkan setelah antre.");
+    if (count!.n >= conf.dailyLimit) throw new CreativeError(409, `Batas${conf.dailyLimit} pekerjaan/hari tercapai (Asia/Jakarta), termasuk gagal/dibatalkan setelah antre.`);
     const [job] = await tx.insert(videoJobs).values({
       id: randomUUID(), ownerId: me.id, conceptId: valid.row.id, conceptVersion: valid.row.version,
       characterId: valid.character.id, requestKey: input.requestKey, requestHash, title: valid.data.title,
       options: input.options, durationSeconds: valid.data.durationSeconds, quotaDay: quotaDay(),
+      model: "ffmpeg-local", costSource: "LOCAL_NO_PAID_API", costDetails: { renderUsd: null, ttsUsd: 0, retryUsd: 0 },
     }).returning();
     await tx.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "VIDEO_QUEUED", description: `Pekerjaan Hemat ${job!.id} masuk antrean; tanpa panggilan AI berbayar.` });
     return job!;
@@ -91,6 +101,7 @@ export async function cancelJob(id: string, me: MemberRecord) {
   if (me.role === "VIEWER") throw new CreativeError(403, "Pengamat hanya dapat membaca.");
   return db.transaction(async tx => {
     const job = await readJob(id, me);
+    if (job.ownerId !== me.id && !videoAdmin(me)) throw new CreativeError(403, "Reviewer tidak dapat membatalkan video anggota lain.");
     const [changed] = await tx.update(videoJobs).set({ status: "CANCELLED", updatedAt: new Date(), error: "Dibatalkan pengguna. Slot harian tetap tercatat." })
       .where(and(eq(videoJobs.id, job.id), sql`${videoJobs.status} IN ('QUEUED','READY','PROCESSING')`)).returning();
     if (!changed) throw new CreativeError(409, "Status tidak dapat dibatalkan atau sudah selesai.");
@@ -101,6 +112,7 @@ export async function cancelJob(id: string, me: MemberRecord) {
 export async function deleteResult(id: string, me: MemberRecord) {
   if (me.role === "VIEWER") throw new CreativeError(403, "Pengamat hanya dapat membaca.");
   const job = await readJob(id, me);
+  if (job.ownerId !== me.id && !videoAdmin(me)) throw new CreativeError(403, "Reviewer tidak dapat menghapus video anggota lain.");
   if (!["COMPLETED", "FAILED", "CANCELLED", "UNKNOWN"].includes(job.status)) throw new CreativeError(409, "Batalkan pekerjaan aktif sebelum menghapus.");
   // Revoke serving first; deterministic paths keep failed cleanup retryable.
   await db.update(videoJobs).set({ deleted: true, updatedAt: new Date() }).where(eq(videoJobs.id, id));

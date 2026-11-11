@@ -21,6 +21,10 @@ import {
   useRequestConceptUpload,
   useFinalizeConceptUpload,
   useDeleteConceptAttachment,
+  useListPublicFacts,
+  getListPublicFactsQueryKey,
+  useGetConceptVersions,
+  getGetConceptVersionsQueryKey,
 } from '@workspace/api-client-react';
 import type {
   Member, CreativeConcept, CreativeConceptInput, CreativeLibrary, CreativePreview, CreativeSegment, ConceptAttachment, ConceptUploadInputContentType,
@@ -38,6 +42,7 @@ import {
   segmentLabel, conceptStatusLabel, conceptStatusTone, reviewActionLabel, emptyInput, toInput, prettyPrompt, fmtBytes, toggleSegment,
 } from '@/lib/creative';
 import { cn } from '@/lib/utils';
+import { LIVE } from '@/components/ops-kit';
 
 const inputCls = 'w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring/40';
 const SEGS: CreativeSegment[] = ['MIKRO', 'MINI', 'REGULAR', 'NONE'];
@@ -50,7 +55,7 @@ export default function CreativePage({ me }: { me: Member }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const lib = useGetCreativeLibrary();
-  const list = useListCreativeConcepts();
+  const list = useListCreativeConcepts({ query: { queryKey: getListCreativeConceptsQueryKey(), ...LIVE } });
   const ch = useGetCharacter();
   const overview = useGetOverview();
   const character = ch.data?.character ?? null;
@@ -59,7 +64,7 @@ export default function CreativePage({ me }: { me: Member }) {
 
   const conceptSearch = useSearch();
   const [selectedId, setSelectedId] = useState<string | null>(() => new URLSearchParams(conceptSearch).get('concept'));
-  const detail = useGetCreativeConcept(selectedId ?? '', { query: { enabled: !!selectedId, refetchOnWindowFocus: true, queryKey: getGetCreativeConceptQueryKey(selectedId ?? '') } });
+  const detail = useGetCreativeConcept(selectedId ?? '', { query: { enabled: !!selectedId, refetchOnWindowFocus: true, refetchInterval: 20000, queryKey: getGetCreativeConceptQueryKey(selectedId ?? '') } });
   const [form, setForm] = useState<CreativeConceptInput>(() => emptyInput());
   const [concept, setConcept] = useState<CreativeConcept | null>(null);
   const [view, setView] = useState<View>('edit');
@@ -161,11 +166,13 @@ export default function CreativePage({ me }: { me: Member }) {
     if (r.data) { setConcept(r.data); setForm(toInput(r.data)); setConflict(false); toast({ title: 'Versi server dimuat', description: `Versi ${r.data.version}` }); }
   };
 
-  const doTransition = (c: CreativeConcept, status: CreativeStatusInputStatus, note: string, after?: (c: CreativeConcept) => void) => {
-    transition.mutate({ id: c.id, data: { version: c.version, status, note } }, {
+  const doTransition = (c: CreativeConcept, status: CreativeStatusInputStatus, note: string, after?: (c: CreativeConcept) => void, factsChecked?: boolean) => {
+    transition.mutate({ id: c.id, data: { version: c.version, status, note, ...(status === 'APPROVED' ? { factsChecked: !!factsChecked } : {}) } }, {
       onSuccess: (n) => {
         qc.setQueryData(getGetCreativeConceptQueryKey(n.id), n);
         void qc.invalidateQueries({ queryKey: getListCreativeConceptsQueryKey() });
+        void qc.invalidateQueries({ queryKey: getGetConceptVersionsQueryKey(n.id) });
+        void qc.invalidateQueries({ queryKey: ['/api/operations/report'] });
         after?.(n);
         toast({ title: `Status: ${conceptStatusLabel[n.status]}` });
       },
@@ -207,7 +214,7 @@ export default function CreativePage({ me }: { me: Member }) {
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
         <div className="min-w-0">
           {readOnly ? (
-            <><button onClick={() => void detail.refetch()} className="mb-3 rounded-xl bg-muted px-4 py-2 text-sm" data-testid="button-refresh-review">Muat ulang izin dan versi review</button><ReadOnlyConcept c={readOnly} me={me} onBack={newConcept} onTransition={doTransition} pending={transition.isPending} /></>
+            <><button onClick={() => void detail.refetch()} className="mb-3 rounded-xl bg-muted px-4 py-2 text-sm" data-testid="button-refresh-review">Muat ulang izin dan versi review</button><ReadOnlyConcept c={readOnly} me={me} onBack={newConcept} onTransition={(c, st, note, fc) => doTransition(c, st, note, undefined, fc)} pending={transition.isPending} /></>
           ) : selectedId && detail.isLoading && !concept ? (
             <Skeleton className="h-[480px] rounded-[28px]" />
           ) : selectedId && detail.isError && !concept ? (
@@ -254,6 +261,7 @@ export default function CreativePage({ me }: { me: Member }) {
                           onSubmit={() => doTransition(concept, 'READY_FOR_REVIEW', '', (n) => setConcept(n))}
                           onRetract={() => doTransition(concept, 'DRAFT', '', (n) => setConcept(n))} />
                         <Reviews c={concept} />
+                        <VersionHistory id={concept.id} />
                       </>
                     )}
                     {!concept && <p className="mt-6 rounded-xl bg-muted p-3 text-xs text-muted-foreground">Simpan draft terlebih dahulu untuk mengunggah bahan dan mengajukan review.</p>}
@@ -466,6 +474,7 @@ function Editor({ form, setForm, lib, character, onNext, validation, toast }: {
             </div>
             <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={form.publicMode} onChange={(e) => set('publicMode', e.target.checked)} className="mt-1" data-testid="checkbox-public-mode" /> <span>Mode publik (untuk pemasaran ke publik). Hanya fakta publik yang disetujui boleh dipakai.</span></label>
             <Sources form={form} setForm={setForm} />
+            <FactPicker form={form} setForm={setForm} />
           </div>
         )}
       </div>
@@ -536,7 +545,7 @@ function SummaryGrid({ input, categoryName, templateName, characterName, attachm
     ['Karakter', characterName], ['Kategori', categoryName], ['Segmen', input.segments.map((s) => segmentLabel[s]).join(', ')],
     ['Gaya', input.style === 'UGC' ? 'UGC' : 'Cinematic'], ['Mode', input.mode === 'HEMAT' ? 'Hemat' : 'AI'], ['Template', templateName],
     ['Format', `${input.format} (metadata)`], ['Durasi target', `${input.durationSeconds} detik (metadata)`], ['Mode publik', input.publicMode ? 'Ya' : 'Tidak'],
-    ['Sumber dipilih', `${input.sourceIds.length}`], ['Bahan', `${attachments.length} file`], ['Izin bahan publik', input.materialConsent ? 'Dinyatakan' : 'Belum'],
+    ['Sumber dipilih', `${input.sourceIds.length}`], ['Fakta publik', input.noFactualClaims ? 'Tanpa klaim faktual' : `${input.factIds?.length ?? 0} dipilih`], ['Bahan', `${attachments.length} file`], ['Izin bahan publik', input.materialConsent ? 'Dinyatakan' : 'Belum'],
   ];
   const texts: [string, string][] = [
     ['Tujuan', input.purpose], ['Arahan bebas', input.direction], ['Adegan', input.scenes], ['Gerakan karakter', input.characterMotion], ['Gerakan kamera', input.cameraMotion],
@@ -617,7 +626,7 @@ function StatusBlock({ c, dirty }: { c: CreativeConcept; dirty: boolean }) {
 function OwnerReview({ c, form, setForm, dirty, pending, onSubmit, onRetract }: {
   c: CreativeConcept; form: CreativeConceptInput; setForm: React.Dispatch<React.SetStateAction<CreativeConceptInput>>; dirty: boolean; pending: boolean; onSubmit: () => void; onRetract: () => void;
 }) {
-  const canSubmit = (c.status === 'DRAFT' || c.status === 'REJECTED');
+  const canSubmit = (c.status === 'DRAFT' || c.status === 'REJECTED' || c.status === 'REVISED');
   const hasPending = c.attachments.some((a) => a.state === 'PENDING');
   return (
     <div className="mt-6 rounded-2xl ring-1 ring-border p-4">
@@ -640,6 +649,8 @@ function OwnerReview({ c, form, setForm, dirty, pending, onSubmit, onRetract }: 
           <button onClick={onRetract} disabled={pending} className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-3 py-2 text-sm disabled:opacity-50" data-testid="button-retract"><RotateCcw className="h-4 w-4" /> Tarik ke Draft</button>
         </div>
       )}
+      {c.status === 'UNDER_REVIEW' && <p className="mt-2 text-sm text-muted-foreground" data-testid="text-under-review">Sedang diperiksa reviewer kepatuhan. Konsep tidak dapat ditarik selama pemeriksaan.</p>}
+      {c.status === 'REVISED' && <p className="mt-2 text-sm text-primary">Reviewer meminta revisi. Perbaiki isi, simpan, lalu ajukan ulang.</p>}
       {c.status === 'APPROVED' && <p className="mt-2 text-sm text-muted-foreground">Disetujui reviewer. Perubahan isi atau bahan akan membatalkan persetujuan.</p>}
     </div>
   );
@@ -752,10 +763,11 @@ function Attachments({ concept, lib, dirty, onUpdated }: { concept: CreativeConc
   );
 }
 
-function ReadOnlyConcept({ c, me, onBack, onTransition, pending }: { c: CreativeConcept; me: Member; onBack: () => void; onTransition: (c: CreativeConcept, s: CreativeStatusInputStatus, note: string) => void; pending: boolean }) {
+function ReadOnlyConcept({ c, me, onBack, onTransition, pending }: { c: CreativeConcept; me: Member; onBack: () => void; onTransition: (c: CreativeConcept, s: CreativeStatusInputStatus, note: string, factsChecked?: boolean) => void; pending: boolean }) {
   const [note, setNote] = useState('');
+  const [factsChecked, setFactsChecked] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const canReview = (me.role === 'SUPER_ADMIN' || me.role === 'REVIEWER_COMPLIANCE') && c.ownerId !== me.id && c.status === 'READY_FOR_REVIEW';
+  const canReview = (me.role === 'SUPER_ADMIN' || me.role === 'REVIEWER_COMPLIANCE') && c.ownerId !== me.id && (c.status === 'READY_FOR_REVIEW' || c.status === 'UNDER_REVIEW');
   return (
     <div className="rise rounded-[28px] bg-card p-5 ring-1 ring-card-border md:p-7">
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -777,14 +789,20 @@ function ReadOnlyConcept({ c, me, onBack, onTransition, pending }: { c: Creative
           <div className="font-display text-lg font-bold">Keputusan kepatuhan</div>
           <p className="text-xs text-sidebar-foreground/60">Periksa manual seluruh isi dan bahan. Tidak ada validasi otomatis.</p>
           <textarea value={note} maxLength={2000} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="Catatan reviewer (wajib)" className="mt-3 w-full rounded-xl bg-sidebar-accent px-3 py-2 text-sm outline-none" data-testid="input-review-note" />
+          <div className="mt-2 text-xs text-sidebar-foreground/70">{c.noFactualClaims ? 'Pemilik menyatakan konsep ini tanpa klaim faktual.' : `${c.factIds?.length ?? 0} fakta publik dipilih pemilik.`}</div>
+          <label className="mt-2 flex items-start gap-2 text-sm"><input type="checkbox" checked={factsChecked} onChange={(e) => setFactsChecked(e.target.checked)} className="mt-1" data-testid="checkbox-facts-checked" /> Saya sudah memeriksa manual setiap klaim terhadap fakta publik yang disetujui, atau memastikan tidak ada klaim faktual.</label>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button onClick={() => onTransition(c, 'APPROVED', note.trim())} disabled={pending || !note.trim()} className="inline-flex items-center gap-1.5 rounded-xl bg-sidebar-primary px-4 py-2 text-sm font-semibold text-sidebar-primary-foreground disabled:opacity-50" data-testid="button-approve"><Check className="h-4 w-4" /> Setujui</button>
+            {c.status === 'READY_FOR_REVIEW' && <button onClick={() => onTransition(c, 'UNDER_REVIEW', note.trim())} disabled={pending} className="inline-flex items-center gap-1.5 rounded-xl bg-sidebar-accent px-4 py-2 text-sm font-semibold disabled:opacity-50" data-testid="button-start-review">Mulai tinjau</button>}
+            <button onClick={() => onTransition(c, 'REVISED', note.trim())} disabled={pending || !note.trim()} className="inline-flex items-center gap-1.5 rounded-xl bg-sidebar-accent px-4 py-2 text-sm font-semibold disabled:opacity-50" data-testid="button-request-revision"><RotateCcw className="h-4 w-4" /> Minta revisi</button>
+            <button onClick={() => onTransition(c, 'APPROVED', note.trim(), factsChecked)} disabled={pending || !note.trim() || !factsChecked} className="inline-flex items-center gap-1.5 rounded-xl bg-sidebar-primary px-4 py-2 text-sm font-semibold text-sidebar-primary-foreground disabled:opacity-50" data-testid="button-approve"><Check className="h-4 w-4" /> Setujui</button>
             <button onClick={() => onTransition(c, 'REJECTED', note.trim())} disabled={pending || !note.trim()} className="inline-flex items-center gap-1.5 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-50" data-testid="button-reject"><Ban className="h-4 w-4" /> Tolak</button>
           </div>
         </div>
       )}
-      {me.role === 'ADMIN' && c.status === 'READY_FOR_REVIEW' && <p className="mt-4 text-xs text-muted-foreground">Admin mengelola pustaka tetapi bukan penyetuju kepatuhan.</p>}
+      {me.role === 'ADMIN' && <p className="mt-4 text-xs text-muted-foreground">Admin hanya melakukan pengawasan dan bukan penyetuju kepatuhan.</p>}
+      {c.ownerId === me.id && <p className="mt-4 text-xs text-muted-foreground">Konsep milik sendiri tidak dapat disetujui sendiri.</p>}
       <Reviews c={c} />
+      <VersionHistory id={c.id} />
     </div>
   );
 }
@@ -824,5 +842,62 @@ function History({ list, me, selectedId, onSelect, onNew, canWrite, max, myCount
         </ul>
       )}
     </aside>
+  );
+}
+
+function FactPicker({ form, setForm }: { form: CreativeConceptInput; setForm: React.Dispatch<React.SetStateAction<CreativeConceptInput>> }) {
+  const facts = useListPublicFacts({ query: { queryKey: getListPublicFactsQueryKey(), ...LIVE } });
+  const usable = (facts.data ?? []).filter((f) => f.usable && f.status === 'APPROVED');
+  const ids = form.factIds ?? [];
+  const missing = ids.filter((id) => !usable.some((f) => f.id === id));
+  const toggle = (id: string) => setForm((f) => {
+    const cur = f.factIds ?? [];
+    return { ...f, factIds: cur.includes(id) ? cur.filter((x) => x !== id) : cur.length >= 30 ? cur : [...cur, id] };
+  });
+  return (
+    <div className="rounded-2xl ring-1 ring-border p-4" data-testid="section-facts">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-semibold">Fakta publik yang disetujui</span>
+        <span className="font-mono text-[11px] text-muted-foreground">{ids.length}/30 dipilih</span>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">Hanya fakta yang sudah diverifikasi reviewer yang dapat dipilih. Kreator tidak dapat menambah atau mengubah fakta.</p>
+      <label className="mt-3 flex items-start gap-2 text-sm"><input type="checkbox" checked={!!form.noFactualClaims} onChange={(e) => setForm((f) => ({ ...f, noFactualClaims: e.target.checked }))} className="mt-1" data-testid="checkbox-no-factual-claims" /> <span>Konsep ini tidak memuat klaim faktual (angka, hasil, manfaat terukur, atau pernyataan produk).</span></label>
+      {form.noFactualClaims && ids.length > 0 && <p className="mt-2 text-xs text-primary">Anda menyatakan tanpa klaim faktual tetapi memilih fakta. Periksa kembali pilihan Anda.</p>}
+      {missing.length > 0 && <p className="mt-2 text-xs text-destructive" data-testid="text-missing-facts">{missing.length} fakta terpilih tidak lagi dapat dipakai. Hapus pilihan tersebut.{' '}<button type="button" onClick={() => setForm((f) => ({ ...f, factIds: (f.factIds ?? []).filter((x) => !missing.includes(x)) }))} className="underline">Hapus sekarang</button></p>}
+      {facts.isLoading ? <Skeleton className="mt-3 h-16 rounded-xl" /> : facts.isError ? <div className="mt-3"><ErrorBox message={errMsg(facts.error)} onRetry={() => facts.refetch()} /></div>
+        : !usable.length ? <p className="mt-3 rounded-xl border border-dashed p-3 text-xs text-muted-foreground">Belum ada fakta publik yang disetujui. Gunakan pernyataan tanpa klaim faktual atau tunggu verifikasi reviewer.</p> : (
+          <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto">
+            {usable.map((f) => (
+              <li key={f.id}>
+                <label className="flex items-start gap-2 rounded-xl bg-background/60 p-2 text-sm ring-1 ring-border/60">
+                  <input type="checkbox" checked={ids.includes(f.id)} onChange={() => toggle(f.id)} className="mt-1" data-testid={`checkbox-fact-${f.id}`} />
+                  <span><span className="font-medium">{f.claim}</span><span className="mt-0.5 block text-[11px] text-muted-foreground">{f.segment} · v{f.version} · "{f.quote}"</span></span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+    </div>
+  );
+}
+
+function VersionHistory({ id }: { id: string }) {
+  const v = useGetConceptVersions(id, { query: { queryKey: getGetConceptVersionsQueryKey(id), ...LIVE } });
+  return (
+    <div className="mt-6" data-testid="section-version-history">
+      <div className="font-display text-lg font-bold">Riwayat versi</div>
+      <p className="text-xs text-muted-foreground">Rekaman tetap dan tidak dapat diubah.</p>
+      {v.isLoading ? <Skeleton className="mt-2 h-16 rounded-xl" /> : v.isError ? <div className="mt-2"><ErrorBox message={errMsg(v.error)} onRetry={() => v.refetch()} /></div>
+        : !v.data?.length ? <p className="mt-2 rounded-xl border border-dashed p-3 text-xs text-muted-foreground">Belum ada versi yang direkam.</p> : (
+          <ol className="mt-2 space-y-2">
+            {[...v.data].sort((a, b) => b.version - a.version).map((h) => (
+              <li key={`${h.version}-${h.capturedAt}`} className="rounded-xl bg-background/60 px-3 py-2 text-xs ring-1 ring-border/60" data-testid={`row-version-${h.version}`}>
+                <div className="flex flex-wrap items-center gap-2"><span className="font-mono font-semibold">v{h.version}</span><span className="font-mono uppercase text-primary">{conceptStatusLabel[h.status as CreativeConcept['status']] ?? h.status}</span><span className="text-muted-foreground">{fmtDate(h.capturedAt)}</span>{h.limited && <Pill tone="sun">Terbatas</Pill>}</div>
+                <details className="mt-1"><summary className="cursor-pointer text-muted-foreground">Lihat bukti</summary><pre className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap font-mono text-[10px]">{h.evidence}</pre></details>
+              </li>
+            ))}
+          </ol>
+        )}
+    </div>
   );
 }

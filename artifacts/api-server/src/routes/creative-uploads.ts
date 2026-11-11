@@ -12,6 +12,7 @@ import { CreativeError, checkVersion, checkQuota, requireOwnerEditor, limits } f
 import { creativeStorage, creativeFile, boundedMaterial, validateMaterial, cleanupCreativeObjects } from "../lib/creative-storage";
 import { setObjectAclPolicy } from "../lib/objectAcl";
 import { ownerLock, readConcept, rebuildConcept, serializeConcept } from "../lib/creative-service";
+import { captureVersion } from "../lib/operations/versions";
 import { parseConcept } from "../lib/creative-builder";
 
 export const creativeUploadRouter = Router();
@@ -28,6 +29,7 @@ creativeUploadRouter.post("/concepts/:id/uploads", rateLimit({
     await ownerLock(tx, me.id);
     const row = await readConcept(id, me, tx);
     requireOwnerEditor(me, row); checkVersion(row.version, input.version);
+    await captureVersion(row, tx);
     const reservations = await tx.select().from(conceptAttachments).where(eq(conceptAttachments.conceptId, id));
     checkQuota(reservations, input);
     const [ownerBytes] = await tx.select({ bytes: sql<number>`COALESCE(sum(${conceptAttachments.size}), 0)::bigint` })
@@ -58,6 +60,7 @@ creativeUploadRouter.post("/concepts/:id/uploads/:uploadId", async (req, res) =>
       await ownerLock(tx, me.id);
       const row = await readConcept(id, me, tx);
       requireOwnerEditor(me, row); checkVersion(row.version, version);
+      await captureVersion(row, tx);
       const [ticket] = await tx.select().from(conceptAttachments).where(and(
         eq(conceptAttachments.id, uploadId), eq(conceptAttachments.conceptId, id), eq(conceptAttachments.ownerId, me.id),
       )).for("update");
@@ -103,6 +106,7 @@ creativeUploadRouter.delete("/concepts/:id/uploads/:uploadId", async (req, res) 
     await ownerLock(tx, me.id);
     const row = await readConcept(id, me, tx);
     requireOwnerEditor(me, row); checkVersion(row.version, version);
+    await captureVersion(row, tx);
     const [attachment] = await tx.select().from(conceptAttachments).where(and(
       eq(conceptAttachments.id, uploadId), eq(conceptAttachments.conceptId, id), eq(conceptAttachments.ownerId, me.id),
     )).for("update");

@@ -21,6 +21,10 @@ import Team from '@/pages/team';
 import CreativePage from '@/pages/creative';
 import CreativeLibraryPage from '@/pages/creative-library';
 import VideosPage from '@/pages/videos';
+import OperationsPage from '@/pages/operations';
+import ProvidersPage from '@/pages/providers';
+import FactsPage from '@/pages/facts';
+import VideoReviewPage from '@/pages/video-review';
 import { registerServiceWorker } from '@/lib/pwa';
 
 registerServiceWorker();
@@ -165,6 +169,10 @@ function Router() {
         <Route path="/creative">{() => <Private render={(me) => <CreativePage me={me} />} />}</Route>
         <Route path="/creative/library">{() => <Private render={(me) => <CreativeLibraryPage me={me} />} />}</Route>
         <Route path="/videos">{() => <Private render={(me) => <VideosPage me={me} />} />}</Route>
+        <Route path="/operations">{() => <Private render={(me) => <OperationsPage me={me} />} />}</Route>
+        <Route path="/providers">{() => <Private render={(me) => <ProvidersPage me={me} />} />}</Route>
+        <Route path="/facts">{() => <Private render={(me) => <FactsPage me={me} />} />}</Route>
+        <Route path="/video-review">{() => <Private render={(me) => <VideoReviewPage me={me} />} />}</Route>
         <Route path="/team">{() => <Private render={(me) => <Team me={me} />} />}</Route>
         <Route component={NotFound} />
       </Switch>

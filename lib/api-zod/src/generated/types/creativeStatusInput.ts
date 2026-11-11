@@ -8,6 +8,7 @@
 import type { CreativeStatusInputStatus } from './creativeStatusInputStatus';
 
 export interface CreativeStatusInput {
+  factsChecked?: boolean;
   /** @minimum 1 */
   version: number;
   status: CreativeStatusInputStatus;

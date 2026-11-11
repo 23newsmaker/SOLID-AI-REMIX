@@ -36,14 +36,14 @@ export function checkQuota(rows: { contentType: string; size: number }[], next: 
   }
 }
 export function checkTransition(m: Pick<MemberRecord, "id" | "role">, c: { ownerId: string; status: string }, next: string) {
-  if (next === "APPROVED" || next === "REJECTED") {
+  if (["APPROVED", "REJECTED", "UNDER_REVIEW", "REVISED"].includes(next)) {
     if (!["SUPER_ADMIN", "REVIEWER_COMPLIANCE"].includes(m.role) || m.id === c.ownerId) {
       throw new CreativeError(403, "Review wajib dilakukan compliance atau admin utama yang bukan pembuat.");
     }
-    if (c.status !== "READY_FOR_REVIEW") throw new CreativeError(409, "Hanya konsep Ready for Review dapat diputuskan.");
+    if (!["READY_FOR_REVIEW", "UNDER_REVIEW"].includes(c.status) || (next === "UNDER_REVIEW" && c.status !== "READY_FOR_REVIEW")) throw new CreativeError(409, "Konsep harus diajukan/ditinjau sebelum keputusan.");
   } else {
     requireOwnerEditor(m, c);
-    const valid = next === "READY_FOR_REVIEW" ? ["DRAFT", "REJECTED"] : ["READY_FOR_REVIEW", "REJECTED"];
+    const valid = next === "READY_FOR_REVIEW" ? ["DRAFT", "REJECTED", "REVISED"] : ["READY_FOR_REVIEW", "UNDER_REVIEW", "REJECTED", "APPROVED", "REVISED"];
     if (!valid.includes(c.status)) throw new CreativeError(409, "Transisi status tidak diizinkan.");
   }
 }

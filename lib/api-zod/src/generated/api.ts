@@ -8,6 +8,966 @@
 import * as zod from 'zod';
 
 
+export const GetOperationsReportQueryParams = zod.object({
+  "from": zod.date().optional(),
+  "to": zod.date().optional(),
+  "userId": zod.coerce.string().optional()
+})
+
+
+export const getOperationsReportResponseJobsItemOptionsCuesItemStartMin = 0;
+export const getOperationsReportResponseJobsItemOptionsCuesItemStartMax = 15;
+
+export const getOperationsReportResponseJobsItemOptionsCuesItemEndMin = 0;
+export const getOperationsReportResponseJobsItemOptionsCuesItemEndMax = 15;
+
+export const getOperationsReportResponseJobsItemOptionsCuesMax = 12;
+
+export const getOperationsReportResponseSettingsOneDailyLimitMax = 3;
+
+export const getOperationsReportResponseSettingsOneBudgetUsdMin = 0;
+export const getOperationsReportResponseSettingsOneBudgetUsdMax = 10000;
+
+export const getOperationsReportResponseSettingsOneDailyBudgetUsdMin = 0;
+export const getOperationsReportResponseSettingsOneDailyBudgetUsdMax = 10000;
+
+export const getOperationsReportResponseSettingsOneUserBudgetUsdMin = 0;
+export const getOperationsReportResponseSettingsOneUserBudgetUsdMax = 10000;
+
+export const getOperationsReportResponseSettingsOneWarningPercentMax = 100;
+
+export const getOperationsReportResponseSettingsOneRetentionDaysMax = 3650;
+
+
+
+export const GetOperationsReportResponse = zod.object({
+  "from": zod.string(),
+  "to": zod.string(),
+  "users": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "jobs": zod.number().int(),
+  "successful": zod.number().int(),
+  "failed": zod.number().int(),
+  "retries": zod.number().int(),
+  "actualUsd": zod.number().nullable(),
+  "knownSubtotalUsd": zod.number(),
+  "unknownCosts": zod.number().int(),
+  "estimatedPendingUsd": zod.number().nullable(),
+  "approved": zod.number().int(),
+  "rejected": zod.number().int(),
+  "waiting": zod.number().int()
+})),
+  "modes": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "jobs": zod.number().int(),
+  "successful": zod.number().int(),
+  "failed": zod.number().int(),
+  "retries": zod.number().int(),
+  "actualUsd": zod.number().nullable(),
+  "knownSubtotalUsd": zod.number(),
+  "unknownCosts": zod.number().int(),
+  "estimatedPendingUsd": zod.number().nullable(),
+  "approved": zod.number().int(),
+  "rejected": zod.number().int(),
+  "waiting": zod.number().int()
+})),
+  "providers": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "jobs": zod.number().int(),
+  "successful": zod.number().int(),
+  "failed": zod.number().int(),
+  "retries": zod.number().int(),
+  "actualUsd": zod.number().nullable(),
+  "knownSubtotalUsd": zod.number(),
+  "unknownCosts": zod.number().int(),
+  "estimatedPendingUsd": zod.number().nullable(),
+  "approved": zod.number().int(),
+  "rejected": zod.number().int(),
+  "waiting": zod.number().int()
+})),
+  "jobs": zod.array(zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(getOperationsReportResponseJobsItemOptionsCuesItemStartMin).max(getOperationsReportResponseJobsItemOptionsCuesItemStartMax),
+  "end": zod.number().min(getOperationsReportResponseJobsItemOptionsCuesItemEndMin).max(getOperationsReportResponseJobsItemOptionsCuesItemEndMax)
+})).min(1).max(getOperationsReportResponseJobsItemOptionsCuesMax)
+})
+})),
+  "summary": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "jobs": zod.number().int(),
+  "successful": zod.number().int(),
+  "failed": zod.number().int(),
+  "retries": zod.number().int(),
+  "actualUsd": zod.number().nullable(),
+  "knownSubtotalUsd": zod.number(),
+  "unknownCosts": zod.number().int(),
+  "estimatedPendingUsd": zod.number().nullable(),
+  "approved": zod.number().int(),
+  "rejected": zod.number().int(),
+  "waiting": zod.number().int()
+}),
+  "activeMembers": zod.number().int(),
+  "pendingMembers": zod.number().int(),
+  "characters": zod.number().int(),
+  "concepts": zod.number().int(),
+  "approvedConcepts": zod.number().int(),
+  "rejectedConcepts": zod.number().int(),
+  "waitingConcepts": zod.number().int(),
+  "processing": zod.number().int(),
+  "simulations": zod.number().int(),
+  "settings": zod.object({
+  "paused": zod.boolean(),
+  "dailyLimit": zod.number().int().min(1).max(getOperationsReportResponseSettingsOneDailyLimitMax),
+  "budgetUsd": zod.number().min(getOperationsReportResponseSettingsOneBudgetUsdMin).max(getOperationsReportResponseSettingsOneBudgetUsdMax).nullable(),
+  "dailyBudgetUsd": zod.number().min(getOperationsReportResponseSettingsOneDailyBudgetUsdMin).max(getOperationsReportResponseSettingsOneDailyBudgetUsdMax).nullable(),
+  "userBudgetUsd": zod.number().min(getOperationsReportResponseSettingsOneUserBudgetUsdMin).max(getOperationsReportResponseSettingsOneUserBudgetUsdMax).nullable(),
+  "warningPercent": zod.number().int().min(1).max(getOperationsReportResponseSettingsOneWarningPercentMax),
+  "retentionDays": zod.number().int().min(1).max(getOperationsReportResponseSettingsOneRetentionDaysMax).nullable()
+}).and(zod.object({
+  "retentionVersion": zod.number().int(),
+  "retentionApproved": zod.boolean(),
+  "localEnabled": zod.boolean(),
+  "costNote": zod.string()
+})),
+  "warnings": zod.array(zod.string())
+})
+
+
+export const ExportOperationsReportQueryParams = zod.object({
+  "from": zod.date().optional(),
+  "to": zod.date().optional(),
+  "userId": zod.coerce.string().optional()
+})
+
+export const ExportOperationsReportResponse = zod.unknown()
+
+
+export const getOperationsSettingsResponseOneDailyLimitMax = 3;
+
+export const getOperationsSettingsResponseOneBudgetUsdMin = 0;
+export const getOperationsSettingsResponseOneBudgetUsdMax = 10000;
+
+export const getOperationsSettingsResponseOneDailyBudgetUsdMin = 0;
+export const getOperationsSettingsResponseOneDailyBudgetUsdMax = 10000;
+
+export const getOperationsSettingsResponseOneUserBudgetUsdMin = 0;
+export const getOperationsSettingsResponseOneUserBudgetUsdMax = 10000;
+
+export const getOperationsSettingsResponseOneWarningPercentMax = 100;
+
+export const getOperationsSettingsResponseOneRetentionDaysMax = 3650;
+
+
+
+export const GetOperationsSettingsResponse = zod.object({
+  "paused": zod.boolean(),
+  "dailyLimit": zod.number().int().min(1).max(getOperationsSettingsResponseOneDailyLimitMax),
+  "budgetUsd": zod.number().min(getOperationsSettingsResponseOneBudgetUsdMin).max(getOperationsSettingsResponseOneBudgetUsdMax).nullable(),
+  "dailyBudgetUsd": zod.number().min(getOperationsSettingsResponseOneDailyBudgetUsdMin).max(getOperationsSettingsResponseOneDailyBudgetUsdMax).nullable(),
+  "userBudgetUsd": zod.number().min(getOperationsSettingsResponseOneUserBudgetUsdMin).max(getOperationsSettingsResponseOneUserBudgetUsdMax).nullable(),
+  "warningPercent": zod.number().int().min(1).max(getOperationsSettingsResponseOneWarningPercentMax),
+  "retentionDays": zod.number().int().min(1).max(getOperationsSettingsResponseOneRetentionDaysMax).nullable()
+}).and(zod.object({
+  "retentionVersion": zod.number().int(),
+  "retentionApproved": zod.boolean(),
+  "localEnabled": zod.boolean(),
+  "costNote": zod.string()
+}))
+
+
+export const updateOperationsSettingsBodyDailyLimitMax = 3;
+
+export const updateOperationsSettingsBodyBudgetUsdMin = 0;
+export const updateOperationsSettingsBodyBudgetUsdMax = 10000;
+
+export const updateOperationsSettingsBodyDailyBudgetUsdMin = 0;
+export const updateOperationsSettingsBodyDailyBudgetUsdMax = 10000;
+
+export const updateOperationsSettingsBodyUserBudgetUsdMin = 0;
+export const updateOperationsSettingsBodyUserBudgetUsdMax = 10000;
+
+export const updateOperationsSettingsBodyWarningPercentMax = 100;
+
+export const updateOperationsSettingsBodyRetentionDaysMax = 3650;
+
+
+
+export const UpdateOperationsSettingsBody = zod.object({
+  "paused": zod.boolean(),
+  "dailyLimit": zod.number().int().min(1).max(updateOperationsSettingsBodyDailyLimitMax),
+  "budgetUsd": zod.number().min(updateOperationsSettingsBodyBudgetUsdMin).max(updateOperationsSettingsBodyBudgetUsdMax).nullable(),
+  "dailyBudgetUsd": zod.number().min(updateOperationsSettingsBodyDailyBudgetUsdMin).max(updateOperationsSettingsBodyDailyBudgetUsdMax).nullable(),
+  "userBudgetUsd": zod.number().min(updateOperationsSettingsBodyUserBudgetUsdMin).max(updateOperationsSettingsBodyUserBudgetUsdMax).nullable(),
+  "warningPercent": zod.number().int().min(1).max(updateOperationsSettingsBodyWarningPercentMax),
+  "retentionDays": zod.number().int().min(1).max(updateOperationsSettingsBodyRetentionDaysMax).nullable()
+})
+
+export const updateOperationsSettingsResponseOneDailyLimitMax = 3;
+
+export const updateOperationsSettingsResponseOneBudgetUsdMin = 0;
+export const updateOperationsSettingsResponseOneBudgetUsdMax = 10000;
+
+export const updateOperationsSettingsResponseOneDailyBudgetUsdMin = 0;
+export const updateOperationsSettingsResponseOneDailyBudgetUsdMax = 10000;
+
+export const updateOperationsSettingsResponseOneUserBudgetUsdMin = 0;
+export const updateOperationsSettingsResponseOneUserBudgetUsdMax = 10000;
+
+export const updateOperationsSettingsResponseOneWarningPercentMax = 100;
+
+export const updateOperationsSettingsResponseOneRetentionDaysMax = 3650;
+
+
+
+export const UpdateOperationsSettingsResponse = zod.object({
+  "paused": zod.boolean(),
+  "dailyLimit": zod.number().int().min(1).max(updateOperationsSettingsResponseOneDailyLimitMax),
+  "budgetUsd": zod.number().min(updateOperationsSettingsResponseOneBudgetUsdMin).max(updateOperationsSettingsResponseOneBudgetUsdMax).nullable(),
+  "dailyBudgetUsd": zod.number().min(updateOperationsSettingsResponseOneDailyBudgetUsdMin).max(updateOperationsSettingsResponseOneDailyBudgetUsdMax).nullable(),
+  "userBudgetUsd": zod.number().min(updateOperationsSettingsResponseOneUserBudgetUsdMin).max(updateOperationsSettingsResponseOneUserBudgetUsdMax).nullable(),
+  "warningPercent": zod.number().int().min(1).max(updateOperationsSettingsResponseOneWarningPercentMax),
+  "retentionDays": zod.number().int().min(1).max(updateOperationsSettingsResponseOneRetentionDaysMax).nullable()
+}).and(zod.object({
+  "retentionVersion": zod.number().int(),
+  "retentionApproved": zod.boolean(),
+  "localEnabled": zod.boolean(),
+  "costNote": zod.string()
+}))
+
+
+export const GetProviderControlsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "model": zod.string(),
+  "enabled": zod.boolean(),
+  "simulation": zod.boolean(),
+  "connection": zod.string(),
+  "capabilities": zod.string(),
+  "price": zod.string(),
+  "priceSource": zod.string(),
+  "checkedAt": zod.string().nullable(),
+  "reason": zod.string()
+})
+export const GetProviderControlsResponse = zod.array(GetProviderControlsResponseItem)
+
+
+export const updateProviderControlsBodyReasonMin = 10;
+export const updateProviderControlsBodyReasonMax = 500;
+
+
+
+export const UpdateProviderControlsBody = zod.object({
+  "localEnabled": zod.boolean(),
+  "reason": zod.string().min(updateProviderControlsBodyReasonMin).max(updateProviderControlsBodyReasonMax)
+})
+
+export const UpdateProviderControlsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "model": zod.string(),
+  "enabled": zod.boolean(),
+  "simulation": zod.boolean(),
+  "connection": zod.string(),
+  "capabilities": zod.string(),
+  "price": zod.string(),
+  "priceSource": zod.string(),
+  "checkedAt": zod.string().nullable(),
+  "reason": zod.string()
+})
+export const UpdateProviderControlsResponse = zod.array(UpdateProviderControlsResponseItem)
+
+
+export const getRetentionPreviewResponseSettingsOneDailyLimitMax = 3;
+
+export const getRetentionPreviewResponseSettingsOneBudgetUsdMin = 0;
+export const getRetentionPreviewResponseSettingsOneBudgetUsdMax = 10000;
+
+export const getRetentionPreviewResponseSettingsOneDailyBudgetUsdMin = 0;
+export const getRetentionPreviewResponseSettingsOneDailyBudgetUsdMax = 10000;
+
+export const getRetentionPreviewResponseSettingsOneUserBudgetUsdMin = 0;
+export const getRetentionPreviewResponseSettingsOneUserBudgetUsdMax = 10000;
+
+export const getRetentionPreviewResponseSettingsOneWarningPercentMax = 100;
+
+export const getRetentionPreviewResponseSettingsOneRetentionDaysMax = 3650;
+
+
+export const getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMin = 0;
+export const getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMax = 15;
+
+export const getRetentionPreviewResponseCandidatesItemOptionsCuesItemEndMin = 0;
+export const getRetentionPreviewResponseCandidatesItemOptionsCuesItemEndMax = 15;
+
+export const getRetentionPreviewResponseCandidatesItemOptionsCuesMax = 12;
+
+
+
+export const GetRetentionPreviewResponse = zod.object({
+  "settings": zod.object({
+  "paused": zod.boolean(),
+  "dailyLimit": zod.number().int().min(1).max(getRetentionPreviewResponseSettingsOneDailyLimitMax),
+  "budgetUsd": zod.number().min(getRetentionPreviewResponseSettingsOneBudgetUsdMin).max(getRetentionPreviewResponseSettingsOneBudgetUsdMax).nullable(),
+  "dailyBudgetUsd": zod.number().min(getRetentionPreviewResponseSettingsOneDailyBudgetUsdMin).max(getRetentionPreviewResponseSettingsOneDailyBudgetUsdMax).nullable(),
+  "userBudgetUsd": zod.number().min(getRetentionPreviewResponseSettingsOneUserBudgetUsdMin).max(getRetentionPreviewResponseSettingsOneUserBudgetUsdMax).nullable(),
+  "warningPercent": zod.number().int().min(1).max(getRetentionPreviewResponseSettingsOneWarningPercentMax),
+  "retentionDays": zod.number().int().min(1).max(getRetentionPreviewResponseSettingsOneRetentionDaysMax).nullable()
+}).and(zod.object({
+  "retentionVersion": zod.number().int(),
+  "retentionApproved": zod.boolean(),
+  "localEnabled": zod.boolean(),
+  "costNote": zod.string()
+})),
+  "warning": zod.string(),
+  "candidates": zod.array(zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMin).max(getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMax),
+  "end": zod.number().min(getRetentionPreviewResponseCandidatesItemOptionsCuesItemEndMin).max(getRetentionPreviewResponseCandidatesItemOptionsCuesItemEndMax)
+})).min(1).max(getRetentionPreviewResponseCandidatesItemOptionsCuesMax)
+})
+}))
+})
+
+
+export const approveRetentionPolicyBodyNoteMin = 10;
+export const approveRetentionPolicyBodyNoteMax = 1000;
+
+
+
+export const ApproveRetentionPolicyBody = zod.object({
+  "version": zod.number().int(),
+  "confirmed": zod.boolean(),
+  "note": zod.string().min(approveRetentionPolicyBodyNoteMin).max(approveRetentionPolicyBodyNoteMax)
+})
+
+export const approveRetentionPolicyResponseSettingsOneDailyLimitMax = 3;
+
+export const approveRetentionPolicyResponseSettingsOneBudgetUsdMin = 0;
+export const approveRetentionPolicyResponseSettingsOneBudgetUsdMax = 10000;
+
+export const approveRetentionPolicyResponseSettingsOneDailyBudgetUsdMin = 0;
+export const approveRetentionPolicyResponseSettingsOneDailyBudgetUsdMax = 10000;
+
+export const approveRetentionPolicyResponseSettingsOneUserBudgetUsdMin = 0;
+export const approveRetentionPolicyResponseSettingsOneUserBudgetUsdMax = 10000;
+
+export const approveRetentionPolicyResponseSettingsOneWarningPercentMax = 100;
+
+export const approveRetentionPolicyResponseSettingsOneRetentionDaysMax = 3650;
+
+
+export const approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMin = 0;
+export const approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMax = 15;
+
+export const approveRetentionPolicyResponseCandidatesItemOptionsCuesItemEndMin = 0;
+export const approveRetentionPolicyResponseCandidatesItemOptionsCuesItemEndMax = 15;
+
+export const approveRetentionPolicyResponseCandidatesItemOptionsCuesMax = 12;
+
+
+
+export const ApproveRetentionPolicyResponse = zod.object({
+  "settings": zod.object({
+  "paused": zod.boolean(),
+  "dailyLimit": zod.number().int().min(1).max(approveRetentionPolicyResponseSettingsOneDailyLimitMax),
+  "budgetUsd": zod.number().min(approveRetentionPolicyResponseSettingsOneBudgetUsdMin).max(approveRetentionPolicyResponseSettingsOneBudgetUsdMax).nullable(),
+  "dailyBudgetUsd": zod.number().min(approveRetentionPolicyResponseSettingsOneDailyBudgetUsdMin).max(approveRetentionPolicyResponseSettingsOneDailyBudgetUsdMax).nullable(),
+  "userBudgetUsd": zod.number().min(approveRetentionPolicyResponseSettingsOneUserBudgetUsdMin).max(approveRetentionPolicyResponseSettingsOneUserBudgetUsdMax).nullable(),
+  "warningPercent": zod.number().int().min(1).max(approveRetentionPolicyResponseSettingsOneWarningPercentMax),
+  "retentionDays": zod.number().int().min(1).max(approveRetentionPolicyResponseSettingsOneRetentionDaysMax).nullable()
+}).and(zod.object({
+  "retentionVersion": zod.number().int(),
+  "retentionApproved": zod.boolean(),
+  "localEnabled": zod.boolean(),
+  "costNote": zod.string()
+})),
+  "warning": zod.string(),
+  "candidates": zod.array(zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMin).max(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMax),
+  "end": zod.number().min(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemEndMin).max(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemEndMax)
+})).min(1).max(approveRetentionPolicyResponseCandidatesItemOptionsCuesMax)
+})
+}))
+})
+
+
+export const GetOperationsAuditResponseItem = zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "action": zod.string(),
+  "description": zod.string(),
+  "objectId": zod.string().nullable(),
+  "result": zod.string(),
+  "before": zod.string().nullable(),
+  "after": zod.string().nullable(),
+  "createdAt": zod.string()
+})
+export const GetOperationsAuditResponse = zod.array(GetOperationsAuditResponseItem)
+
+
+export const ListComplianceSourcesResponseItem = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "segment": zod.string(),
+  "content": zod.string(),
+  "version": zod.string(),
+  "sha256": zod.string(),
+  "revision": zod.string(),
+  "access": zod.string(),
+  "validation": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "active": zod.boolean()
+})
+export const ListComplianceSourcesResponse = zod.array(ListComplianceSourcesResponseItem)
+
+
+export const ReviewComplianceSourceParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const reviewComplianceSourceBodyNoteMin = 10;
+export const reviewComplianceSourceBodyNoteMax = 1500;
+
+
+
+export const ReviewComplianceSourceBody = zod.object({
+  "revision": zod.string(),
+  "validation": zod.enum(['NEEDS_REVIEW', 'APPROVED', 'REJECTED']),
+  "access": zod.enum(['INTERNAL_GENERAL', 'INTERNAL_RESTRICTED', 'APPROVED_FOR_PUBLIC_CONTENT']),
+  "clearWarnings": zod.boolean(),
+  "note": zod.string().min(reviewComplianceSourceBodyNoteMin).max(reviewComplianceSourceBodyNoteMax)
+})
+
+export const ReviewComplianceSourceResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "segment": zod.string(),
+  "content": zod.string(),
+  "version": zod.string(),
+  "sha256": zod.string(),
+  "revision": zod.string(),
+  "access": zod.string(),
+  "validation": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "active": zod.boolean()
+})
+
+
+export const listPublicFactsResponseOneClaimMin = 10;
+export const listPublicFactsResponseOneClaimMax = 1200;
+
+export const listPublicFactsResponseOneQuoteMin = 10;
+export const listPublicFactsResponseOneQuoteMax = 2000;
+
+
+
+export const ListPublicFactsResponseItem = zod.object({
+  "sourceId": zod.string(),
+  "claim": zod.string().min(listPublicFactsResponseOneClaimMin).max(listPublicFactsResponseOneClaimMax),
+  "quote": zod.string().min(listPublicFactsResponseOneQuoteMin).max(listPublicFactsResponseOneQuoteMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "version": zod.number().int(),
+  "status": zod.string(),
+  "segment": zod.string(),
+  "creatorId": zod.string(),
+  "reviewerId": zod.string().nullable(),
+  "note": zod.string(),
+  "reviewedAt": zod.string().nullable(),
+  "sourceRevision": zod.string(),
+  "usable": zod.boolean()
+}))
+export const ListPublicFactsResponse = zod.array(ListPublicFactsResponseItem)
+
+
+export const createPublicFactBodyClaimMin = 10;
+export const createPublicFactBodyClaimMax = 1200;
+
+export const createPublicFactBodyQuoteMin = 10;
+export const createPublicFactBodyQuoteMax = 2000;
+
+
+
+export const CreatePublicFactBody = zod.object({
+  "sourceId": zod.string(),
+  "claim": zod.string().min(createPublicFactBodyClaimMin).max(createPublicFactBodyClaimMax),
+  "quote": zod.string().min(createPublicFactBodyQuoteMin).max(createPublicFactBodyQuoteMax)
+})
+
+export const createPublicFactResponseOneClaimMin = 10;
+export const createPublicFactResponseOneClaimMax = 1200;
+
+export const createPublicFactResponseOneQuoteMin = 10;
+export const createPublicFactResponseOneQuoteMax = 2000;
+
+
+
+export const CreatePublicFactResponse = zod.object({
+  "sourceId": zod.string(),
+  "claim": zod.string().min(createPublicFactResponseOneClaimMin).max(createPublicFactResponseOneClaimMax),
+  "quote": zod.string().min(createPublicFactResponseOneQuoteMin).max(createPublicFactResponseOneQuoteMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "version": zod.number().int(),
+  "status": zod.string(),
+  "segment": zod.string(),
+  "creatorId": zod.string(),
+  "reviewerId": zod.string().nullable(),
+  "note": zod.string(),
+  "reviewedAt": zod.string().nullable(),
+  "sourceRevision": zod.string(),
+  "usable": zod.boolean()
+}))
+
+
+export const RevisePublicFactParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const revisePublicFactBodyOneClaimMin = 10;
+export const revisePublicFactBodyOneClaimMax = 1200;
+
+export const revisePublicFactBodyOneQuoteMin = 10;
+export const revisePublicFactBodyOneQuoteMax = 2000;
+
+
+
+
+export const RevisePublicFactBody = zod.object({
+  "sourceId": zod.string(),
+  "claim": zod.string().min(revisePublicFactBodyOneClaimMin).max(revisePublicFactBodyOneClaimMax),
+  "quote": zod.string().min(revisePublicFactBodyOneQuoteMin).max(revisePublicFactBodyOneQuoteMax)
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+}))
+
+export const revisePublicFactResponseOneClaimMin = 10;
+export const revisePublicFactResponseOneClaimMax = 1200;
+
+export const revisePublicFactResponseOneQuoteMin = 10;
+export const revisePublicFactResponseOneQuoteMax = 2000;
+
+
+
+export const RevisePublicFactResponse = zod.object({
+  "sourceId": zod.string(),
+  "claim": zod.string().min(revisePublicFactResponseOneClaimMin).max(revisePublicFactResponseOneClaimMax),
+  "quote": zod.string().min(revisePublicFactResponseOneQuoteMin).max(revisePublicFactResponseOneQuoteMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "version": zod.number().int(),
+  "status": zod.string(),
+  "segment": zod.string(),
+  "creatorId": zod.string(),
+  "reviewerId": zod.string().nullable(),
+  "note": zod.string(),
+  "reviewedAt": zod.string().nullable(),
+  "sourceRevision": zod.string(),
+  "usable": zod.boolean()
+}))
+
+
+export const ReviewPublicFactParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const reviewPublicFactBodyNoteMin = 10;
+export const reviewPublicFactBodyNoteMax = 1500;
+
+
+
+export const ReviewPublicFactBody = zod.object({
+  "version": zod.number().int(),
+  "status": zod.enum(['APPROVED', 'REJECTED', 'REVOKED']),
+  "note": zod.string().min(reviewPublicFactBodyNoteMin).max(reviewPublicFactBodyNoteMax)
+})
+
+export const reviewPublicFactResponseOneClaimMin = 10;
+export const reviewPublicFactResponseOneClaimMax = 1200;
+
+export const reviewPublicFactResponseOneQuoteMin = 10;
+export const reviewPublicFactResponseOneQuoteMax = 2000;
+
+
+
+export const ReviewPublicFactResponse = zod.object({
+  "sourceId": zod.string(),
+  "claim": zod.string().min(reviewPublicFactResponseOneClaimMin).max(reviewPublicFactResponseOneClaimMax),
+  "quote": zod.string().min(reviewPublicFactResponseOneQuoteMin).max(reviewPublicFactResponseOneQuoteMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "version": zod.number().int(),
+  "status": zod.string(),
+  "segment": zod.string(),
+  "creatorId": zod.string(),
+  "reviewerId": zod.string().nullable(),
+  "note": zod.string(),
+  "reviewedAt": zod.string().nullable(),
+  "sourceRevision": zod.string(),
+  "usable": zod.boolean()
+}))
+
+
+export const GetConceptVersionsParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const GetConceptVersionsResponseItem = zod.object({
+  "version": zod.number().int(),
+  "status": zod.string(),
+  "capturedAt": zod.string(),
+  "evidence": zod.string(),
+  "limited": zod.boolean()
+})
+export const GetConceptVersionsResponse = zod.array(GetConceptVersionsResponseItem)
+
+
+export const GetFinalVideoReviewParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+
+export const getFinalVideoReviewResponseJobOptionsCuesItemStartMin = 0;
+export const getFinalVideoReviewResponseJobOptionsCuesItemStartMax = 15;
+
+export const getFinalVideoReviewResponseJobOptionsCuesItemEndMin = 0;
+export const getFinalVideoReviewResponseJobOptionsCuesItemEndMax = 15;
+
+export const getFinalVideoReviewResponseJobOptionsCuesMax = 12;
+
+
+
+export const GetFinalVideoReviewResponse = zod.object({
+  "job": zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(getFinalVideoReviewResponseJobOptionsCuesItemStartMin).max(getFinalVideoReviewResponseJobOptionsCuesItemStartMax),
+  "end": zod.number().min(getFinalVideoReviewResponseJobOptionsCuesItemEndMin).max(getFinalVideoReviewResponseJobOptionsCuesItemEndMax)
+})).min(1).max(getFinalVideoReviewResponseJobOptionsCuesMax)
+})
+}),
+  "stale": zod.boolean(),
+  "reasons": zod.array(zod.string()),
+  "referenceUrl": zod.string().nullable(),
+  "conceptUrl": zod.string().nullable(),
+  "history": zod.array(zod.object({
+  "version": zod.number().int(),
+  "status": zod.string(),
+  "capturedAt": zod.string(),
+  "evidence": zod.string(),
+  "limited": zod.boolean()
+}))
+})
+
+
+export const TransitionFinalVideoReviewParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const transitionFinalVideoReviewBodyVersionMin = 0;
+
+export const transitionFinalVideoReviewBodyNoteMax = 1500;
+
+export const transitionFinalVideoReviewBodyChecklistMax = 10;
+
+
+
+export const TransitionFinalVideoReviewBody = zod.object({
+  "version": zod.number().int().min(transitionFinalVideoReviewBodyVersionMin),
+  "action": zod.enum(['SUBMIT', 'CLAIM', 'APPROVE', 'REJECT', 'REVISE']),
+  "note": zod.string().max(transitionFinalVideoReviewBodyNoteMax),
+  "checklist": zod.array(zod.enum(['IDENTITY', 'VISUAL', 'LOGO', 'NUMBERS', 'PRODUCT', 'SUBTITLE', 'AUDIO', 'CTA', 'DISCLAIMER', 'CONCEPT'])).max(transitionFinalVideoReviewBodyChecklistMax)
+})
+
+
+export const transitionFinalVideoReviewResponseJobOptionsCuesItemStartMin = 0;
+export const transitionFinalVideoReviewResponseJobOptionsCuesItemStartMax = 15;
+
+export const transitionFinalVideoReviewResponseJobOptionsCuesItemEndMin = 0;
+export const transitionFinalVideoReviewResponseJobOptionsCuesItemEndMax = 15;
+
+export const transitionFinalVideoReviewResponseJobOptionsCuesMax = 12;
+
+
+
+export const TransitionFinalVideoReviewResponse = zod.object({
+  "job": zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(transitionFinalVideoReviewResponseJobOptionsCuesItemStartMin).max(transitionFinalVideoReviewResponseJobOptionsCuesItemStartMax),
+  "end": zod.number().min(transitionFinalVideoReviewResponseJobOptionsCuesItemEndMin).max(transitionFinalVideoReviewResponseJobOptionsCuesItemEndMax)
+})).min(1).max(transitionFinalVideoReviewResponseJobOptionsCuesMax)
+})
+}),
+  "stale": zod.boolean(),
+  "reasons": zod.array(zod.string()),
+  "referenceUrl": zod.string().nullable(),
+  "conceptUrl": zod.string().nullable(),
+  "history": zod.array(zod.object({
+  "version": zod.number().int(),
+  "status": zod.string(),
+  "capturedAt": zod.string(),
+  "evidence": zod.string(),
+  "limited": zod.boolean()
+}))
+})
+
+
+export const GetVideoReviewReferenceParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const GetVideoReviewReferenceResponse = zod.unknown()
+
+
 export const GetVideoConfigResponse = zod.object({
   "paused": zod.boolean(),
   "aiEnabled": zod.boolean(),
@@ -33,6 +993,27 @@ export const listVideoJobsResponseOptionsCuesMax = 12;
 
 
 export const ListVideoJobsResponseItem = zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
   "id": zod.string(),
   "conceptId": zod.string().nullable(),
   "conceptVersion": zod.number().int(),
@@ -111,6 +1092,27 @@ export const createVideoJobResponseOptionsCuesMax = 12;
 
 
 export const CreateVideoJobResponse = zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
   "id": zod.string(),
   "conceptId": zod.string().nullable(),
   "conceptVersion": zod.number().int(),
@@ -163,6 +1165,27 @@ export const getVideoJobResponseOptionsCuesMax = 12;
 
 
 export const GetVideoJobResponse = zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
   "id": zod.string(),
   "conceptId": zod.string().nullable(),
   "conceptVersion": zod.number().int(),
@@ -224,6 +1247,27 @@ export const cancelVideoJobResponseOptionsCuesMax = 12;
 
 
 export const CancelVideoJobResponse = zod.object({
+  "publicationStatus": zod.string().optional(),
+  "retentionNoticeAt": zod.string().nullish(),
+  "retentionNoticeVersion": zod.number().int().nullish(),
+  "publicationVersion": zod.number().int().optional(),
+  "reviewerId": zod.string().nullish(),
+  "publicationStale": zod.boolean().optional(),
+  "publicationUrl": zod.string().nullish(),
+  "cost": zod.object({
+  "currency": zod.string(),
+  "model": zod.string().nullable(),
+  "source": zod.string(),
+  "estimatedUsd": zod.number().nullable(),
+  "actualUsd": zod.number().nullable(),
+  "providerUsd": zod.number().nullable(),
+  "renderUsd": zod.number().nullable(),
+  "ttsUsd": zod.number().nullable(),
+  "retryUsd": zod.number().nullable(),
+  "reservedUsd": zod.number(),
+  "retries": zod.number().int(),
+  "legacy": zod.boolean()
+}).optional(),
   "id": zod.string(),
   "conceptId": zod.string().nullable(),
   "conceptVersion": zod.number().int(),
@@ -606,6 +1650,10 @@ export const UpdateCreativeTemplateResponse = zod.object({
 }))
 
 
+export const listCreativeConceptsResponseOneOneFactIdsDefault = [];
+export const listCreativeConceptsResponseOneOneFactIdsMax = 30;
+
+export const listCreativeConceptsResponseOneOneNoFactualClaimsDefault = false;
 export const listCreativeConceptsResponseOneOneTitleMax = 120;
 
 
@@ -641,6 +1689,8 @@ export const listCreativeConceptsResponseOneOneSourceIdsMax = 12;
 
 
 export const ListCreativeConceptsResponseItem = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(listCreativeConceptsResponseOneOneFactIdsMax).default(listCreativeConceptsResponseOneOneFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(listCreativeConceptsResponseOneOneNoFactualClaimsDefault),
   "title": zod.string().min(1).max(listCreativeConceptsResponseOneOneTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -676,7 +1726,7 @@ export const ListCreativeConceptsResponseItem = zod.object({
   "categoryName": zod.string(),
   "templateName": zod.string().nullable(),
   "characterName": zod.string(),
-  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISED']),
   "stale": zod.boolean(),
   "staleReasons": zod.array(zod.string()),
   "createdAt": zod.string(),
@@ -702,6 +1752,10 @@ export const ListCreativeConceptsResponseItem = zod.object({
 export const ListCreativeConceptsResponse = zod.array(ListCreativeConceptsResponseItem)
 
 
+export const createCreativeConceptBodyFactIdsDefault = [];
+export const createCreativeConceptBodyFactIdsMax = 30;
+
+export const createCreativeConceptBodyNoFactualClaimsDefault = false;
 export const createCreativeConceptBodyTitleMax = 120;
 
 
@@ -736,6 +1790,8 @@ export const createCreativeConceptBodySourceIdsMax = 12;
 
 
 export const CreateCreativeConceptBody = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(createCreativeConceptBodyFactIdsMax).default(createCreativeConceptBodyFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(createCreativeConceptBodyNoFactualClaimsDefault),
   "title": zod.string().min(1).max(createCreativeConceptBodyTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -760,6 +1816,10 @@ export const CreateCreativeConceptBody = zod.object({
   "materialConsent": zod.boolean()
 })
 
+export const createCreativeConceptResponseOneOneFactIdsDefault = [];
+export const createCreativeConceptResponseOneOneFactIdsMax = 30;
+
+export const createCreativeConceptResponseOneOneNoFactualClaimsDefault = false;
 export const createCreativeConceptResponseOneOneTitleMax = 120;
 
 
@@ -795,6 +1855,8 @@ export const createCreativeConceptResponseOneOneSourceIdsMax = 12;
 
 
 export const CreateCreativeConceptResponse = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(createCreativeConceptResponseOneOneFactIdsMax).default(createCreativeConceptResponseOneOneFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(createCreativeConceptResponseOneOneNoFactualClaimsDefault),
   "title": zod.string().min(1).max(createCreativeConceptResponseOneOneTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -830,7 +1892,7 @@ export const CreateCreativeConceptResponse = zod.object({
   "categoryName": zod.string(),
   "templateName": zod.string().nullable(),
   "characterName": zod.string(),
-  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISED']),
   "stale": zod.boolean(),
   "staleReasons": zod.array(zod.string()),
   "createdAt": zod.string(),
@@ -855,6 +1917,10 @@ export const CreateCreativeConceptResponse = zod.object({
 }))
 
 
+export const previewCreativePromptBodyFactIdsDefault = [];
+export const previewCreativePromptBodyFactIdsMax = 30;
+
+export const previewCreativePromptBodyNoFactualClaimsDefault = false;
 export const previewCreativePromptBodyTitleMax = 120;
 
 
@@ -889,6 +1955,8 @@ export const previewCreativePromptBodySourceIdsMax = 12;
 
 
 export const PreviewCreativePromptBody = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(previewCreativePromptBodyFactIdsMax).default(previewCreativePromptBodyFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(previewCreativePromptBodyNoFactualClaimsDefault),
   "title": zod.string().min(1).max(previewCreativePromptBodyTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -924,6 +1992,10 @@ export const GetCreativeConceptParams = zod.object({
   "id": zod.coerce.string()
 })
 
+export const getCreativeConceptResponseOneOneFactIdsDefault = [];
+export const getCreativeConceptResponseOneOneFactIdsMax = 30;
+
+export const getCreativeConceptResponseOneOneNoFactualClaimsDefault = false;
 export const getCreativeConceptResponseOneOneTitleMax = 120;
 
 
@@ -959,6 +2031,8 @@ export const getCreativeConceptResponseOneOneSourceIdsMax = 12;
 
 
 export const GetCreativeConceptResponse = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(getCreativeConceptResponseOneOneFactIdsMax).default(getCreativeConceptResponseOneOneFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(getCreativeConceptResponseOneOneNoFactualClaimsDefault),
   "title": zod.string().min(1).max(getCreativeConceptResponseOneOneTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -994,7 +2068,7 @@ export const GetCreativeConceptResponse = zod.object({
   "categoryName": zod.string(),
   "templateName": zod.string().nullable(),
   "characterName": zod.string(),
-  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISED']),
   "stale": zod.boolean(),
   "staleReasons": zod.array(zod.string()),
   "createdAt": zod.string(),
@@ -1023,6 +2097,10 @@ export const UpdateCreativeConceptParams = zod.object({
   "id": zod.coerce.string()
 })
 
+export const updateCreativeConceptBodyOneFactIdsDefault = [];
+export const updateCreativeConceptBodyOneFactIdsMax = 30;
+
+export const updateCreativeConceptBodyOneNoFactualClaimsDefault = false;
 export const updateCreativeConceptBodyOneTitleMax = 120;
 
 
@@ -1058,6 +2136,8 @@ export const updateCreativeConceptBodyOneSourceIdsMax = 12;
 
 
 export const UpdateCreativeConceptBody = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(updateCreativeConceptBodyOneFactIdsMax).default(updateCreativeConceptBodyOneFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(updateCreativeConceptBodyOneNoFactualClaimsDefault),
   "title": zod.string().min(1).max(updateCreativeConceptBodyOneTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -1084,6 +2164,10 @@ export const UpdateCreativeConceptBody = zod.object({
   "version": zod.number().int().min(1)
 }))
 
+export const updateCreativeConceptResponseOneOneFactIdsDefault = [];
+export const updateCreativeConceptResponseOneOneFactIdsMax = 30;
+
+export const updateCreativeConceptResponseOneOneNoFactualClaimsDefault = false;
 export const updateCreativeConceptResponseOneOneTitleMax = 120;
 
 
@@ -1119,6 +2203,8 @@ export const updateCreativeConceptResponseOneOneSourceIdsMax = 12;
 
 
 export const UpdateCreativeConceptResponse = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(updateCreativeConceptResponseOneOneFactIdsMax).default(updateCreativeConceptResponseOneOneFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(updateCreativeConceptResponseOneOneNoFactualClaimsDefault),
   "title": zod.string().min(1).max(updateCreativeConceptResponseOneOneTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -1154,7 +2240,7 @@ export const UpdateCreativeConceptResponse = zod.object({
   "categoryName": zod.string(),
   "templateName": zod.string().nullable(),
   "characterName": zod.string(),
-  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISED']),
   "stale": zod.boolean(),
   "staleReasons": zod.array(zod.string()),
   "createdAt": zod.string(),
@@ -1199,17 +2285,22 @@ export const TransitionCreativeConceptParams = zod.object({
   "id": zod.coerce.string()
 })
 
-
+export const transitionCreativeConceptBodyFactsCheckedDefault = false;
 export const transitionCreativeConceptBodyNoteMax = 2000;
 
 
 
 export const TransitionCreativeConceptBody = zod.object({
+  "factsChecked": zod.boolean().default(transitionCreativeConceptBodyFactsCheckedDefault),
   "version": zod.number().int().min(1),
-  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISED']),
   "note": zod.string().max(transitionCreativeConceptBodyNoteMax)
 })
 
+export const transitionCreativeConceptResponseOneOneFactIdsDefault = [];
+export const transitionCreativeConceptResponseOneOneFactIdsMax = 30;
+
+export const transitionCreativeConceptResponseOneOneNoFactualClaimsDefault = false;
 export const transitionCreativeConceptResponseOneOneTitleMax = 120;
 
 
@@ -1245,6 +2336,8 @@ export const transitionCreativeConceptResponseOneOneSourceIdsMax = 12;
 
 
 export const TransitionCreativeConceptResponse = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(transitionCreativeConceptResponseOneOneFactIdsMax).default(transitionCreativeConceptResponseOneOneFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(transitionCreativeConceptResponseOneOneNoFactualClaimsDefault),
   "title": zod.string().min(1).max(transitionCreativeConceptResponseOneOneTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -1280,7 +2373,7 @@ export const TransitionCreativeConceptResponse = zod.object({
   "categoryName": zod.string(),
   "templateName": zod.string().nullable(),
   "characterName": zod.string(),
-  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISED']),
   "stale": zod.boolean(),
   "staleReasons": zod.array(zod.string()),
   "createdAt": zod.string(),
@@ -1341,6 +2434,10 @@ export const FinalizeConceptUploadBody = zod.object({
   "version": zod.number().int().min(1)
 })
 
+export const finalizeConceptUploadResponseOneOneFactIdsDefault = [];
+export const finalizeConceptUploadResponseOneOneFactIdsMax = 30;
+
+export const finalizeConceptUploadResponseOneOneNoFactualClaimsDefault = false;
 export const finalizeConceptUploadResponseOneOneTitleMax = 120;
 
 
@@ -1376,6 +2473,8 @@ export const finalizeConceptUploadResponseOneOneSourceIdsMax = 12;
 
 
 export const FinalizeConceptUploadResponse = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(finalizeConceptUploadResponseOneOneFactIdsMax).default(finalizeConceptUploadResponseOneOneFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(finalizeConceptUploadResponseOneOneNoFactualClaimsDefault),
   "title": zod.string().min(1).max(finalizeConceptUploadResponseOneOneTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -1411,7 +2510,7 @@ export const FinalizeConceptUploadResponse = zod.object({
   "categoryName": zod.string(),
   "templateName": zod.string().nullable(),
   "characterName": zod.string(),
-  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISED']),
   "stale": zod.boolean(),
   "staleReasons": zod.array(zod.string()),
   "createdAt": zod.string(),
@@ -1448,6 +2547,10 @@ export const DeleteConceptAttachmentBody = zod.object({
   "version": zod.number().int().min(1)
 })
 
+export const deleteConceptAttachmentResponseOneOneFactIdsDefault = [];
+export const deleteConceptAttachmentResponseOneOneFactIdsMax = 30;
+
+export const deleteConceptAttachmentResponseOneOneNoFactualClaimsDefault = false;
 export const deleteConceptAttachmentResponseOneOneTitleMax = 120;
 
 
@@ -1483,6 +2586,8 @@ export const deleteConceptAttachmentResponseOneOneSourceIdsMax = 12;
 
 
 export const DeleteConceptAttachmentResponse = zod.object({
+  "factIds": zod.array(zod.string().uuid()).max(deleteConceptAttachmentResponseOneOneFactIdsMax).default(deleteConceptAttachmentResponseOneOneFactIdsDefault),
+  "noFactualClaims": zod.boolean().default(deleteConceptAttachmentResponseOneOneNoFactualClaimsDefault),
   "title": zod.string().min(1).max(deleteConceptAttachmentResponseOneOneTitleMax),
   "characterId": zod.string().min(1),
   "categoryId": zod.string().min(1),
@@ -1518,7 +2623,7 @@ export const DeleteConceptAttachmentResponse = zod.object({
   "categoryName": zod.string(),
   "templateName": zod.string().nullable(),
   "characterName": zod.string(),
-  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISED']),
   "stale": zod.boolean(),
   "staleReasons": zod.array(zod.string()),
   "createdAt": zod.string(),

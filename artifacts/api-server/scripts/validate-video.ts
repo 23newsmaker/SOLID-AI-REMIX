@@ -53,7 +53,7 @@ async function main() {
     visual: "Gambar TEST", narration: "Video demonstrasi internal. Ini contoh render lokal bukan konten promosi perusahaan.",
     subtitle: "Video demonstrasi internal. Ini contoh render lokal bukan konten promosi perusahaan.",
     cta: "CONTOH RENDER", disclaimer: "DEMO SINTETIS — BUKAN KONTEN PERUSAHAAN.",
-    format: "9:16", durationSeconds: 10, sourceIds: [], publicMode: true, materialConsent: true,
+    format: "9:16", durationSeconds: 10, sourceIds: [], factIds: [], noFactualClaims: true, publicMode: true, materialConsent: true,
   });
   const built = await buildCreative(input, me!);
   assert.equal(built.blockers.length, 0);

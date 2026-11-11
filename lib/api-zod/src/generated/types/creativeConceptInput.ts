@@ -11,6 +11,9 @@ import type { CreativeConceptInputStyle } from './creativeConceptInputStyle';
 import type { CreativeSegment } from './creativeSegment';
 
 export interface CreativeConceptInput {
+  /** @maxItems 30 */
+  factIds?: string[];
+  noFactualClaims?: boolean;
   /**
      * @minLength 1
      * @maxLength 120

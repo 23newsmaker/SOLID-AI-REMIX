@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useClerk } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { LayoutGrid, UserRound, BookOpenText, Users, LogOut, Download, Clapperboard, Film } from 'lucide-react';
+import { LayoutGrid, UserRound, BookOpenText, Users, LogOut, Download, Clapperboard, Film, Gauge, Plug, ScrollText, BadgeCheck } from 'lucide-react';
 import type { Member } from '@workspace/api-client-react';
 import { Wordmark } from '@/components/brand';
 import { roleLabel, initials } from '@/lib/labels';
@@ -30,8 +30,12 @@ export function AppShell({ me, children }: { me: Member; children: ReactNode }) 
     { href: '/videos', label: 'Video', icon: Film },
     { href: '/character', label: 'Karakter', icon: UserRound },
     { href: '/knowledge', label: 'Pengetahuan', icon: BookOpenText },
-    { href: '/team', label: 'Tim', icon: Users },
-  ];
+    { href: '/team', label: 'Tim', icon: Users, show: me.role === 'SUPER_ADMIN' || me.role === 'ADMIN' },
+    { href: '/video-review', label: 'Review', icon: BadgeCheck, show: me.role !== 'VIEWER' },
+    { href: '/facts', label: 'Fakta', icon: ScrollText, show: me.role === 'SUPER_ADMIN' || me.role === 'ADMIN' || me.role === 'REVIEWER_COMPLIANCE' },
+    { href: '/operations', label: 'Operasional', icon: Gauge, show: me.role === 'SUPER_ADMIN' || me.role === 'ADMIN' },
+    { href: '/providers', label: 'Provider', icon: Plug, show: me.role === 'SUPER_ADMIN' },
+  ].filter((n) => n.show !== false);
   const active = (h: string) => loc === h || loc.startsWith(h + '/');
 
   return (
@@ -87,13 +91,14 @@ export function AppShell({ me, children }: { me: Member; children: ReactNode }) 
         <div key={loc} className="rise mx-auto max-w-5xl">{children}</div>
       </main>
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-6 rounded-2xl bg-sidebar p-1.5 shadow-lg md:hidden" aria-label="Navigasi utama">
+      <nav className="fixed inset-x-3 bottom-3 z-40 flex gap-1 overflow-x-auto rounded-2xl bg-sidebar p-1.5 shadow-lg md:hidden" aria-label="Navigasi utama">
         {nav.map((n) => (
           <Link
             key={n.href}
             href={n.href}
             aria-current={active(n.href) ? 'page' : undefined}
-            className={cn('flex flex-col items-center gap-1 rounded-xl py-2 text-[10px] font-medium', active(n.href) ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/70')}
+            data-testid={`link-mnav-${n.href.slice(1)}`}
+            className={cn('flex min-w-[64px] shrink-0 flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-medium', active(n.href) ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/70')}
           >
             <n.icon className="h-[18px] w-[18px]" aria-hidden="true" />
             {n.label}

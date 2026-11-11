@@ -5,65 +5,128 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
-export interface VideoCue {
+export interface OperationsSettingsInput {
+  paused: boolean;
+  /**
+     * @minimum 1
+     * @maximum 3
+     */
+  dailyLimit: number;
   /**
      * @minimum 0
-     * @maximum 15
+     * @maximum 10000
+     * @nullable
      */
-  start: number;
+  budgetUsd: number | null;
   /**
      * @minimum 0
-     * @maximum 15
+     * @maximum 10000
+     * @nullable
      */
-  end: number;
-}
-
-export type VideoRenderOptionsMotion = typeof VideoRenderOptionsMotion[keyof typeof VideoRenderOptionsMotion];
-
-
-export const VideoRenderOptionsMotion = {
-  ZOOM_IN: 'ZOOM_IN',
-  ZOOM_OUT: 'ZOOM_OUT',
-  PAN_LEFT: 'PAN_LEFT',
-  PAN_RIGHT: 'PAN_RIGHT',
-} as const;
-
-export type VideoRenderOptionsLogoPosition = typeof VideoRenderOptionsLogoPosition[keyof typeof VideoRenderOptionsLogoPosition];
-
-
-export const VideoRenderOptionsLogoPosition = {
-  TOP_LEFT: 'TOP_LEFT',
-  TOP_RIGHT: 'TOP_RIGHT',
-} as const;
-
-export interface VideoRenderOptions {
-  motion: VideoRenderOptionsMotion;
-  logoPosition: VideoRenderOptionsLogoPosition;
-  /** @minLength 1 */
-  logoAttachmentId: string;
+  dailyBudgetUsd: number | null;
   /**
-     * @minItems 1
-     * @maxItems 12
+     * @minimum 0
+     * @maximum 10000
+     * @nullable
      */
-  cues: VideoCue[];
+  userBudgetUsd: number | null;
+  /**
+     * @minimum 1
+     * @maximum 100
+     */
+  warningPercent: number;
+  /**
+     * @minimum 1
+     * @maximum 3650
+     * @nullable
+     */
+  retentionDays: number | null;
 }
 
-export type VideoJobInputMode = typeof VideoJobInputMode[keyof typeof VideoJobInputMode];
+export type OperationsSettings = OperationsSettingsInput & {
+  retentionVersion: number;
+  retentionApproved: boolean;
+  localEnabled: boolean;
+  costNote: string;
+};
 
+export interface ProviderControlInput {
+  localEnabled: boolean;
+  /**
+     * @minLength 10
+     * @maxLength 500
+     */
+  reason: string;
+}
 
-export const VideoJobInputMode = {
-  HEMAT: 'HEMAT',
-  AI: 'AI',
-} as const;
+export interface ProviderControl {
+  id: string;
+  name: string;
+  model: string;
+  enabled: boolean;
+  simulation: boolean;
+  connection: string;
+  capabilities: string;
+  price: string;
+  priceSource: string;
+  /** @nullable */
+  checkedAt: string | null;
+  reason: string;
+}
 
-export interface VideoJobInput {
-  conceptId: string;
-  /** @minimum 1 */
-  version: number;
-  mode: VideoJobInputMode;
-  requestKey: string;
-  options: VideoRenderOptions;
-  confirmed: boolean;
+export interface OperationsAudit {
+  id: string;
+  userId: string;
+  action: string;
+  description: string;
+  /** @nullable */
+  objectId: string | null;
+  result: string;
+  /** @nullable */
+  before: string | null;
+  /** @nullable */
+  after: string | null;
+  createdAt: string;
+}
+
+export interface CostRecord {
+  currency: string;
+  /** @nullable */
+  model: string | null;
+  source: string;
+  /** @nullable */
+  estimatedUsd: number | null;
+  /** @nullable */
+  actualUsd: number | null;
+  /** @nullable */
+  providerUsd: number | null;
+  /** @nullable */
+  renderUsd: number | null;
+  /** @nullable */
+  ttsUsd: number | null;
+  /** @nullable */
+  retryUsd: number | null;
+  reservedUsd: number;
+  retries: number;
+  legacy: boolean;
+}
+
+export interface OperationsGroup {
+  id: string;
+  name: string;
+  jobs: number;
+  successful: number;
+  failed: number;
+  retries: number;
+  /** @nullable */
+  actualUsd: number | null;
+  knownSubtotalUsd: number;
+  unknownCosts: number;
+  /** @nullable */
+  estimatedPendingUsd: number | null;
+  approved: number;
+  rejected: number;
+  waiting: number;
 }
 
 export type VideoJobStatus = typeof VideoJobStatus[keyof typeof VideoJobStatus];
@@ -90,7 +153,62 @@ export const VideoJobMode = {
   AI: 'AI',
 } as const;
 
+export type VideoRenderOptionsMotion = typeof VideoRenderOptionsMotion[keyof typeof VideoRenderOptionsMotion];
+
+
+export const VideoRenderOptionsMotion = {
+  ZOOM_IN: 'ZOOM_IN',
+  ZOOM_OUT: 'ZOOM_OUT',
+  PAN_LEFT: 'PAN_LEFT',
+  PAN_RIGHT: 'PAN_RIGHT',
+} as const;
+
+export type VideoRenderOptionsLogoPosition = typeof VideoRenderOptionsLogoPosition[keyof typeof VideoRenderOptionsLogoPosition];
+
+
+export const VideoRenderOptionsLogoPosition = {
+  TOP_LEFT: 'TOP_LEFT',
+  TOP_RIGHT: 'TOP_RIGHT',
+} as const;
+
+export interface VideoCue {
+  /**
+     * @minimum 0
+     * @maximum 15
+     */
+  start: number;
+  /**
+     * @minimum 0
+     * @maximum 15
+     */
+  end: number;
+}
+
+export interface VideoRenderOptions {
+  motion: VideoRenderOptionsMotion;
+  logoPosition: VideoRenderOptionsLogoPosition;
+  /** @minLength 1 */
+  logoAttachmentId: string;
+  /**
+     * @minItems 1
+     * @maxItems 12
+     */
+  cues: VideoCue[];
+}
+
 export interface VideoJob {
+  publicationStatus?: string;
+  /** @nullable */
+  retentionNoticeAt?: string | null;
+  /** @nullable */
+  retentionNoticeVersion?: number | null;
+  publicationVersion?: number;
+  /** @nullable */
+  reviewerId?: string | null;
+  publicationStale?: boolean;
+  /** @nullable */
+  publicationUrl?: string | null;
+  cost?: CostRecord;
   id: string;
   /** @nullable */
   conceptId: string | null;
@@ -124,6 +242,214 @@ export interface VideoJob {
   rawResultUrl: string | null;
   deleted: boolean;
   options: VideoRenderOptions;
+}
+
+export interface OperationsReport {
+  from: string;
+  to: string;
+  users: OperationsGroup[];
+  modes: OperationsGroup[];
+  providers: OperationsGroup[];
+  jobs: VideoJob[];
+  summary: OperationsGroup;
+  activeMembers: number;
+  pendingMembers: number;
+  characters: number;
+  concepts: number;
+  approvedConcepts: number;
+  rejectedConcepts: number;
+  waitingConcepts: number;
+  processing: number;
+  simulations: number;
+  settings: OperationsSettings;
+  warnings: string[];
+}
+
+export interface RetentionApprovalInput {
+  version: number;
+  confirmed: boolean;
+  /**
+     * @minLength 10
+     * @maxLength 1000
+     */
+  note: string;
+}
+
+export interface RetentionPreview {
+  settings: OperationsSettings;
+  warning: string;
+  candidates: VideoJob[];
+}
+
+export interface ComplianceSource {
+  id: string;
+  title: string;
+  segment: string;
+  content: string;
+  version: string;
+  sha256: string;
+  revision: string;
+  access: string;
+  validation: string;
+  warnings: string[];
+  active: boolean;
+}
+
+export type SourcePolicyInputValidation = typeof SourcePolicyInputValidation[keyof typeof SourcePolicyInputValidation];
+
+
+export const SourcePolicyInputValidation = {
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+export type SourcePolicyInputAccess = typeof SourcePolicyInputAccess[keyof typeof SourcePolicyInputAccess];
+
+
+export const SourcePolicyInputAccess = {
+  INTERNAL_GENERAL: 'INTERNAL_GENERAL',
+  INTERNAL_RESTRICTED: 'INTERNAL_RESTRICTED',
+  APPROVED_FOR_PUBLIC_CONTENT: 'APPROVED_FOR_PUBLIC_CONTENT',
+} as const;
+
+export interface SourcePolicyInput {
+  revision: string;
+  validation: SourcePolicyInputValidation;
+  access: SourcePolicyInputAccess;
+  clearWarnings: boolean;
+  /**
+     * @minLength 10
+     * @maxLength 1500
+     */
+  note: string;
+}
+
+export interface PublicFactInput {
+  sourceId: string;
+  /**
+     * @minLength 10
+     * @maxLength 1200
+     */
+  claim: string;
+  /**
+     * @minLength 10
+     * @maxLength 2000
+     */
+  quote: string;
+}
+
+export type PublicFactRevision = PublicFactInput & {
+  /** @minimum 1 */
+  version: number;
+};
+
+export type PublicFactReviewInputStatus = typeof PublicFactReviewInputStatus[keyof typeof PublicFactReviewInputStatus];
+
+
+export const PublicFactReviewInputStatus = {
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  REVOKED: 'REVOKED',
+} as const;
+
+export interface PublicFactReviewInput {
+  version: number;
+  status: PublicFactReviewInputStatus;
+  /**
+     * @minLength 10
+     * @maxLength 1500
+     */
+  note: string;
+}
+
+export type PublicFact = PublicFactInput & ({
+  id: string;
+  version: number;
+  status: string;
+  segment: string;
+  creatorId: string;
+  /** @nullable */
+  reviewerId: string | null;
+  note: string;
+  /** @nullable */
+  reviewedAt: string | null;
+  sourceRevision: string;
+  usable: boolean;
+});
+
+export interface ConceptVersionEvidence {
+  version: number;
+  status: string;
+  capturedAt: string;
+  evidence: string;
+  limited: boolean;
+}
+
+export type FinalVideoReviewInputAction = typeof FinalVideoReviewInputAction[keyof typeof FinalVideoReviewInputAction];
+
+
+export const FinalVideoReviewInputAction = {
+  SUBMIT: 'SUBMIT',
+  CLAIM: 'CLAIM',
+  APPROVE: 'APPROVE',
+  REJECT: 'REJECT',
+  REVISE: 'REVISE',
+} as const;
+
+export type FinalVideoReviewInputChecklistItem = typeof FinalVideoReviewInputChecklistItem[keyof typeof FinalVideoReviewInputChecklistItem];
+
+
+export const FinalVideoReviewInputChecklistItem = {
+  IDENTITY: 'IDENTITY',
+  VISUAL: 'VISUAL',
+  LOGO: 'LOGO',
+  NUMBERS: 'NUMBERS',
+  PRODUCT: 'PRODUCT',
+  SUBTITLE: 'SUBTITLE',
+  AUDIO: 'AUDIO',
+  CTA: 'CTA',
+  DISCLAIMER: 'DISCLAIMER',
+  CONCEPT: 'CONCEPT',
+} as const;
+
+export interface FinalVideoReviewInput {
+  /** @minimum 0 */
+  version: number;
+  action: FinalVideoReviewInputAction;
+  /** @maxLength 1500 */
+  note: string;
+  /** @maxItems 10 */
+  checklist: FinalVideoReviewInputChecklistItem[];
+}
+
+export interface FinalVideoEvidence {
+  job: VideoJob;
+  stale: boolean;
+  reasons: string[];
+  /** @nullable */
+  referenceUrl: string | null;
+  /** @nullable */
+  conceptUrl: string | null;
+  history: ConceptVersionEvidence[];
+}
+
+export type VideoJobInputMode = typeof VideoJobInputMode[keyof typeof VideoJobInputMode];
+
+
+export const VideoJobInputMode = {
+  HEMAT: 'HEMAT',
+  AI: 'AI',
+} as const;
+
+export interface VideoJobInput {
+  conceptId: string;
+  /** @minimum 1 */
+  version: number;
+  mode: VideoJobInputMode;
+  requestKey: string;
+  options: VideoRenderOptions;
+  confirmed: boolean;
 }
 
 export interface VideoConfig {
@@ -279,6 +605,9 @@ export const CreativeConceptInputFormat = {
 } as const;
 
 export interface CreativeConceptInput {
+  /** @maxItems 30 */
+  factIds?: string[];
+  noFactualClaims?: boolean;
   /**
      * @minLength 1
      * @maxLength 120
@@ -375,8 +704,10 @@ export type CreativeConceptStatus = typeof CreativeConceptStatus[keyof typeof Cr
 export const CreativeConceptStatus = {
   DRAFT: 'DRAFT',
   READY_FOR_REVIEW: 'READY_FOR_REVIEW',
+  UNDER_REVIEW: 'UNDER_REVIEW',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
+  REVISED: 'REVISED',
 } as const;
 
 export type CreativeConcept = CreativeConceptUpdate & CreativePreview & ({
@@ -402,11 +733,14 @@ export type CreativeStatusInputStatus = typeof CreativeStatusInputStatus[keyof t
 export const CreativeStatusInputStatus = {
   DRAFT: 'DRAFT',
   READY_FOR_REVIEW: 'READY_FOR_REVIEW',
+  UNDER_REVIEW: 'UNDER_REVIEW',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
+  REVISED: 'REVISED',
 } as const;
 
 export interface CreativeStatusInput {
+  factsChecked?: boolean;
   /** @minimum 1 */
   version: number;
   status: CreativeStatusInputStatus;
@@ -594,6 +928,18 @@ export interface Success {
 export interface HealthStatus {
   status: string;
 }
+
+export type GetOperationsReportParams = {
+from?: string;
+to?: string;
+userId?: string;
+};
+
+export type ExportOperationsReportParams = {
+from?: string;
+to?: string;
+userId?: string;
+};
 
 export type ListKnowledgeParams = {
 /**

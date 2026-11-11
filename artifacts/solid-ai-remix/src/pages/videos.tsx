@@ -90,7 +90,7 @@ export default function VideosPage({ me }: { me: Member }) {
           {jobs.isLoading ? <div className="mt-3 space-y-2">{[0, 1].map((i) => <Skeleton key={i} className="h-40 rounded-2xl" />)}</div>
             : jobs.isError ? <div className="mt-3"><ErrorBox message={errMsg(jobs.error)} onRetry={() => jobs.refetch()} /></div>
             : !jobs.data?.length ? <p className="mt-3 rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">Belum ada job video.</p>
-            : <ul className="mt-3 space-y-3">{[...jobs.data].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map((j) => <JobCard key={j.id} j={j} onCancel={onCancel} onDelete={onDelete} onNewVersion={onNewVersion} pending={!canWrite || cancel.isPending || del.isPending} />)}</ul>}
+            : <ul className="mt-3 space-y-3">{[...jobs.data].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map((j) => <JobCard key={j.id} j={j} onCancel={onCancel} onDelete={onDelete} onNewVersion={onNewVersion} canManage={canWrite && (isAdmin || j.ownerId === me.id)} pending={!canWrite || cancel.isPending || del.isPending} />)}</ul>}
           {cfg && <p className="mt-3 text-xs text-muted-foreground">{cfg.retentionNote}</p>}
         </aside>
       </div>

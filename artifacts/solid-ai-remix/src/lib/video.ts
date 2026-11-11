@@ -49,3 +49,38 @@ export function cueErrors(cues: VideoCue[], duration: number): string[] {
 export function usd(n: number | null | undefined): string {
   return n === null || n === undefined ? 'Tidak diketahui' : `US$${n.toFixed(4)}`;
 }
+
+export const publicationStatusLabel: Record<string, string> = {
+  GENERATED: 'Belum diajukan',
+  WAITING_FINAL_REVIEW: 'Menunggu review akhir',
+  APPROVED_FOR_PUBLICATION: 'Disetujui publikasi',
+  REJECTED: 'Ditolak',
+  REVISION_REQUIRED: 'Perlu revisi',
+};
+export function isPublishApproved(j: VideoJob): boolean {
+  return j.publicationStatus === 'APPROVED_FOR_PUBLICATION' && !j.publicationStale;
+}
+export function publicationLabel(j: VideoJob): string {
+  const s = j.publicationStatus ?? 'GENERATED';
+  const base = publicationStatusLabel[s] ?? s;
+  if (s === 'WAITING_FINAL_REVIEW') return j.reviewerId ? 'Sedang ditinjau' : base;
+  return j.publicationStale && s === 'APPROVED_FOR_PUBLICATION' ? 'Persetujuan usang' : base;
+}
+export function publicationTone(j: VideoJob): 'muted' | 'sun' | 'ok' | 'hot' {
+  const s = j.publicationStatus ?? 'GENERATED';
+  if (isPublishApproved(j)) return 'ok';
+  if (s === 'WAITING_FINAL_REVIEW') return 'sun';
+  if (s === 'REJECTED' || s === 'REVISION_REQUIRED' || j.publicationStale) return 'hot';
+  return 'muted';
+}
+/** Actual total cost; never falls back to the provider-only component. */
+export function actualCost(j: VideoJob): number | null {
+  return j.cost ? j.cost.actualUsd : j.actualCostUsd;
+}
+
+/** Per-job retention notice (field added by Phase D codegen; read defensively). */
+export function retentionNotice(j: VideoJob): { at: string; version: number | null } | null {
+  const x = j as VideoJob & { retentionNoticeAt?: string | null; retentionVersion?: number | null; retentionPolicyVersion?: number | null };
+  if (!x.retentionNoticeAt) return null;
+  return { at: x.retentionNoticeAt, version: x.retentionNoticeVersion ?? x.retentionPolicyVersion ?? x.retentionVersion ?? null };
+}

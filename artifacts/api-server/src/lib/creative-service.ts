@@ -3,6 +3,7 @@ import { db, creativeConcepts, conceptAttachments, creativeReviews, members, kno
 import { GetCreativeConceptResponse } from "@workspace/api-zod";
 import { CreativeError, canReadConcept } from "./creative-policy";
 import { buildCreative, parseConcept, staleReasons, type CreativeSnapshot } from "./creative-builder";
+import { captureVersion } from "./operations/versions";
 
 export type CreativeRow = typeof creativeConcepts.$inferSelect;
 export type CreativeTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -19,6 +20,7 @@ export async function readyMaterials(id: string, tx?: CreativeTx) {
   return (tx ?? db).select().from(conceptAttachments).where(and(eq(conceptAttachments.conceptId, id), eq(conceptAttachments.state, "READY"))).orderBy(asc(conceptAttachments.createdAt));
 }
 export async function rebuildConcept(row: CreativeRow, member: MemberRecord, tx: CreativeTx) {
+  await captureVersion(row, tx);
   const input = parseConcept(row.data);
   const materials = await readyMaterials(row.id, tx);
   const built = await buildCreative(input, member, tx, materials);
@@ -33,6 +35,7 @@ export async function serializeConcept(row: CreativeRow, viewer: MemberRecord) {
   const input = parseConcept(row.data);
   const snapshot = row.snapshot as CreativeSnapshot;
   const reasons = await staleReasons(snapshot);
+  if (input.publicMode && snapshot.policyVersion !== 2) reasons.push("Persetujuan lama belum mengikat fakta spesifik; simpan dan review ulang.");
   const [owner] = await db.select({ name: members.name }).from(members).where(eq(members.id, row.ownerId));
   const attachments = await db.select().from(conceptAttachments).where(and(
     eq(conceptAttachments.conceptId, row.id), inArray(conceptAttachments.state, ["PENDING", "READY"]),

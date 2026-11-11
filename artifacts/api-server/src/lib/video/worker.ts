@@ -1,5 +1,5 @@
 import { createReadStream } from "node:fs";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import { readdir, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -15,6 +15,7 @@ import { eligibleConcept } from "./policy";
 import { renderHemat } from "./renderer";
 import { settings, monthlyUsage } from "./service";
 import { logger } from "../logger";
+import { runRetention } from "../operations/retention";
 
 let running = false;
 const finalPath = (job: VideoJobRow) => `/objects/videos/${job.id}-final.mp4`;
@@ -64,8 +65,9 @@ export async function runVideoWorker() {
     // Retry cleanup of explicitly deleted results if storage was unavailable.
     const deleted = await db.select().from(videoJobs).where(and(eq(videoJobs.deleted, true), eq(videoJobs.status, "COMPLETED"))).limit(20);
     for (const job of deleted) await videoFile(finalPath(job)).delete({ ignoreNotFound: true });
+    await runRetention();
     const config = await settings();
-    if (config.paused || (config.budgetUsd !== null && (await monthlyUsage()).knownProviderUsd >= config.budgetUsd)) return;
+    if (config.paused || !config.localEnabled) return;
     const [next] = await conn.query("SELECT id FROM solid_video_jobs WHERE status='QUEUED' ORDER BY created_at LIMIT 1").then(r => r.rows);
     if (!next) return;
     const [job] = await db.update(videoJobs).set({ status: "PROCESSING", attempts: 1, submittedAt: new Date(), updatedAt: new Date() })
@@ -96,6 +98,10 @@ export async function runVideoWorker() {
       await renderHemat({ duration: job.durationSeconds, character, logo, scenes, audio, options: job.options as VideoRenderOptions,
         chunks: valid.chunks, cta: valid.data.cta, disclaimer: valid.data.disclaimer ?? "" }, async path => {
         if (abort.signal.aborted) throw new Error("Cancelled");
+        const hash = createHash("sha256");
+        let resultBytes = 0;
+        for await (const part of createReadStream(path)) { hash.update(part); resultBytes += part.length; }
+        const resultHash = hash.digest("hex");
         const file = videoFile(finalPath(job));
         await pipeline(createReadStream(path), file.createWriteStream({ resumable: false, contentType: "video/mp4",
           metadata: { cacheControl: "private, no-store", metadata: { jobId: job.id } } }), { signal: abort.signal });
@@ -103,7 +109,7 @@ export async function runVideoWorker() {
         await validateJob(job);
         const [exists] = await file.exists();
         if (!exists) throw new Error("Result not available");
-        const [saved] = await db.update(videoJobs).set({ status: "COMPLETED", resultPath: finalPath(job), renderMilliseconds: Date.now() - started, updatedAt: new Date() })
+        const [saved] = await db.update(videoJobs).set({ status: "COMPLETED", resultPath: finalPath(job), resultHash, resultBytes, renderMilliseconds: Date.now() - started, updatedAt: new Date() })
           .where(and(eq(videoJobs.id, job.id), eq(videoJobs.status, "PROCESSING"), eq(videoJobs.deleted, false))).returning();
         if (!saved) await file.delete({ ignoreNotFound: true });
         else await db.insert(auditLog).values({ id: randomUUID(), userId: job.ownerId, action: "VIDEO_COMPLETED", description: `MP4 Hemat ${job.id} tersimpan privat; biaya komputasi belum diukur.` }).catch(() => logger.warn("Completed video audit deferred; result preserved"));

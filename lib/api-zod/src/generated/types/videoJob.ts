@@ -5,11 +5,24 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
+import type { CostRecord } from './costRecord';
 import type { VideoJobMode } from './videoJobMode';
 import type { VideoJobStatus } from './videoJobStatus';
 import type { VideoRenderOptions } from './videoRenderOptions';
 
 export interface VideoJob {
+  publicationStatus?: string;
+  /** @nullable */
+  retentionNoticeAt?: string | null;
+  /** @nullable */
+  retentionNoticeVersion?: number | null;
+  publicationVersion?: number;
+  /** @nullable */
+  reviewerId?: string | null;
+  publicationStale?: boolean;
+  /** @nullable */
+  publicationUrl?: string | null;
+  cost?: CostRecord;
   id: string;
   /** @nullable */
   conceptId: string | null;

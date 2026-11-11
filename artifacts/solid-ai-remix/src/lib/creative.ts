@@ -10,6 +10,8 @@ export const segmentLabel: Record<CreativeSegment, string> = {
 export const conceptStatusLabel: Record<CreativeConceptStatus, string> = {
   DRAFT: 'Draft',
   READY_FOR_REVIEW: 'Siap ditinjau',
+  UNDER_REVIEW: 'Sedang ditinjau',
+  REVISED: 'Perlu revisi',
   APPROVED: 'Disetujui',
   REJECTED: 'Ditolak',
 };
@@ -17,6 +19,8 @@ export const conceptStatusLabel: Record<CreativeConceptStatus, string> = {
 export const conceptStatusTone: Record<CreativeConceptStatus, 'muted' | 'sun' | 'ok' | 'hot'> = {
   DRAFT: 'muted',
   READY_FOR_REVIEW: 'sun',
+  UNDER_REVIEW: 'sun',
+  REVISED: 'hot',
   APPROVED: 'ok',
   REJECTED: 'hot',
 };
@@ -24,6 +28,8 @@ export const conceptStatusTone: Record<CreativeConceptStatus, 'muted' | 'sun' | 
 export const reviewActionLabel: Record<string, string> = {
   READY_FOR_REVIEW: 'Diajukan',
   DRAFT: 'Ditarik ke draft',
+  UNDER_REVIEW: 'Mulai ditinjau',
+  REVISED: 'Diminta revisi',
   APPROVED: 'Disetujui',
   REJECTED: 'Ditolak',
 };
@@ -52,6 +58,8 @@ export function emptyInput(characterId = ''): CreativeConceptInput {
     sourceIds: [],
     publicMode: true,
     materialConsent: false,
+    factIds: [],
+    noFactualClaims: false,
   };
 }
 
@@ -79,6 +87,8 @@ export function toInput(c: CreativeConcept): CreativeConceptInput {
     sourceIds: [...c.sourceIds],
     publicMode: c.publicMode,
     materialConsent: c.materialConsent,
+    factIds: [...(c.factIds ?? [])],
+    noFactualClaims: c.noFactualClaims ?? false,
   };
 }
 

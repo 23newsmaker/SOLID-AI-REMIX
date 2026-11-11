@@ -3,10 +3,10 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
-import { clerkMiddleware } from "@clerk/express";
+import { clerkMiddleware, getAuth } from "@clerk/express";
 import { publishableKeyFromHost } from "@clerk/shared/keys";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
-import { rateLimit } from "express-rate-limit";
+import { rateLimit, ipKeyGenerator } from "express-rate-limit";
 import { CreativeError } from "./lib/creative-policy";
 
 const app: Express = express();
@@ -52,7 +52,9 @@ app.use("/api", (req, res, next) => {
   }
   next();
 });
-app.use("/api", rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: "draft-7", legacyHeaders: false, message: { error: "Terlalu banyak permintaan. Coba lagi sebentar." } }));
+app.use("/api", rateLimit({ windowMs: 60_000, limit: 120,
+  keyGenerator: req => getAuth(req).userId ?? ipKeyGenerator(req.ip ?? "127.0.0.1"),
+  standardHeaders: "draft-7", legacyHeaders: false, message: { error: "Terlalu banyak permintaan. Coba lagi sebentar." } }));
 
 app.use("/api", router);
 app.use((error: unknown, req: express.Request, res: express.Response, _next: express.NextFunction) => {

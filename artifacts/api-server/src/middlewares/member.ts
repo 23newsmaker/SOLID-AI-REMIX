@@ -1,7 +1,8 @@
 import { clerkClient, getAuth } from "@clerk/express";
-import { db, members, adminGrants, auditLog, type MemberRecord } from "@workspace/db";
+import { db, members, adminGrants, auditLog, sessionAudits, type MemberRecord } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
+import { audit } from "../lib/operations/audit";
 import type { Request, RequestHandler } from "express";
 
 declare global {
@@ -15,7 +16,18 @@ export const requireMember: RequestHandler = async (req, res, next) => {
     const userId = getAuth(req).userId;
     if (!userId) { res.status(401).json({ error: "Silakan masuk terlebih dahulu." }); return; }
     const existing = await db.select().from(members).where(eq(members.id, userId)).limit(1);
-    if (existing[0]) { req.member = existing[0]; next(); return; }
+    if (existing[0]) {
+      req.member = existing[0];
+      const sessionId = getAuth(req).sessionId;
+      if (sessionId) {
+        const key = createHash("sha256").update(`${userId}:${sessionId}`).digest("hex");
+        await db.transaction(async tx => {
+          const inserted = await tx.insert(sessionAudits).values({ key, userId }).onConflictDoNothing().returning();
+          if (inserted.length) await audit(userId, "AUTHENTICATED_APP_SESSION", userId, null, { status: existing[0]!.status }, tx);
+        });
+      }
+      next(); return;
+    }
 
     const user = await clerkClient.users.getUser(userId);
     const primary = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId);
@@ -67,6 +79,10 @@ export const requireSuperAdmin: RequestHandler = (req, res, next) => {
   if (req.member?.role !== "SUPER_ADMIN") {
     res.status(403).json({ error: "Hanya admin utama yang dapat mengelola anggota." }); return;
   }
+  next();
+};
+export const requireTeamManager: RequestHandler = (req, res, next) => {
+  if (!["SUPER_ADMIN", "ADMIN"].includes(req.member?.role ?? "")) { res.status(403).json({ error: "Pengelolaan anggota hanya admin." }); return; }
   next();
 };
 

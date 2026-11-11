@@ -11,6 +11,224 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /operations/report:
+    get:
+      operationId: getOperationsReport
+      parameters:
+        - {in: query, name: from, schema: {type: string, format: date}}
+        - {in: query, name: to, schema: {type: string, format: date}}
+        - {in: query, name: userId, schema: {type: string}}
+      responses:
+        "200":
+          description: Filtered operational report, production separated from simulations
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OperationsReport"}
+  /operations/export:
+    get:
+      operationId: exportOperationsReport
+      parameters:
+        - {in: query, name: from, schema: {type: string, format: date}}
+        - {in: query, name: to, schema: {type: string, format: date}}
+        - {in: query, name: userId, schema: {type: string}}
+      responses:
+        "200": {description: Authorized CSV with formula injection protection}
+  /operations/settings:
+    get:
+      operationId: getOperationsSettings
+      responses:
+        "200":
+          description: Admin operational settings
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OperationsSettings"}
+    patch:
+      operationId: updateOperationsSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/OperationsSettingsInput"}
+      responses:
+        "200":
+          description: Saved settings, no paid activation
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OperationsSettings"}
+  /operations/providers:
+    get:
+      operationId: getProviderControls
+      responses:
+        "200":
+          description: Super admin provider information
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/ProviderControl"}}
+    patch:
+      operationId: updateProviderControls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ProviderControlInput"}
+      responses:
+        "200":
+          description: Local switch saved, AI remains disabled
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/ProviderControl"}}
+  /operations/retention:
+    get:
+      operationId: getRetentionPreview
+      responses:
+        "200":
+          description: Retention preview, no deletion
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/RetentionPreview"}
+    post:
+      operationId: approveRetentionPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/RetentionApprovalInput"}
+      responses:
+        "200":
+          description: Explicit owner policy approval
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/RetentionPreview"}
+  /operations/audit:
+    get:
+      operationId: getOperationsAudit
+      responses:
+        "200":
+          description: Admin only immutable activity evidence
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/OperationsAudit"}}
+  /operations/sources:
+    get:
+      operationId: listComplianceSources
+      responses:
+        "200":
+          description: Restricted source review
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/ComplianceSource"}}
+  /operations/sources/{id}:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string}}
+    patch:
+      operationId: reviewComplianceSource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SourcePolicyInput"}
+      responses:
+        "200":
+          description: Explicit single source decision, not automatic claim approval
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ComplianceSource"}
+  /facts:
+    get:
+      operationId: listPublicFacts
+      responses:
+        "200":
+          description: Facts visible to current role
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/PublicFact"}}
+    post:
+      operationId: createPublicFact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/PublicFactInput"}
+      responses:
+        "200":
+          description: Draft fact for independent review
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublicFact"}
+  /facts/{id}:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string, format: uuid}}
+    put:
+      operationId: revisePublicFact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/PublicFactRevision"}
+      responses:
+        "200":
+          description: Fact revision needs new independent approval
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublicFact"}
+  /facts/{id}/review:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: reviewPublicFact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/PublicFactReviewInput"}
+      responses:
+        "200":
+          description: Independent review or revocation
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublicFact"}
+  /creative/concepts/{id}/versions:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string}}
+    get:
+      operationId: getConceptVersions
+      responses:
+        "200":
+          description: Retained version snapshots with current permissions
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/ConceptVersionEvidence"}}
+  /video/jobs/{id}/review:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string, format: uuid}}
+    get:
+      operationId: getFinalVideoReview
+      responses:
+        "200":
+          description: Bound final review evidence and limited references
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FinalVideoEvidence"}
+    post:
+      operationId: transitionFinalVideoReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/FinalVideoReviewInput"}
+      responses:
+        "200":
+          description: Final video review transition
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FinalVideoEvidence"}
+  /video/jobs/{id}/reference:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string, format: uuid}}
+    get:
+      operationId: getVideoReviewReference
+      responses:
+        "200": {description: "Character photo only for owner, admin or assigned reviewer"}
   /video/config:
     get:
       operationId: getVideoConfig
@@ -503,6 +721,218 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    OperationsSettingsInput:
+      type: object
+      required: [paused, dailyLimit, budgetUsd, dailyBudgetUsd, userBudgetUsd, warningPercent, retentionDays]
+      properties:
+        paused: {type: boolean}
+        dailyLimit: {type: integer, minimum: 1, maximum: 3}
+        budgetUsd: {type: [number, "null"], minimum: 0, maximum: 10000}
+        dailyBudgetUsd: {type: [number, "null"], minimum: 0, maximum: 10000}
+        userBudgetUsd: {type: [number, "null"], minimum: 0, maximum: 10000}
+        warningPercent: {type: integer, minimum: 1, maximum: 100}
+        retentionDays: {type: [integer, "null"], minimum: 1, maximum: 3650}
+    OperationsSettings:
+      allOf:
+        - {$ref: "#/components/schemas/OperationsSettingsInput"}
+        - type: object
+          required: [retentionVersion, retentionApproved, localEnabled, costNote]
+          properties:
+            retentionVersion: {type: integer}
+            retentionApproved: {type: boolean}
+            localEnabled: {type: boolean}
+            costNote: {type: string}
+    ProviderControlInput:
+      type: object
+      required: [localEnabled, reason]
+      properties:
+        localEnabled: {type: boolean}
+        reason: {type: string, minLength: 10, maxLength: 500}
+    ProviderControl:
+      type: object
+      required: [id, name, model, enabled, simulation, connection, capabilities, price, priceSource, checkedAt, reason]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        model: {type: string}
+        enabled: {type: boolean}
+        simulation: {type: boolean}
+        connection: {type: string}
+        capabilities: {type: string}
+        price: {type: string}
+        priceSource: {type: string}
+        checkedAt: {type: [string, "null"]}
+        reason: {type: string}
+    OperationsAudit:
+      type: object
+      required: [id, userId, action, description, objectId, result, before, after, createdAt]
+      properties:
+        id: {type: string}
+        userId: {type: string}
+        action: {type: string}
+        description: {type: string}
+        objectId: {type: [string, "null"]}
+        result: {type: string}
+        before: {type: [string, "null"]}
+        after: {type: [string, "null"]}
+        createdAt: {type: string}
+    CostRecord:
+      type: object
+      required: [currency, model, source, estimatedUsd, actualUsd, providerUsd, renderUsd, ttsUsd, retryUsd, reservedUsd, retries, legacy]
+      properties:
+        currency: {type: string}
+        model: {type: [string, "null"]}
+        source: {type: string}
+        estimatedUsd: {type: [number, "null"]}
+        actualUsd: {type: [number, "null"]}
+        providerUsd: {type: [number, "null"]}
+        renderUsd: {type: [number, "null"]}
+        ttsUsd: {type: [number, "null"]}
+        retryUsd: {type: [number, "null"]}
+        reservedUsd: {type: number}
+        retries: {type: integer}
+        legacy: {type: boolean}
+    OperationsGroup:
+      type: object
+      required: [id, name, jobs, successful, failed, retries, actualUsd, knownSubtotalUsd, unknownCosts, estimatedPendingUsd, approved, rejected, waiting]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        jobs: {type: integer}
+        successful: {type: integer}
+        failed: {type: integer}
+        retries: {type: integer}
+        actualUsd: {type: [number, "null"]}
+        knownSubtotalUsd: {type: number}
+        unknownCosts: {type: integer}
+        estimatedPendingUsd: {type: [number, "null"]}
+        approved: {type: integer}
+        rejected: {type: integer}
+        waiting: {type: integer}
+    OperationsReport:
+      type: object
+      required: [from, to, users, modes, providers, jobs, summary, activeMembers, pendingMembers, characters, concepts, approvedConcepts, rejectedConcepts, waitingConcepts, processing, simulations, settings, warnings]
+      properties:
+        from: {type: string}
+        to: {type: string}
+        users: {type: array, items: {$ref: "#/components/schemas/OperationsGroup"}}
+        modes: {type: array, items: {$ref: "#/components/schemas/OperationsGroup"}}
+        providers: {type: array, items: {$ref: "#/components/schemas/OperationsGroup"}}
+        jobs: {type: array, items: {$ref: "#/components/schemas/VideoJob"}}
+        summary: {$ref: "#/components/schemas/OperationsGroup"}
+        activeMembers: {type: integer}
+        pendingMembers: {type: integer}
+        characters: {type: integer}
+        concepts: {type: integer}
+        approvedConcepts: {type: integer}
+        rejectedConcepts: {type: integer}
+        waitingConcepts: {type: integer}
+        processing: {type: integer}
+        simulations: {type: integer}
+        settings: {$ref: "#/components/schemas/OperationsSettings"}
+        warnings: {type: array, items: {type: string}}
+    RetentionApprovalInput:
+      type: object
+      required: [version, confirmed, note]
+      properties:
+        version: {type: integer}
+        confirmed: {type: boolean}
+        note: {type: string, minLength: 10, maxLength: 1000}
+    RetentionPreview:
+      type: object
+      required: [settings, warning, candidates]
+      properties:
+        settings: {$ref: "#/components/schemas/OperationsSettings"}
+        warning: {type: string}
+        candidates: {type: array, items: {$ref: "#/components/schemas/VideoJob"}}
+    ComplianceSource:
+      type: object
+      required: [id, title, segment, content, version, sha256, revision, access, validation, warnings, active]
+      properties:
+        id: {type: string}
+        title: {type: string}
+        segment: {type: string}
+        content: {type: string}
+        version: {type: string}
+        sha256: {type: string}
+        revision: {type: string}
+        access: {type: string}
+        validation: {type: string}
+        warnings: {type: array, items: {type: string}}
+        active: {type: boolean}
+    SourcePolicyInput:
+      type: object
+      required: [revision, validation, access, clearWarnings, note]
+      properties:
+        revision: {type: string}
+        validation: {type: string, enum: [NEEDS_REVIEW, APPROVED, REJECTED]}
+        access: {type: string, enum: [INTERNAL_GENERAL, INTERNAL_RESTRICTED, APPROVED_FOR_PUBLIC_CONTENT]}
+        clearWarnings: {type: boolean}
+        note: {type: string, minLength: 10, maxLength: 1500}
+    PublicFactInput:
+      type: object
+      required: [sourceId, claim, quote]
+      properties:
+        sourceId: {type: string}
+        claim: {type: string, minLength: 10, maxLength: 1200}
+        quote: {type: string, minLength: 10, maxLength: 2000}
+    PublicFactRevision:
+      allOf:
+        - {$ref: "#/components/schemas/PublicFactInput"}
+        - type: object
+          required: [version]
+          properties:
+            version: {type: integer, minimum: 1}
+    PublicFactReviewInput:
+      type: object
+      required: [version, status, note]
+      properties:
+        version: {type: integer}
+        status: {type: string, enum: [APPROVED, REJECTED, REVOKED]}
+        note: {type: string, minLength: 10, maxLength: 1500}
+    PublicFact:
+      allOf:
+        - {$ref: "#/components/schemas/PublicFactInput"}
+        - type: object
+          required: [id, version, status, segment, creatorId, reviewerId, note, reviewedAt, sourceRevision, usable]
+          properties:
+            id: {type: string}
+            version: {type: integer}
+            status: {type: string}
+            segment: {type: string}
+            creatorId: {type: string}
+            reviewerId: {type: [string, "null"]}
+            note: {type: string}
+            reviewedAt: {type: [string, "null"]}
+            sourceRevision: {type: string}
+            usable: {type: boolean}
+    ConceptVersionEvidence:
+      type: object
+      required: [version, status, capturedAt, evidence, limited]
+      properties:
+        version: {type: integer}
+        status: {type: string}
+        capturedAt: {type: string}
+        evidence: {type: string}
+        limited: {type: boolean}
+    FinalVideoReviewInput:
+      type: object
+      required: [version, action, note, checklist]
+      properties:
+        version: {type: integer, minimum: 0}
+        action: {type: string, enum: [SUBMIT, CLAIM, APPROVE, REJECT, REVISE]}
+        note: {type: string, maxLength: 1500}
+        checklist: {type: array, maxItems: 10, items: {type: string, enum: [IDENTITY, VISUAL, LOGO, NUMBERS, PRODUCT, SUBTITLE, AUDIO, CTA, DISCLAIMER, CONCEPT]}}
+    FinalVideoEvidence:
+      type: object
+      required: [job, stale, reasons, referenceUrl, conceptUrl, history]
+      properties:
+        job: {$ref: "#/components/schemas/VideoJob"}
+        stale: {type: boolean}
+        reasons: {type: array, items: {type: string}}
+        referenceUrl: {type: [string, "null"]}
+        conceptUrl: {type: [string, "null"]}
+        history: {type: array, items: {$ref: "#/components/schemas/ConceptVersionEvidence"}}
     VideoCue:
       type: object
       required: [start, end]
@@ -531,6 +961,14 @@ components:
       type: object
       required: [id, conceptId, conceptVersion, characterId, title, ownerId, status, mode, provider, simulation, durationSeconds, width, height, attempts, createdAt, updatedAt, submittedAt, error, estimatedCostUsd, actualCostUsd, providerCostUsd, resultUrl, rawResultUrl, deleted, options]
       properties:
+        publicationStatus: {type: string}
+        retentionNoticeAt: {type: [string, "null"]}
+        retentionNoticeVersion: {type: [integer, "null"]}
+        publicationVersion: {type: integer}
+        reviewerId: {type: [string, "null"]}
+        publicationStale: {type: boolean}
+        publicationUrl: {type: [string, "null"]}
+        cost: {$ref: "#/components/schemas/CostRecord"}
         id: {type: string}
         conceptId: {type: [string, "null"]}
         conceptVersion: {type: integer}
@@ -670,6 +1108,8 @@ components:
       type: object
       required: [title, characterId, categoryId, segments, style, mode, templateId, purpose, direction, scenes, characterMotion, cameraMotion, visual, narration, subtitle, cta, format, durationSeconds, sourceIds, publicMode, materialConsent]
       properties:
+        factIds: {type: array, default: [], maxItems: 30, items: {type: string, format: uuid}}
+        noFactualClaims: {type: boolean, default: false}
         title: {type: string, minLength: 1, maxLength: 120}
         characterId: {type: string, minLength: 1}
         categoryId: {type: string, minLength: 1}
@@ -746,7 +1186,7 @@ components:
             categoryName: {type: string}
             templateName: {type: [string, "null"]}
             characterName: {type: string}
-            status: {type: string, enum: [DRAFT, READY_FOR_REVIEW, APPROVED, REJECTED]}
+            status: {type: string, enum: [DRAFT, READY_FOR_REVIEW, UNDER_REVIEW, APPROVED, REJECTED, REVISED]}
             stale: {type: boolean}
             staleReasons: {type: array, items: {type: string}}
             createdAt: {type: string}
@@ -757,8 +1197,9 @@ components:
       type: object
       required: [version, status, note]
       properties:
+        factsChecked: {type: boolean, default: false}
         version: {type: integer, minimum: 1}
-        status: {type: string, enum: [DRAFT, READY_FOR_REVIEW, APPROVED, REJECTED]}
+        status: {type: string, enum: [DRAFT, READY_FOR_REVIEW, UNDER_REVIEW, APPROVED, REJECTED, REVISED]}
         note: {type: string, maxLength: 2000}
     ConceptUploadInput:
       type: object
