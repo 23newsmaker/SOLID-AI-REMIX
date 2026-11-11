@@ -6,6 +6,7 @@ export class CreativeError extends Error {
 export const limits = {
   maxConcepts: 10, maxImages: 3, maxImageBytes: 5 * 1024 * 1024,
   maxVideos: 1, maxVideoBytes: 20 * 1024 * 1024, maxTotalBytes: 35 * 1024 * 1024,
+  maxAudio: 1, maxAudioBytes: 5 * 1024 * 1024,
 };
 export const libraryAdmin = (m: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(m.role);
 export function canReadConcept(m: Pick<MemberRecord, "id" | "role">, c: { ownerId: string; submittedAt: Date | null; status: string }) {
@@ -29,8 +30,9 @@ export function checkQuota(rows: { contentType: string; size: number }[], next: 
   if (all.reduce((n, r) => n + r.size, 0) > limits.maxTotalBytes ||
     all.filter(r => r.contentType.startsWith("image/")).length > limits.maxImages ||
     all.filter(r => r.contentType === "video/mp4").length > limits.maxVideos ||
+    all.filter(r => r.contentType.startsWith("audio/")).length > limits.maxAudio ||
     next.size > (next.contentType === "video/mp4" ? limits.maxVideoBytes : limits.maxImageBytes)) {
-    throw new CreativeError(409, "Kuota bahan terlampaui: 3 gambar × 5 MiB, 1 MP4 × 20 MiB, total 35 MiB termasuk unggahan tertunda.");
+    throw new CreativeError(409, "Kuota bahan terlampaui: 3 gambar × 5 MiB, 1 MP4 × 20 MiB, 1 audio × 5 MiB, total 35 MiB termasuk unggahan tertunda.");
   }
 }
 export function checkTransition(m: Pick<MemberRecord, "id" | "role">, c: { ownerId: string; status: string }, next: string) {

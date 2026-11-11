@@ -106,6 +106,7 @@ export async function buildCreative(input: CreativeConceptInput, member: MemberR
     narration: { text: input.narration, validation: "UNVALIDATED_USER_TEXT" },
     subtitle: { text: input.subtitle, validation: "UNVALIDATED_USER_TEXT" },
     cta: { text: input.cta, validation: "UNVALIDATED_USER_TEXT" },
+    disclaimer: { text: input.disclaimer, validation: "REQUIRES_HUMAN_REVIEW" },
     materials: materials.map(m => ({
       id: m.id, name: m.name, contentType: m.contentType, size: m.size,
       validation: "NOT_INTERPRETED", publicUseDeclared: input.materialConsent,

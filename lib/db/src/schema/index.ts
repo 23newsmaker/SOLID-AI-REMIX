@@ -22,3 +22,4 @@ export * from "./characters";
 export * from "./knowledge";
 export * from "./audit";
 export * from "./creative";
+export * from "./video";

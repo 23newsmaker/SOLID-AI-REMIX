@@ -53,7 +53,12 @@ import type {
   Overview,
   Success,
   UploadInput,
-  UploadTicket
+  UploadTicket,
+  VideoConfig,
+  VideoJob,
+  VideoJobInput,
+  VideoSettingsInput,
+  VideoUsage
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -82,6 +87,781 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetVideoConfigUrl = () => {
+
+
+
+
+  return `/api/video/config`
+}
+
+export const getVideoConfig = async ( options?: Parameters<typeof customFetch>[1]): Promise<VideoConfig> => {
+
+  return customFetch<VideoConfig>(getGetVideoConfigUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetVideoConfigQueryKey = () => {
+    return [
+    `/api/video/config`
+    ] as const;
+    }
+
+
+export const getGetVideoConfigQueryOptions = <TData = Awaited<ReturnType<typeof getVideoConfig>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoConfig>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVideoConfigQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVideoConfig>>> = ({ signal }) => getVideoConfig({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVideoConfig>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetVideoConfigQueryResult = NonNullable<Awaited<ReturnType<typeof getVideoConfig>>>
+export type GetVideoConfigQueryError = ErrorType<unknown>
+
+
+export function useGetVideoConfig<TData = Awaited<ReturnType<typeof getVideoConfig>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoConfig>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVideoConfig>>,
+          TError,
+          Awaited<ReturnType<typeof getVideoConfig>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVideoConfig<TData = Awaited<ReturnType<typeof getVideoConfig>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoConfig>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVideoConfig>>,
+          TError,
+          Awaited<ReturnType<typeof getVideoConfig>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVideoConfig<TData = Awaited<ReturnType<typeof getVideoConfig>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoConfig>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetVideoConfig<TData = Awaited<ReturnType<typeof getVideoConfig>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoConfig>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetVideoConfigQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListVideoJobsUrl = () => {
+
+
+
+
+  return `/api/video/jobs`
+}
+
+export const listVideoJobs = async ( options?: Parameters<typeof customFetch>[1]): Promise<VideoJob[]> => {
+
+  return customFetch<VideoJob[]>(getListVideoJobsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListVideoJobsQueryKey = () => {
+    return [
+    `/api/video/jobs`
+    ] as const;
+    }
+
+
+export const getListVideoJobsQueryOptions = <TData = Awaited<ReturnType<typeof listVideoJobs>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listVideoJobs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListVideoJobsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listVideoJobs>>> = ({ signal }) => listVideoJobs({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listVideoJobs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListVideoJobsQueryResult = NonNullable<Awaited<ReturnType<typeof listVideoJobs>>>
+export type ListVideoJobsQueryError = ErrorType<unknown>
+
+
+export function useListVideoJobs<TData = Awaited<ReturnType<typeof listVideoJobs>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listVideoJobs>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listVideoJobs>>,
+          TError,
+          Awaited<ReturnType<typeof listVideoJobs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListVideoJobs<TData = Awaited<ReturnType<typeof listVideoJobs>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listVideoJobs>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listVideoJobs>>,
+          TError,
+          Awaited<ReturnType<typeof listVideoJobs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListVideoJobs<TData = Awaited<ReturnType<typeof listVideoJobs>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listVideoJobs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListVideoJobs<TData = Awaited<ReturnType<typeof listVideoJobs>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listVideoJobs>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListVideoJobsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateVideoJobUrl = () => {
+
+
+
+
+  return `/api/video/jobs`
+}
+
+export const createVideoJob = async (videoJobInput: VideoJobInput, options?: Parameters<typeof customFetch>[1]): Promise<VideoJob> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<VideoJob>(getCreateVideoJobUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(videoJobInput)
+  }
+);}
+
+
+
+
+
+export const getCreateVideoJobMutationKey = () => ['createVideoJob'] as const;
+
+export const getCreateVideoJobMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createVideoJob>>, TError,CreateVideoJobMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createVideoJob>>, TError,CreateVideoJobMutationVariables, TContext> => {
+
+const mutationKey = getCreateVideoJobMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createVideoJob>>, CreateVideoJobMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createVideoJob(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateVideoJobMutationResult = NonNullable<Awaited<ReturnType<typeof createVideoJob>>>
+    export type CreateVideoJobMutationBody = BodyType<VideoJobInput>
+    export type CreateVideoJobMutationError = ErrorType<unknown>
+    export type CreateVideoJobMutationVariables = {data: BodyType<VideoJobInput>}
+
+    export const useCreateVideoJob = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createVideoJob>>, TError,CreateVideoJobMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createVideoJob>>,
+        TError,
+        CreateVideoJobMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateVideoJobMutationOptions(options), queryClient);
+    }
+
+export const getGetVideoJobUrl = (id: string,) => {
+
+
+
+
+  return `/api/video/jobs/${id}`
+}
+
+export const getVideoJob = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<VideoJob> => {
+
+  return customFetch<VideoJob>(getGetVideoJobUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetVideoJobQueryKey = (id: string,) => {
+    return [
+    `/api/video/jobs/${id}`
+    ] as const;
+    }
+
+
+export const getGetVideoJobQueryOptions = <TData = Awaited<ReturnType<typeof getVideoJob>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoJob>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVideoJobQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVideoJob>>> = ({ signal }) => getVideoJob(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVideoJob>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetVideoJobQueryResult = NonNullable<Awaited<ReturnType<typeof getVideoJob>>>
+export type GetVideoJobQueryError = ErrorType<unknown>
+
+
+export function useGetVideoJob<TData = Awaited<ReturnType<typeof getVideoJob>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoJob>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVideoJob>>,
+          TError,
+          Awaited<ReturnType<typeof getVideoJob>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVideoJob<TData = Awaited<ReturnType<typeof getVideoJob>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoJob>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVideoJob>>,
+          TError,
+          Awaited<ReturnType<typeof getVideoJob>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVideoJob<TData = Awaited<ReturnType<typeof getVideoJob>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoJob>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetVideoJob<TData = Awaited<ReturnType<typeof getVideoJob>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoJob>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetVideoJobQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDeleteVideoResultUrl = (id: string,) => {
+
+
+
+
+  return `/api/video/jobs/${id}`
+}
+
+export const deleteVideoResult = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Success> => {
+
+  return customFetch<Success>(getDeleteVideoResultUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteVideoResultMutationKey = () => ['deleteVideoResult'] as const;
+
+export const getDeleteVideoResultMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteVideoResult>>, TError,DeleteVideoResultMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteVideoResult>>, TError,DeleteVideoResultMutationVariables, TContext> => {
+
+const mutationKey = getDeleteVideoResultMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteVideoResult>>, DeleteVideoResultMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteVideoResult(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteVideoResultMutationResult = NonNullable<Awaited<ReturnType<typeof deleteVideoResult>>>
+
+    export type DeleteVideoResultMutationError = ErrorType<unknown>
+    export type DeleteVideoResultMutationVariables = {id: string}
+
+    export const useDeleteVideoResult = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteVideoResult>>, TError,DeleteVideoResultMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteVideoResult>>,
+        TError,
+        DeleteVideoResultMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteVideoResultMutationOptions(options), queryClient);
+    }
+
+export const getCancelVideoJobUrl = (id: string,) => {
+
+
+
+
+  return `/api/video/jobs/${id}/cancel`
+}
+
+export const cancelVideoJob = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<VideoJob> => {
+
+  return customFetch<VideoJob>(getCancelVideoJobUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCancelVideoJobMutationKey = () => ['cancelVideoJob'] as const;
+
+export const getCancelVideoJobMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelVideoJob>>, TError,CancelVideoJobMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof cancelVideoJob>>, TError,CancelVideoJobMutationVariables, TContext> => {
+
+const mutationKey = getCancelVideoJobMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancelVideoJob>>, CancelVideoJobMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  cancelVideoJob(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CancelVideoJobMutationResult = NonNullable<Awaited<ReturnType<typeof cancelVideoJob>>>
+
+    export type CancelVideoJobMutationError = ErrorType<unknown>
+    export type CancelVideoJobMutationVariables = {id: string}
+
+    export const useCancelVideoJob = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelVideoJob>>, TError,CancelVideoJobMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cancelVideoJob>>,
+        TError,
+        CancelVideoJobMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCancelVideoJobMutationOptions(options), queryClient);
+    }
+
+export const getGetVideoFileUrl = (id: string,) => {
+
+
+
+
+  return `/api/video/jobs/${id}/file`
+}
+
+export const getVideoFile = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getGetVideoFileUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetVideoFileQueryKey = (id: string,) => {
+    return [
+    `/api/video/jobs/${id}/file`
+    ] as const;
+    }
+
+
+export const getGetVideoFileQueryOptions = <TData = Awaited<ReturnType<typeof getVideoFile>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVideoFileQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVideoFile>>> = ({ signal }) => getVideoFile(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVideoFile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetVideoFileQueryResult = NonNullable<Awaited<ReturnType<typeof getVideoFile>>>
+export type GetVideoFileQueryError = ErrorType<unknown>
+
+
+export function useGetVideoFile<TData = Awaited<ReturnType<typeof getVideoFile>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoFile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVideoFile>>,
+          TError,
+          Awaited<ReturnType<typeof getVideoFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVideoFile<TData = Awaited<ReturnType<typeof getVideoFile>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoFile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVideoFile>>,
+          TError,
+          Awaited<ReturnType<typeof getVideoFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVideoFile<TData = Awaited<ReturnType<typeof getVideoFile>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetVideoFile<TData = Awaited<ReturnType<typeof getVideoFile>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetVideoFileQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetVideoUsageUrl = () => {
+
+
+
+
+  return `/api/video/admin`
+}
+
+export const getVideoUsage = async ( options?: Parameters<typeof customFetch>[1]): Promise<VideoUsage> => {
+
+  return customFetch<VideoUsage>(getGetVideoUsageUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetVideoUsageQueryKey = () => {
+    return [
+    `/api/video/admin`
+    ] as const;
+    }
+
+
+export const getGetVideoUsageQueryOptions = <TData = Awaited<ReturnType<typeof getVideoUsage>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoUsage>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVideoUsageQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVideoUsage>>> = ({ signal }) => getVideoUsage({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVideoUsage>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetVideoUsageQueryResult = NonNullable<Awaited<ReturnType<typeof getVideoUsage>>>
+export type GetVideoUsageQueryError = ErrorType<unknown>
+
+
+export function useGetVideoUsage<TData = Awaited<ReturnType<typeof getVideoUsage>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoUsage>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVideoUsage>>,
+          TError,
+          Awaited<ReturnType<typeof getVideoUsage>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVideoUsage<TData = Awaited<ReturnType<typeof getVideoUsage>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoUsage>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVideoUsage>>,
+          TError,
+          Awaited<ReturnType<typeof getVideoUsage>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVideoUsage<TData = Awaited<ReturnType<typeof getVideoUsage>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoUsage>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetVideoUsage<TData = Awaited<ReturnType<typeof getVideoUsage>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVideoUsage>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetVideoUsageQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateVideoSettingsUrl = () => {
+
+
+
+
+  return `/api/video/admin`
+}
+
+export const updateVideoSettings = async (videoSettingsInput: VideoSettingsInput, options?: Parameters<typeof customFetch>[1]): Promise<VideoUsage> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<VideoUsage>(getUpdateVideoSettingsUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(videoSettingsInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateVideoSettingsMutationKey = () => ['updateVideoSettings'] as const;
+
+export const getUpdateVideoSettingsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateVideoSettings>>, TError,UpdateVideoSettingsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateVideoSettings>>, TError,UpdateVideoSettingsMutationVariables, TContext> => {
+
+const mutationKey = getUpdateVideoSettingsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateVideoSettings>>, UpdateVideoSettingsMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateVideoSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateVideoSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateVideoSettings>>>
+    export type UpdateVideoSettingsMutationBody = BodyType<VideoSettingsInput>
+    export type UpdateVideoSettingsMutationError = ErrorType<unknown>
+    export type UpdateVideoSettingsMutationVariables = {data: BodyType<VideoSettingsInput>}
+
+    export const useUpdateVideoSettings = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateVideoSettings>>, TError,UpdateVideoSettingsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateVideoSettings>>,
+        TError,
+        UpdateVideoSettingsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateVideoSettingsMutationOptions(options), queryClient);
+    }
 
 export const getGetCreativeLibraryUrl = () => {
 

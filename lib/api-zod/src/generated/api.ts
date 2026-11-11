@@ -8,6 +8,325 @@
 import * as zod from 'zod';
 
 
+export const GetVideoConfigResponse = zod.object({
+  "paused": zod.boolean(),
+  "aiEnabled": zod.boolean(),
+  "provider": zod.string(),
+  "dailyLimit": zod.number().int(),
+  "dailyUsed": zod.number().int(),
+  "timezone": zod.string(),
+  "costNote": zod.string(),
+  "retentionNote": zod.string(),
+  "narrationNote": zod.string()
+})
+
+
+
+export const listVideoJobsResponseOptionsCuesItemStartMin = 0;
+export const listVideoJobsResponseOptionsCuesItemStartMax = 15;
+
+export const listVideoJobsResponseOptionsCuesItemEndMin = 0;
+export const listVideoJobsResponseOptionsCuesItemEndMax = 15;
+
+export const listVideoJobsResponseOptionsCuesMax = 12;
+
+
+
+export const ListVideoJobsResponseItem = zod.object({
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(listVideoJobsResponseOptionsCuesItemStartMin).max(listVideoJobsResponseOptionsCuesItemStartMax),
+  "end": zod.number().min(listVideoJobsResponseOptionsCuesItemEndMin).max(listVideoJobsResponseOptionsCuesItemEndMax)
+})).min(1).max(listVideoJobsResponseOptionsCuesMax)
+})
+})
+export const ListVideoJobsResponse = zod.array(ListVideoJobsResponseItem)
+
+
+
+
+export const createVideoJobBodyOptionsCuesItemStartMin = 0;
+export const createVideoJobBodyOptionsCuesItemStartMax = 15;
+
+export const createVideoJobBodyOptionsCuesItemEndMin = 0;
+export const createVideoJobBodyOptionsCuesItemEndMax = 15;
+
+export const createVideoJobBodyOptionsCuesMax = 12;
+
+
+
+export const CreateVideoJobBody = zod.object({
+  "conceptId": zod.string().uuid(),
+  "version": zod.number().int().min(1),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "requestKey": zod.string().uuid(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(createVideoJobBodyOptionsCuesItemStartMin).max(createVideoJobBodyOptionsCuesItemStartMax),
+  "end": zod.number().min(createVideoJobBodyOptionsCuesItemEndMin).max(createVideoJobBodyOptionsCuesItemEndMax)
+})).min(1).max(createVideoJobBodyOptionsCuesMax)
+}),
+  "confirmed": zod.boolean()
+})
+
+
+export const createVideoJobResponseOptionsCuesItemStartMin = 0;
+export const createVideoJobResponseOptionsCuesItemStartMax = 15;
+
+export const createVideoJobResponseOptionsCuesItemEndMin = 0;
+export const createVideoJobResponseOptionsCuesItemEndMax = 15;
+
+export const createVideoJobResponseOptionsCuesMax = 12;
+
+
+
+export const CreateVideoJobResponse = zod.object({
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(createVideoJobResponseOptionsCuesItemStartMin).max(createVideoJobResponseOptionsCuesItemStartMax),
+  "end": zod.number().min(createVideoJobResponseOptionsCuesItemEndMin).max(createVideoJobResponseOptionsCuesItemEndMax)
+})).min(1).max(createVideoJobResponseOptionsCuesMax)
+})
+})
+
+
+export const GetVideoJobParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+
+export const getVideoJobResponseOptionsCuesItemStartMin = 0;
+export const getVideoJobResponseOptionsCuesItemStartMax = 15;
+
+export const getVideoJobResponseOptionsCuesItemEndMin = 0;
+export const getVideoJobResponseOptionsCuesItemEndMax = 15;
+
+export const getVideoJobResponseOptionsCuesMax = 12;
+
+
+
+export const GetVideoJobResponse = zod.object({
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(getVideoJobResponseOptionsCuesItemStartMin).max(getVideoJobResponseOptionsCuesItemStartMax),
+  "end": zod.number().min(getVideoJobResponseOptionsCuesItemEndMin).max(getVideoJobResponseOptionsCuesItemEndMax)
+})).min(1).max(getVideoJobResponseOptionsCuesMax)
+})
+})
+
+
+export const DeleteVideoResultParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const DeleteVideoResultResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+export const CancelVideoJobParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+
+export const cancelVideoJobResponseOptionsCuesItemStartMin = 0;
+export const cancelVideoJobResponseOptionsCuesItemStartMax = 15;
+
+export const cancelVideoJobResponseOptionsCuesItemEndMin = 0;
+export const cancelVideoJobResponseOptionsCuesItemEndMax = 15;
+
+export const cancelVideoJobResponseOptionsCuesMax = 12;
+
+
+
+export const CancelVideoJobResponse = zod.object({
+  "id": zod.string(),
+  "conceptId": zod.string().nullable(),
+  "conceptVersion": zod.number().int(),
+  "characterId": zod.string(),
+  "title": zod.string(),
+  "ownerId": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY', 'QUEUED', 'SUBMITTED', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'UNKNOWN', 'SIMULATED']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "provider": zod.string(),
+  "simulation": zod.boolean(),
+  "durationSeconds": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "attempts": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "submittedAt": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "estimatedCostUsd": zod.number().nullable(),
+  "actualCostUsd": zod.number().nullable(),
+  "providerCostUsd": zod.number().nullable(),
+  "resultUrl": zod.string().nullable(),
+  "rawResultUrl": zod.string().nullable(),
+  "deleted": zod.boolean(),
+  "options": zod.object({
+  "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
+  "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
+  "logoAttachmentId": zod.string().min(1),
+  "cues": zod.array(zod.object({
+  "start": zod.number().min(cancelVideoJobResponseOptionsCuesItemStartMin).max(cancelVideoJobResponseOptionsCuesItemStartMax),
+  "end": zod.number().min(cancelVideoJobResponseOptionsCuesItemEndMin).max(cancelVideoJobResponseOptionsCuesItemEndMax)
+})).min(1).max(cancelVideoJobResponseOptionsCuesMax)
+})
+})
+
+
+export const GetVideoFileParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const GetVideoFileResponse = zod.unknown()
+
+
+export const getVideoUsageResponseOneBudgetUsdMin = 0;
+export const getVideoUsageResponseOneBudgetUsdMax = 10000;
+
+
+
+export const GetVideoUsageResponse = zod.object({
+  "paused": zod.boolean(),
+  "budgetUsd": zod.number().min(getVideoUsageResponseOneBudgetUsdMin).max(getVideoUsageResponseOneBudgetUsdMax).nullable()
+}).and(zod.object({
+  "month": zod.string(),
+  "knownProviderUsd": zod.number(),
+  "unknownCosts": zod.number().int(),
+  "members": zod.array(zod.object({
+  "userId": zod.string(),
+  "name": zod.string(),
+  "jobs": zod.number().int(),
+  "failures": zod.number().int(),
+  "retries": zod.number().int(),
+  "knownProviderUsd": zod.number(),
+  "unknownCosts": zod.number().int()
+})),
+  "costNote": zod.string()
+}))
+
+
+export const updateVideoSettingsBodyBudgetUsdMin = 0;
+export const updateVideoSettingsBodyBudgetUsdMax = 10000;
+
+
+
+export const UpdateVideoSettingsBody = zod.object({
+  "paused": zod.boolean(),
+  "budgetUsd": zod.number().min(updateVideoSettingsBodyBudgetUsdMin).max(updateVideoSettingsBodyBudgetUsdMax).nullable()
+})
+
+export const updateVideoSettingsResponseOneBudgetUsdMin = 0;
+export const updateVideoSettingsResponseOneBudgetUsdMax = 10000;
+
+
+
+export const UpdateVideoSettingsResponse = zod.object({
+  "paused": zod.boolean(),
+  "budgetUsd": zod.number().min(updateVideoSettingsResponseOneBudgetUsdMin).max(updateVideoSettingsResponseOneBudgetUsdMax).nullable()
+}).and(zod.object({
+  "month": zod.string(),
+  "knownProviderUsd": zod.number(),
+  "unknownCosts": zod.number().int(),
+  "members": zod.array(zod.object({
+  "userId": zod.string(),
+  "name": zod.string(),
+  "jobs": zod.number().int(),
+  "failures": zod.number().int(),
+  "retries": zod.number().int(),
+  "knownProviderUsd": zod.number(),
+  "unknownCosts": zod.number().int()
+})),
+  "costNote": zod.string()
+}))
+
+
 export const getCreativeLibraryResponseCategoriesItemOneOneNameMax = 80;
 
 
@@ -311,6 +630,9 @@ export const listCreativeConceptsResponseOneOneSubtitleMax = 4000;
 
 export const listCreativeConceptsResponseOneOneCtaMax = 1000;
 
+export const listCreativeConceptsResponseOneOneDisclaimerDefault = ``;
+export const listCreativeConceptsResponseOneOneDisclaimerMax = 220;
+
 export const listCreativeConceptsResponseOneOneDurationSecondsMax = 120;
 
 export const listCreativeConceptsResponseOneOneSourceIdsMax = 12;
@@ -335,6 +657,7 @@ export const ListCreativeConceptsResponseItem = zod.object({
   "narration": zod.string().max(listCreativeConceptsResponseOneOneNarrationMax),
   "subtitle": zod.string().max(listCreativeConceptsResponseOneOneSubtitleMax),
   "cta": zod.string().max(listCreativeConceptsResponseOneOneCtaMax),
+  "disclaimer": zod.string().max(listCreativeConceptsResponseOneOneDisclaimerMax).default(listCreativeConceptsResponseOneOneDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(listCreativeConceptsResponseOneOneDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(listCreativeConceptsResponseOneOneSourceIdsMax),
@@ -403,6 +726,9 @@ export const createCreativeConceptBodySubtitleMax = 4000;
 
 export const createCreativeConceptBodyCtaMax = 1000;
 
+export const createCreativeConceptBodyDisclaimerDefault = ``;
+export const createCreativeConceptBodyDisclaimerMax = 220;
+
 export const createCreativeConceptBodyDurationSecondsMax = 120;
 
 export const createCreativeConceptBodySourceIdsMax = 12;
@@ -426,6 +752,7 @@ export const CreateCreativeConceptBody = zod.object({
   "narration": zod.string().max(createCreativeConceptBodyNarrationMax),
   "subtitle": zod.string().max(createCreativeConceptBodySubtitleMax),
   "cta": zod.string().max(createCreativeConceptBodyCtaMax),
+  "disclaimer": zod.string().max(createCreativeConceptBodyDisclaimerMax).default(createCreativeConceptBodyDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(createCreativeConceptBodyDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(createCreativeConceptBodySourceIdsMax),
@@ -457,6 +784,9 @@ export const createCreativeConceptResponseOneOneSubtitleMax = 4000;
 
 export const createCreativeConceptResponseOneOneCtaMax = 1000;
 
+export const createCreativeConceptResponseOneOneDisclaimerDefault = ``;
+export const createCreativeConceptResponseOneOneDisclaimerMax = 220;
+
 export const createCreativeConceptResponseOneOneDurationSecondsMax = 120;
 
 export const createCreativeConceptResponseOneOneSourceIdsMax = 12;
@@ -481,6 +811,7 @@ export const CreateCreativeConceptResponse = zod.object({
   "narration": zod.string().max(createCreativeConceptResponseOneOneNarrationMax),
   "subtitle": zod.string().max(createCreativeConceptResponseOneOneSubtitleMax),
   "cta": zod.string().max(createCreativeConceptResponseOneOneCtaMax),
+  "disclaimer": zod.string().max(createCreativeConceptResponseOneOneDisclaimerMax).default(createCreativeConceptResponseOneOneDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(createCreativeConceptResponseOneOneDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(createCreativeConceptResponseOneOneSourceIdsMax),
@@ -548,6 +879,9 @@ export const previewCreativePromptBodySubtitleMax = 4000;
 
 export const previewCreativePromptBodyCtaMax = 1000;
 
+export const previewCreativePromptBodyDisclaimerDefault = ``;
+export const previewCreativePromptBodyDisclaimerMax = 220;
+
 export const previewCreativePromptBodyDurationSecondsMax = 120;
 
 export const previewCreativePromptBodySourceIdsMax = 12;
@@ -571,6 +905,7 @@ export const PreviewCreativePromptBody = zod.object({
   "narration": zod.string().max(previewCreativePromptBodyNarrationMax),
   "subtitle": zod.string().max(previewCreativePromptBodySubtitleMax),
   "cta": zod.string().max(previewCreativePromptBodyCtaMax),
+  "disclaimer": zod.string().max(previewCreativePromptBodyDisclaimerMax).default(previewCreativePromptBodyDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(previewCreativePromptBodyDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(previewCreativePromptBodySourceIdsMax),
@@ -613,6 +948,9 @@ export const getCreativeConceptResponseOneOneSubtitleMax = 4000;
 
 export const getCreativeConceptResponseOneOneCtaMax = 1000;
 
+export const getCreativeConceptResponseOneOneDisclaimerDefault = ``;
+export const getCreativeConceptResponseOneOneDisclaimerMax = 220;
+
 export const getCreativeConceptResponseOneOneDurationSecondsMax = 120;
 
 export const getCreativeConceptResponseOneOneSourceIdsMax = 12;
@@ -637,6 +975,7 @@ export const GetCreativeConceptResponse = zod.object({
   "narration": zod.string().max(getCreativeConceptResponseOneOneNarrationMax),
   "subtitle": zod.string().max(getCreativeConceptResponseOneOneSubtitleMax),
   "cta": zod.string().max(getCreativeConceptResponseOneOneCtaMax),
+  "disclaimer": zod.string().max(getCreativeConceptResponseOneOneDisclaimerMax).default(getCreativeConceptResponseOneOneDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(getCreativeConceptResponseOneOneDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(getCreativeConceptResponseOneOneSourceIdsMax),
@@ -708,6 +1047,9 @@ export const updateCreativeConceptBodyOneSubtitleMax = 4000;
 
 export const updateCreativeConceptBodyOneCtaMax = 1000;
 
+export const updateCreativeConceptBodyOneDisclaimerDefault = ``;
+export const updateCreativeConceptBodyOneDisclaimerMax = 220;
+
 export const updateCreativeConceptBodyOneDurationSecondsMax = 120;
 
 export const updateCreativeConceptBodyOneSourceIdsMax = 12;
@@ -732,6 +1074,7 @@ export const UpdateCreativeConceptBody = zod.object({
   "narration": zod.string().max(updateCreativeConceptBodyOneNarrationMax),
   "subtitle": zod.string().max(updateCreativeConceptBodyOneSubtitleMax),
   "cta": zod.string().max(updateCreativeConceptBodyOneCtaMax),
+  "disclaimer": zod.string().max(updateCreativeConceptBodyOneDisclaimerMax).default(updateCreativeConceptBodyOneDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(updateCreativeConceptBodyOneDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(updateCreativeConceptBodyOneSourceIdsMax),
@@ -765,6 +1108,9 @@ export const updateCreativeConceptResponseOneOneSubtitleMax = 4000;
 
 export const updateCreativeConceptResponseOneOneCtaMax = 1000;
 
+export const updateCreativeConceptResponseOneOneDisclaimerDefault = ``;
+export const updateCreativeConceptResponseOneOneDisclaimerMax = 220;
+
 export const updateCreativeConceptResponseOneOneDurationSecondsMax = 120;
 
 export const updateCreativeConceptResponseOneOneSourceIdsMax = 12;
@@ -789,6 +1135,7 @@ export const UpdateCreativeConceptResponse = zod.object({
   "narration": zod.string().max(updateCreativeConceptResponseOneOneNarrationMax),
   "subtitle": zod.string().max(updateCreativeConceptResponseOneOneSubtitleMax),
   "cta": zod.string().max(updateCreativeConceptResponseOneOneCtaMax),
+  "disclaimer": zod.string().max(updateCreativeConceptResponseOneOneDisclaimerMax).default(updateCreativeConceptResponseOneOneDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(updateCreativeConceptResponseOneOneDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(updateCreativeConceptResponseOneOneSourceIdsMax),
@@ -887,6 +1234,9 @@ export const transitionCreativeConceptResponseOneOneSubtitleMax = 4000;
 
 export const transitionCreativeConceptResponseOneOneCtaMax = 1000;
 
+export const transitionCreativeConceptResponseOneOneDisclaimerDefault = ``;
+export const transitionCreativeConceptResponseOneOneDisclaimerMax = 220;
+
 export const transitionCreativeConceptResponseOneOneDurationSecondsMax = 120;
 
 export const transitionCreativeConceptResponseOneOneSourceIdsMax = 12;
@@ -911,6 +1261,7 @@ export const TransitionCreativeConceptResponse = zod.object({
   "narration": zod.string().max(transitionCreativeConceptResponseOneOneNarrationMax),
   "subtitle": zod.string().max(transitionCreativeConceptResponseOneOneSubtitleMax),
   "cta": zod.string().max(transitionCreativeConceptResponseOneOneCtaMax),
+  "disclaimer": zod.string().max(transitionCreativeConceptResponseOneOneDisclaimerMax).default(transitionCreativeConceptResponseOneOneDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(transitionCreativeConceptResponseOneOneDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(transitionCreativeConceptResponseOneOneSourceIdsMax),
@@ -969,7 +1320,7 @@ export const RequestConceptUploadBody = zod.object({
   "version": zod.number().int().min(1),
   "name": zod.string().min(1).max(requestConceptUploadBodyNameMax),
   "size": zod.number().int().min(1).max(requestConceptUploadBodySizeMax),
-  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4'])
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'audio/mpeg', 'audio/wav'])
 })
 
 export const RequestConceptUploadResponse = zod.object({
@@ -1014,6 +1365,9 @@ export const finalizeConceptUploadResponseOneOneSubtitleMax = 4000;
 
 export const finalizeConceptUploadResponseOneOneCtaMax = 1000;
 
+export const finalizeConceptUploadResponseOneOneDisclaimerDefault = ``;
+export const finalizeConceptUploadResponseOneOneDisclaimerMax = 220;
+
 export const finalizeConceptUploadResponseOneOneDurationSecondsMax = 120;
 
 export const finalizeConceptUploadResponseOneOneSourceIdsMax = 12;
@@ -1038,6 +1392,7 @@ export const FinalizeConceptUploadResponse = zod.object({
   "narration": zod.string().max(finalizeConceptUploadResponseOneOneNarrationMax),
   "subtitle": zod.string().max(finalizeConceptUploadResponseOneOneSubtitleMax),
   "cta": zod.string().max(finalizeConceptUploadResponseOneOneCtaMax),
+  "disclaimer": zod.string().max(finalizeConceptUploadResponseOneOneDisclaimerMax).default(finalizeConceptUploadResponseOneOneDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(finalizeConceptUploadResponseOneOneDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(finalizeConceptUploadResponseOneOneSourceIdsMax),
@@ -1117,6 +1472,9 @@ export const deleteConceptAttachmentResponseOneOneSubtitleMax = 4000;
 
 export const deleteConceptAttachmentResponseOneOneCtaMax = 1000;
 
+export const deleteConceptAttachmentResponseOneOneDisclaimerDefault = ``;
+export const deleteConceptAttachmentResponseOneOneDisclaimerMax = 220;
+
 export const deleteConceptAttachmentResponseOneOneDurationSecondsMax = 120;
 
 export const deleteConceptAttachmentResponseOneOneSourceIdsMax = 12;
@@ -1141,6 +1499,7 @@ export const DeleteConceptAttachmentResponse = zod.object({
   "narration": zod.string().max(deleteConceptAttachmentResponseOneOneNarrationMax),
   "subtitle": zod.string().max(deleteConceptAttachmentResponseOneOneSubtitleMax),
   "cta": zod.string().max(deleteConceptAttachmentResponseOneOneCtaMax),
+  "disclaimer": zod.string().max(deleteConceptAttachmentResponseOneOneDisclaimerMax).default(deleteConceptAttachmentResponseOneOneDisclaimerDefault),
   "format": zod.enum(['9:16', '16:9', '1:1']),
   "durationSeconds": zod.number().int().min(1).max(deleteConceptAttachmentResponseOneOneDurationSecondsMax),
   "sourceIds": zod.array(zod.string()).max(deleteConceptAttachmentResponseOneOneSourceIdsMax),

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link } from 'wouter';
+import { Link, useSearch } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   AlertTriangle, ArrowLeft, Ban, Check, ChevronDown, Clapperboard, FileText, ImageIcon, Library, Lock, Plus, RotateCcw, Save, Send, Trash2, Upload, Video, X,
@@ -42,6 +42,8 @@ import { cn } from '@/lib/utils';
 const inputCls = 'w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring/40';
 const SEGS: CreativeSegment[] = ['MIKRO', 'MINI', 'REGULAR', 'NONE'];
 const IMG_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const AUDIO_TYPES = ['audio/mpeg', 'audio/wav'];
+const AUDIO_MAX = 5 * 1048576;
 type View = 'edit' | 'summary' | 'prompt';
 
 export default function CreativePage({ me }: { me: Member }) {
@@ -55,7 +57,8 @@ export default function CreativePage({ me }: { me: Member }) {
   const canWrite = me.role !== 'VIEWER';
   const isAdmin = me.role === 'SUPER_ADMIN' || me.role === 'ADMIN';
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const conceptSearch = useSearch();
+  const [selectedId, setSelectedId] = useState<string | null>(() => new URLSearchParams(conceptSearch).get('concept'));
   const detail = useGetCreativeConcept(selectedId ?? '', { query: { enabled: !!selectedId, refetchOnWindowFocus: true, queryKey: getGetCreativeConceptQueryKey(selectedId ?? '') } });
   const [form, setForm] = useState<CreativeConceptInput>(() => emptyInput());
   const [concept, setConcept] = useState<CreativeConcept | null>(null);
@@ -268,9 +271,15 @@ export default function CreativePage({ me }: { me: Member }) {
                 <button onClick={runPreview} disabled={previewM.isPending} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm hover:bg-sidebar-accent disabled:opacity-50" data-testid="button-view-prompt">
                   <FileText className="h-4 w-4" /> {previewM.isPending ? 'Menyusun...' : 'Lihat Prompt Akhir'}
                 </button>
-                <button disabled title="Generate Video tidak tersedia di tahap ini" className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-sidebar-foreground/40" data-testid="button-generate-video">
-                  <Video className="h-4 w-4" /> Generate Video <span className="font-mono text-[10px] uppercase">nonaktif</span>
-                </button>
+                {concept && concept.status === 'APPROVED' && !concept.stale && !dirty ? (
+                  <Link href={`/videos?concept=${concept.id}`} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm hover:bg-sidebar-accent" data-testid="button-generate-video">
+                    <Video className="h-4 w-4" /> Buat Video
+                  </Link>
+                ) : (
+                  <span title="Butuh konsep tersimpan yang disetujui reviewer dan tidak usang" className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-sidebar-foreground/40" data-testid="button-generate-video">
+                    <Video className="h-4 w-4" /> Buat Video <span className="font-mono text-[10px] uppercase">perlu disetujui</span>
+                  </span>
+                )}
                 <span className="flex-1" />
                 {concept && <button onClick={() => {
                   if (!dirty || window.confirm('Ganti isian lokal dengan versi terbaru dari server?')) void reloadServer();
@@ -441,9 +450,9 @@ function Editor({ form, setForm, lib, character, onNext, validation, toast }: {
           <div className="rise space-y-4 border-t px-5 py-5 md:px-6">
             {([
               ['scenes', 'Adegan', 4000, 3], ['characterMotion', 'Gerakan karakter', 2000, 2], ['cameraMotion', 'Gerakan kamera', 2000, 2],
-              ['visual', 'Visual', 2000, 2], ['narration', 'Narasi', 4000, 3], ['subtitle', 'Subtitle', 4000, 2], ['cta', 'CTA', 1000, 1],
+              ['visual', 'Visual', 2000, 2], ['narration', 'Narasi', 4000, 3], ['subtitle', 'Subtitle (maks 108 kata untuk video)', 4000, 2], ['cta', 'CTA (maks 90 karakter untuk video)', 1000, 1], ['disclaimer', 'Disclaimer (wajib untuk video, maks 220 karakter)', 220, 2],
             ] as const).map(([k, l, max, rows]) => (
-              <Field key={k} label={l} free><textarea rows={rows} maxLength={max} value={form[k]} onChange={(e) => set(k, e.target.value)} className={inputCls} data-testid={`input-${k}`} /></Field>
+              <Field key={k} label={l} free><textarea rows={rows} maxLength={max} value={form[k] ?? ''} onChange={(e) => set(k, e.target.value)} className={inputCls} data-testid={`input-${k}`} /></Field>
             ))}
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Format" hint="Metadata target, bukan kemampuan provider.">
@@ -531,7 +540,7 @@ function SummaryGrid({ input, categoryName, templateName, characterName, attachm
   ];
   const texts: [string, string][] = [
     ['Tujuan', input.purpose], ['Arahan bebas', input.direction], ['Adegan', input.scenes], ['Gerakan karakter', input.characterMotion], ['Gerakan kamera', input.cameraMotion],
-    ['Visual', input.visual], ['Narasi', input.narration], ['Subtitle', input.subtitle], ['CTA', input.cta],
+    ['Visual', input.visual], ['Narasi', input.narration], ['Subtitle', input.subtitle], ['CTA', input.cta], ['Disclaimer', input.disclaimer ?? ''],
   ];
   return (
     <div>
@@ -655,6 +664,7 @@ function Reviews({ c }: { c: CreativeConcept }) {
 
 function AttachmentPreview({ a }: { a: ConceptAttachment }) {
   if (a.state === 'PENDING' || !a.url) return <div className="grid aspect-square w-full place-items-center rounded-xl bg-muted p-2 text-center text-[11px] text-muted-foreground" data-testid={`status-attachment-pending-${a.id}`}>Tertunda — belum selesai diunggah. Hapus lalu ulangi.</div>;
+  if (a.contentType.startsWith('audio/')) return <div className="grid aspect-square w-full place-items-center rounded-xl bg-sidebar p-2"><audio src={a.url} controls preload="metadata" className="w-full" data-testid={`audio-attachment-${a.id}`} /></div>;
   return a.contentType.startsWith('video/')
     ? <video src={a.url} controls preload="metadata" className="aspect-[9/16] w-full rounded-xl bg-black/80 object-contain" data-testid={`video-attachment-${a.id}`} />
     : <img src={a.url} alt={a.name} className="aspect-square w-full rounded-xl object-cover" data-testid={`img-attachment-${a.id}`} />;
@@ -669,14 +679,18 @@ function Attachments({ concept, lib, dirty, onUpdated }: { concept: CreativeConc
   const inputRef = useRef<HTMLInputElement>(null);
   const imgs = concept.attachments.filter((a) => a.contentType.startsWith('image/')).length;
   const vids = concept.attachments.filter((a) => a.contentType.startsWith('video/')).length;
+  const auds = concept.attachments.filter((a) => a.contentType.startsWith('audio/')).length;
   const pendingCount = concept.attachments.filter((a) => a.state === 'PENDING').length;
   const total = concept.attachments.reduce((s, a) => s + a.size, 0) + (busy?.size ?? 0);
 
   const upload = async (file: File): Promise<void> => {
     const isImg = IMG_TYPES.includes(file.type);
     const isVid = file.type === 'video/mp4';
+    const isAud = AUDIO_TYPES.includes(file.type);
     const fail = (d: string): void => { toast({ title: 'Bahan ditolak', description: d, variant: 'destructive' }); };
-    if (!isImg && !isVid) return fail('Hanya JPG, PNG, WebP, atau MP4.');
+    if (!isImg && !isVid && !isAud) return fail('Hanya JPG, PNG, WebP, MP4, MP3, atau WAV.');
+    if (isAud && auds >= 1) return fail('Maksimal 1 audio.');
+    if (isAud && file.size > AUDIO_MAX) return fail(`Audio maksimal ${fmtBytes(AUDIO_MAX)}.`);
     if (isImg && imgs >= lib.maxImages) return fail(`Maksimal ${lib.maxImages} gambar.`);
     if (isVid && vids >= lib.maxVideos) return fail(`Maksimal ${lib.maxVideos} video.`);
     if (isImg && file.size > lib.maxImageBytes) return fail(`Gambar maksimal ${fmtBytes(lib.maxImageBytes)}.`);
@@ -709,10 +723,10 @@ function Attachments({ concept, lib, dirty, onUpdated }: { concept: CreativeConc
     <div className="mt-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="font-display text-lg font-bold">Bahan pendukung</div>
-        <span className="font-mono text-[11px] text-muted-foreground" data-testid="text-attachment-usage">{imgs}/{lib.maxImages} gambar · {vids}/{lib.maxVideos} video · {fmtBytes(total)} / {fmtBytes(lib.maxTotalBytes)}</span>
+        <span className="font-mono text-[11px] text-muted-foreground" data-testid="text-attachment-usage">{imgs}/{lib.maxImages} gambar · {vids}/{lib.maxVideos} video · {auds}/1 audio · {fmtBytes(total)} / {fmtBytes(lib.maxTotalBytes)}</span>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Maks {lib.maxImages} JPG/PNG/WebP @ {fmtBytes(lib.maxImageBytes)} dan {lib.maxVideos} MP4 @ {fmtBytes(lib.maxVideoBytes)}. Bahan hanya dicatat dan dipratinjau browser — tanpa OCR, transkripsi, atau jaminan didukung provider. Mengunggah atau menghapus mengembalikan status ke Draft.
+        Maks {lib.maxImages} JPG/PNG/WebP @ {fmtBytes(lib.maxImageBytes)} dan {lib.maxVideos} MP4 @ {fmtBytes(lib.maxVideoBytes)}, serta 1 audio MP3/WAV @ {fmtBytes(AUDIO_MAX)}. Audio wajib milik/berizin perusahaan; reviewer memeriksa ucapan secara manual karena tidak ada transkripsi. Bahan hanya dicatat dan dipratinjau browser — tanpa OCR, transkripsi, atau jaminan didukung provider. Mengunggah atau menghapus mengembalikan status ke Draft.
       </p>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {concept.attachments.map((a) => (
@@ -733,7 +747,7 @@ function Attachments({ concept, lib, dirty, onUpdated }: { concept: CreativeConc
       </div>
       {dirty && <p className="mt-2 text-xs text-primary">Simpan Draft dulu sebelum mengubah bahan.</p>}
       {pendingCount > 0 && <p className="mt-2 text-xs text-destructive" data-testid="text-pending-block">{pendingCount} unggahan tertunda. Hapus unggahan tertunda sebelum mengajukan review.</p>}
-      <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,video/mp4" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} data-testid="input-file-attachment" />
+      <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,audio/mpeg,audio/wav" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} data-testid="input-file-attachment" />
     </div>
   );
 }

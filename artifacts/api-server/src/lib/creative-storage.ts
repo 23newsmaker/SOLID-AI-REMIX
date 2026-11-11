@@ -52,6 +52,32 @@ async function probeMp4(bytes: Buffer) {
   });
 }
 export async function validateMaterial(bytes: Buffer, mime: string) {
+  if (mime.startsWith("audio/")) {
+    if (bytes.length > limits.maxAudioBytes) throw new CreativeError(400, "Rekaman maksimal 5 MiB.");
+    await new Promise<void>((resolve, reject) => {
+      const proc = spawn("ffprobe", ["-v", "error", "-protocol_whitelist", "pipe", "-i", "pipe:0",
+        "-show_entries", "format=format_name:stream=codec_type,codec_name", "-of", "json"], { stdio: ["pipe", "pipe", "pipe"] });
+      let output = "";
+      const timer = setTimeout(() => { proc.kill("SIGKILL"); reject(new CreativeError(400, "Pemeriksaan suara melewati batas waktu.")); }, 10_000);
+      proc.on("error", () => { clearTimeout(timer); reject(new CreativeError(503, "Pemeriksa suara tidak tersedia.")); });
+      proc.stdout.on("data", c => { output += c.toString(); if (output.length > 64_000) proc.kill("SIGKILL"); });
+      proc.stderr.resume();
+      proc.stdin.on("error", () => {});
+      proc.on("close", code => {
+        clearTimeout(timer);
+        try {
+          const data = JSON.parse(output);
+          const format = mime === "audio/wav" ? "wav" : mime === "audio/mpeg" ? "mp3" : "";
+          if (!format || code !== 0 || !String(data.format?.format_name).split(",").includes(format) ||
+            !data.streams?.some((s: { codec_type: string }) => s.codec_type === "audio") ||
+            data.streams.some((s: { codec_type: string }) => s.codec_type === "video")) throw new Error();
+          resolve();
+        } catch { reject(new CreativeError(400, "Isi rekaman harus MP3/WAV valid tanpa video.")); }
+      });
+      proc.stdin.end(bytes);
+    });
+    return bytes;
+  }
   if (mime === "video/mp4") {
     if (bytes.length < 24 || bytes.toString("ascii", 4, 8) !== "ftyp") throw new CreativeError(400, "Isi file bukan MP4.");
     await probeMp4(bytes);

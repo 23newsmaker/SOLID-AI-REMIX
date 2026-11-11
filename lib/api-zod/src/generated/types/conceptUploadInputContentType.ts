@@ -14,4 +14,6 @@ export const ConceptUploadInputContentType = {
   'image/png': 'image/png',
   'image/webp': 'image/webp',
   'video/mp4': 'video/mp4',
+  'audio/mpeg': 'audio/mpeg',
+  'audio/wav': 'audio/wav',
 } as const;

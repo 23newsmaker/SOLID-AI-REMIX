@@ -47,6 +47,8 @@ export interface CreativeConceptInput {
   subtitle: string;
   /** @maxLength 1000 */
   cta: string;
+  /** @maxLength 220 */
+  disclaimer?: string;
   format: CreativeConceptInputFormat;
   /**
      * @minimum 1

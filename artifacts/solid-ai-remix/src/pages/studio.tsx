@@ -45,10 +45,11 @@ export default function Studio({ me }: { me: Member }) {
           </Link>
 
           <div className="rounded-[28px] bg-sidebar p-6 text-sidebar-foreground">
-            <div className="flex items-center gap-2"><Clapperboard className="h-5 w-5 text-sidebar-primary" aria-hidden="true" /><Pill tone="sun">Tidak tersedia</Pill></div>
-            <div className="font-display mt-4 text-2xl font-extrabold">Pembuatan video belum aktif</div>
-            <p className="mt-2 text-sm text-sidebar-foreground/70">Fase {o?.phase ?? 'A'}. Tidak ada video atau model bahasa yang berjalan.</p>
+            <div className="flex items-center gap-2"><Clapperboard className="h-5 w-5 text-sidebar-primary" aria-hidden="true" /><Pill tone="sun">Mode Hemat</Pill></div>
+            <div className="font-display mt-4 text-2xl font-extrabold">Produksi video Hemat</div>
+            <p className="mt-2 text-sm text-sidebar-foreground/70">Render template dari konsep yang disetujui. Mode AI belum aktif.</p>
             <Link href="/creative" data-testid="link-studio-creative" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-sidebar-primary px-4 py-2 text-sm font-semibold text-sidebar-primary-foreground">Susun konsep <ArrowRight className="h-4 w-4" /></Link>
+            <Link href="/videos" data-testid="link-studio-videos" className="ml-2 mt-4 inline-flex items-center gap-2 rounded-xl bg-sidebar-accent px-4 py-2 text-sm font-semibold">Video <ArrowRight className="h-4 w-4" /></Link>
             {o && <div className="mt-4 font-mono text-xs text-sidebar-foreground/60">Kuota nanti: {o.dailyUsed}/{o.dailyLimit} per hari</div>}
           </div>
         </div>

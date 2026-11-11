@@ -5,6 +5,167 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
+export interface VideoCue {
+  /**
+     * @minimum 0
+     * @maximum 15
+     */
+  start: number;
+  /**
+     * @minimum 0
+     * @maximum 15
+     */
+  end: number;
+}
+
+export type VideoRenderOptionsMotion = typeof VideoRenderOptionsMotion[keyof typeof VideoRenderOptionsMotion];
+
+
+export const VideoRenderOptionsMotion = {
+  ZOOM_IN: 'ZOOM_IN',
+  ZOOM_OUT: 'ZOOM_OUT',
+  PAN_LEFT: 'PAN_LEFT',
+  PAN_RIGHT: 'PAN_RIGHT',
+} as const;
+
+export type VideoRenderOptionsLogoPosition = typeof VideoRenderOptionsLogoPosition[keyof typeof VideoRenderOptionsLogoPosition];
+
+
+export const VideoRenderOptionsLogoPosition = {
+  TOP_LEFT: 'TOP_LEFT',
+  TOP_RIGHT: 'TOP_RIGHT',
+} as const;
+
+export interface VideoRenderOptions {
+  motion: VideoRenderOptionsMotion;
+  logoPosition: VideoRenderOptionsLogoPosition;
+  /** @minLength 1 */
+  logoAttachmentId: string;
+  /**
+     * @minItems 1
+     * @maxItems 12
+     */
+  cues: VideoCue[];
+}
+
+export type VideoJobInputMode = typeof VideoJobInputMode[keyof typeof VideoJobInputMode];
+
+
+export const VideoJobInputMode = {
+  HEMAT: 'HEMAT',
+  AI: 'AI',
+} as const;
+
+export interface VideoJobInput {
+  conceptId: string;
+  /** @minimum 1 */
+  version: number;
+  mode: VideoJobInputMode;
+  requestKey: string;
+  options: VideoRenderOptions;
+  confirmed: boolean;
+}
+
+export type VideoJobStatus = typeof VideoJobStatus[keyof typeof VideoJobStatus];
+
+
+export const VideoJobStatus = {
+  DRAFT: 'DRAFT',
+  READY: 'READY',
+  QUEUED: 'QUEUED',
+  SUBMITTED: 'SUBMITTED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  UNKNOWN: 'UNKNOWN',
+  SIMULATED: 'SIMULATED',
+} as const;
+
+export type VideoJobMode = typeof VideoJobMode[keyof typeof VideoJobMode];
+
+
+export const VideoJobMode = {
+  HEMAT: 'HEMAT',
+  AI: 'AI',
+} as const;
+
+export interface VideoJob {
+  id: string;
+  /** @nullable */
+  conceptId: string | null;
+  conceptVersion: number;
+  characterId: string;
+  title: string;
+  ownerId: string;
+  status: VideoJobStatus;
+  mode: VideoJobMode;
+  provider: string;
+  simulation: boolean;
+  durationSeconds: number;
+  width: number;
+  height: number;
+  attempts: number;
+  createdAt: string;
+  updatedAt: string;
+  /** @nullable */
+  submittedAt: string | null;
+  /** @nullable */
+  error: string | null;
+  /** @nullable */
+  estimatedCostUsd: number | null;
+  /** @nullable */
+  actualCostUsd: number | null;
+  /** @nullable */
+  providerCostUsd: number | null;
+  /** @nullable */
+  resultUrl: string | null;
+  /** @nullable */
+  rawResultUrl: string | null;
+  deleted: boolean;
+  options: VideoRenderOptions;
+}
+
+export interface VideoConfig {
+  paused: boolean;
+  aiEnabled: boolean;
+  provider: string;
+  dailyLimit: number;
+  dailyUsed: number;
+  timezone: string;
+  costNote: string;
+  retentionNote: string;
+  narrationNote: string;
+}
+
+export interface VideoSettingsInput {
+  paused: boolean;
+  /**
+     * @minimum 0
+     * @maximum 10000
+     * @nullable
+     */
+  budgetUsd: number | null;
+}
+
+export interface VideoUsageMember {
+  userId: string;
+  name: string;
+  jobs: number;
+  failures: number;
+  retries: number;
+  knownProviderUsd: number;
+  unknownCosts: number;
+}
+
+export type VideoUsage = VideoSettingsInput & {
+  month: string;
+  knownProviderUsd: number;
+  unknownCosts: number;
+  members: VideoUsageMember[];
+  costNote: string;
+};
+
 export type CreativeSegment = typeof CreativeSegment[keyof typeof CreativeSegment];
 
 
@@ -154,6 +315,8 @@ export interface CreativeConceptInput {
   subtitle: string;
   /** @maxLength 1000 */
   cta: string;
+  /** @maxLength 220 */
+  disclaimer?: string;
   format: CreativeConceptInputFormat;
   /**
      * @minimum 1
@@ -259,6 +422,8 @@ export const ConceptUploadInputContentType = {
   'image/png': 'image/png',
   'image/webp': 'image/webp',
   'video/mp4': 'video/mp4',
+  'audio/mpeg': 'audio/mpeg',
+  'audio/wav': 'audio/wav',
 } as const;
 
 export interface ConceptUploadInput {

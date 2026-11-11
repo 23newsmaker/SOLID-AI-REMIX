@@ -11,6 +11,97 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /video/config:
+    get:
+      operationId: getVideoConfig
+      responses:
+        "200":
+          description: Video capabilities and daily usage
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/VideoConfig"}
+  /video/jobs:
+    get:
+      operationId: listVideoJobs
+      responses:
+        "200":
+          description: Authorized jobs
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/VideoJob"}}
+    post:
+      operationId: createVideoJob
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/VideoJobInput"}
+      responses:
+        "200":
+          description: Persisted or idempotently reused job
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/VideoJob"}
+  /video/jobs/{id}:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string, format: uuid}}
+    get:
+      operationId: getVideoJob
+      responses:
+        "200":
+          description: Authorized job
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/VideoJob"}
+    delete:
+      operationId: deleteVideoResult
+      responses:
+        "200":
+          description: Result removed, audit retained
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Success"}
+  /video/jobs/{id}/cancel:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: cancelVideoJob
+      responses:
+        "200":
+          description: Cancelled before completion
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/VideoJob"}
+  /video/jobs/{id}/file:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: string, format: uuid}}
+    get:
+      operationId: getVideoFile
+      responses:
+        "200": {description: Private MP4 bytes with Range support}
+        "206": {description: Private MP4 byte range}
+  /video/admin:
+    get:
+      operationId: getVideoUsage
+      responses:
+        "200":
+          description: Admin usage and settings
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/VideoUsage"}
+    patch:
+      operationId: updateVideoSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/VideoSettingsInput"}
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/VideoUsage"}
   /creative/library:
     get:
       operationId: getCreativeLibrary
@@ -412,6 +503,100 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    VideoCue:
+      type: object
+      required: [start, end]
+      properties:
+        start: {type: number, minimum: 0, maximum: 15}
+        end: {type: number, minimum: 0, maximum: 15}
+    VideoRenderOptions:
+      type: object
+      required: [motion, logoPosition, logoAttachmentId, cues]
+      properties:
+        motion: {type: string, enum: [ZOOM_IN, ZOOM_OUT, PAN_LEFT, PAN_RIGHT]}
+        logoPosition: {type: string, enum: [TOP_LEFT, TOP_RIGHT]}
+        logoAttachmentId: {type: string, minLength: 1}
+        cues: {type: array, minItems: 1, maxItems: 12, items: {$ref: "#/components/schemas/VideoCue"}}
+    VideoJobInput:
+      type: object
+      required: [conceptId, version, mode, requestKey, options, confirmed]
+      properties:
+        conceptId: {type: string, format: uuid}
+        version: {type: integer, minimum: 1}
+        mode: {type: string, enum: [HEMAT, AI]}
+        requestKey: {type: string, format: uuid}
+        options: {$ref: "#/components/schemas/VideoRenderOptions"}
+        confirmed: {type: boolean}
+    VideoJob:
+      type: object
+      required: [id, conceptId, conceptVersion, characterId, title, ownerId, status, mode, provider, simulation, durationSeconds, width, height, attempts, createdAt, updatedAt, submittedAt, error, estimatedCostUsd, actualCostUsd, providerCostUsd, resultUrl, rawResultUrl, deleted, options]
+      properties:
+        id: {type: string}
+        conceptId: {type: [string, "null"]}
+        conceptVersion: {type: integer}
+        characterId: {type: string}
+        title: {type: string}
+        ownerId: {type: string}
+        status: {type: string, enum: [DRAFT, READY, QUEUED, SUBMITTED, PROCESSING, COMPLETED, FAILED, CANCELLED, UNKNOWN, SIMULATED]}
+        mode: {type: string, enum: [HEMAT, AI]}
+        provider: {type: string}
+        simulation: {type: boolean}
+        durationSeconds: {type: integer}
+        width: {type: integer}
+        height: {type: integer}
+        attempts: {type: integer}
+        createdAt: {type: string}
+        updatedAt: {type: string}
+        submittedAt: {type: [string, "null"]}
+        error: {type: [string, "null"]}
+        estimatedCostUsd: {type: [number, "null"]}
+        actualCostUsd: {type: [number, "null"]}
+        providerCostUsd: {type: [number, "null"]}
+        resultUrl: {type: [string, "null"]}
+        rawResultUrl: {type: [string, "null"]}
+        deleted: {type: boolean}
+        options: {$ref: "#/components/schemas/VideoRenderOptions"}
+    VideoConfig:
+      type: object
+      required: [paused, aiEnabled, provider, dailyLimit, dailyUsed, timezone, costNote, retentionNote, narrationNote]
+      properties:
+        paused: {type: boolean}
+        aiEnabled: {type: boolean}
+        provider: {type: string}
+        dailyLimit: {type: integer}
+        dailyUsed: {type: integer}
+        timezone: {type: string}
+        costNote: {type: string}
+        retentionNote: {type: string}
+        narrationNote: {type: string}
+    VideoSettingsInput:
+      type: object
+      required: [paused, budgetUsd]
+      properties:
+        paused: {type: boolean}
+        budgetUsd: {type: [number, "null"], minimum: 0, maximum: 10000}
+    VideoUsageMember:
+      type: object
+      required: [userId, name, jobs, failures, retries, knownProviderUsd, unknownCosts]
+      properties:
+        userId: {type: string}
+        name: {type: string}
+        jobs: {type: integer}
+        failures: {type: integer}
+        retries: {type: integer}
+        knownProviderUsd: {type: number}
+        unknownCosts: {type: integer}
+    VideoUsage:
+      allOf:
+        - {$ref: "#/components/schemas/VideoSettingsInput"}
+        - type: object
+          required: [month, knownProviderUsd, unknownCosts, members, costNote]
+          properties:
+            month: {type: string}
+            knownProviderUsd: {type: number}
+            unknownCosts: {type: integer}
+            members: {type: array, items: {$ref: "#/components/schemas/VideoUsageMember"}}
+            costNote: {type: string}
     CreativeSegment:
       type: string
       enum: [MIKRO, MINI, REGULAR, NONE]
@@ -505,6 +690,7 @@ components:
         narration: {type: string, maxLength: 4000}
         subtitle: {type: string, maxLength: 4000}
         cta: {type: string, maxLength: 1000}
+        disclaimer: {type: string, maxLength: 220, default: ""}
         format: {type: string, enum: ["9:16", "16:9", "1:1"]}
         durationSeconds: {type: integer, minimum: 1, maximum: 120}
         sourceIds: {type: array, maxItems: 12, items: {type: string}}
@@ -581,7 +767,7 @@ components:
         version: {type: integer, minimum: 1}
         name: {type: string, minLength: 1, maxLength: 200}
         size: {type: integer, minimum: 1, maximum: 20971520}
-        contentType: {type: string, enum: [image/jpeg, image/png, image/webp, video/mp4]}
+        contentType: {type: string, enum: [image/jpeg, image/png, image/webp, video/mp4, audio/mpeg, audio/wav]}
     AppInfo:
       type: object
       required: [name, stage, generationEnabled, llmEnabled, dailyLimit, maxMembers]

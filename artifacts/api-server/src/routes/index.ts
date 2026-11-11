@@ -5,6 +5,7 @@ import { characterRouter } from "./character";
 import { knowledgeRouter } from "./knowledge";
 import { teamRouter } from "./team";
 import { creativeRouter } from "./creative";
+import { videoRouter } from "./video";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(characterRouter);
 router.use(knowledgeRouter);
 router.use(teamRouter);
 router.use(creativeRouter);
+router.use(videoRouter);
 
 export default router;

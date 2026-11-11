@@ -7,6 +7,6 @@ import { creativeUploadRouter } from "./creative-uploads";
 export const creativeRouter = Router();
 creativeRouter.use("/creative", requireMember, requireActive);
 creativeRouter.post("/creative/generate", (_req, res) => {
-  res.status(403).json({ error: "Tahap B hanya menyusun konsep/prompt. Generasi video dinonaktifkan di server." });
+  res.status(403).json({ error: "Generasi wajib melalui konfirmasi di halaman Video. Endpoint konsep tidak mengirim job atau memanggil AI." });
 });
 creativeRouter.use("/creative", creativeLibraryRouter, creativeConceptRouter, creativeUploadRouter);
