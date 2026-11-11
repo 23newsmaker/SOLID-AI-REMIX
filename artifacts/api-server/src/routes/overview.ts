@@ -6,7 +6,7 @@ import { GetAppInfoResponse, GetMeResponse, GetOverviewResponse, GetActivityResp
 
 export const overviewRouter = Router();
 overviewRouter.get("/app-info", (_req, res) => res.json(GetAppInfoResponse.parse({
-  name: "SOLID AI REMIX", stage: "Tahap A — Fondasi", generationEnabled: false, llmEnabled: false, dailyLimit: 3, maxMembers: 10,
+  name: "SOLID AI REMIX", stage: "Tahap B — Creative Engine", generationEnabled: false, llmEnabled: false, dailyLimit: 3, maxMembers: 10,
 })));
 overviewRouter.get("/me", requireMember, (req, res) => {
   res.json(GetMeResponse.parse({ ...req.member, createdAt: req.member!.createdAt.toISOString() }));
@@ -22,8 +22,8 @@ overviewRouter.get("/overview", requireMember, requireActive, async (req, res) =
   res.json(GetOverviewResponse.parse({
     characterReady: !!character, sourceCount, approvedPublicCount, activeMembers,
     maxMembers: 10, dailyLimit: 3, dailyUsed: 0, generationEnabled: false, llmEnabled: false,
-    phase: "Tahap A",
-    nextStep: "Validasi fondasi dan sumber KB. Mesin video belum diaktifkan; uji berbayar memerlukan persetujuan terpisah.",
+    phase: "B",
+    nextStep: "Susun konsep dan prompt di Creative Engine. Tanpa LLM atau generasi media; Tahap C memerlukan persetujuan terpisah.",
   }));
 });
 overviewRouter.get("/activity", requireMember, requireActive, async (req, res) => {
@@ -35,5 +35,5 @@ overviewRouter.get("/activity", requireMember, requireActive, async (req, res) =
 
 // Hard gate: no provider is configured or invoked, regardless of frontend state.
 overviewRouter.post("/generate", requireMember, requireActive, (_req, res) => {
-  res.status(423).json({ error: "Generasi video belum diaktifkan. Tahap A tidak menjalankan API AI atau job berbayar." });
+  res.status(423).json({ error: "Generasi video belum diaktifkan. Tahap B hanya menyusun konsep dan prompt tanpa API AI atau job berbayar." });
 });

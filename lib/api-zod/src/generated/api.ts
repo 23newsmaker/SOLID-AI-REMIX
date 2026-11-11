@@ -8,6 +8,1193 @@
 import * as zod from 'zod';
 
 
+export const getCreativeLibraryResponseCategoriesItemOneOneNameMax = 80;
+
+
+export const getCreativeLibraryResponseTemplatesItemOneOneNameMax = 100;
+
+
+export const getCreativeLibraryResponseTemplatesItemOneOneSegmentsMax = 4;
+
+export const getCreativeLibraryResponseTemplatesItemOneOneDescriptionMax = 2000;
+
+export const getCreativeLibraryResponseTemplatesItemOneOneScenesMax = 4000;
+
+export const getCreativeLibraryResponseTemplatesItemOneOneCharacterMotionMax = 2000;
+
+export const getCreativeLibraryResponseTemplatesItemOneOneCameraMotionMax = 2000;
+
+export const getCreativeLibraryResponseTemplatesItemOneOneVisualMax = 2000;
+
+export const getCreativeLibraryResponseTemplatesItemOneOneNarrationMax = 4000;
+
+export const getCreativeLibraryResponseTemplatesItemOneOneCtaMax = 1000;
+
+
+
+
+export const GetCreativeLibraryResponse = zod.object({
+  "categories": zod.array(zod.object({
+  "name": zod.string().min(1).max(getCreativeLibraryResponseCategoriesItemOneOneNameMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "id": zod.string()
+}))),
+  "templates": zod.array(zod.object({
+  "name": zod.string().min(1).max(getCreativeLibraryResponseTemplatesItemOneOneNameMax),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(getCreativeLibraryResponseTemplatesItemOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "description": zod.string().max(getCreativeLibraryResponseTemplatesItemOneOneDescriptionMax),
+  "scenes": zod.string().max(getCreativeLibraryResponseTemplatesItemOneOneScenesMax),
+  "characterMotion": zod.string().max(getCreativeLibraryResponseTemplatesItemOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(getCreativeLibraryResponseTemplatesItemOneOneCameraMotionMax),
+  "visual": zod.string().max(getCreativeLibraryResponseTemplatesItemOneOneVisualMax),
+  "narration": zod.string().max(getCreativeLibraryResponseTemplatesItemOneOneNarrationMax),
+  "cta": zod.string().max(getCreativeLibraryResponseTemplatesItemOneOneCtaMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "id": zod.string()
+}))),
+  "maxConcepts": zod.number().int(),
+  "maxImages": zod.number().int(),
+  "maxImageBytes": zod.number().int(),
+  "maxVideos": zod.number().int(),
+  "maxVideoBytes": zod.number().int(),
+  "maxTotalBytes": zod.number().int()
+})
+
+
+export const createCreativeCategoryBodyNameMax = 80;
+
+
+
+export const CreateCreativeCategoryBody = zod.object({
+  "name": zod.string().min(1).max(createCreativeCategoryBodyNameMax),
+  "active": zod.boolean()
+})
+
+export const createCreativeCategoryResponseOneOneNameMax = 80;
+
+
+
+
+export const CreateCreativeCategoryResponse = zod.object({
+  "name": zod.string().min(1).max(createCreativeCategoryResponseOneOneNameMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "id": zod.string()
+}))
+
+
+export const UpdateCreativeCategoryParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const updateCreativeCategoryBodyOneNameMax = 80;
+
+
+
+
+export const UpdateCreativeCategoryBody = zod.object({
+  "name": zod.string().min(1).max(updateCreativeCategoryBodyOneNameMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+}))
+
+export const updateCreativeCategoryResponseOneOneNameMax = 80;
+
+
+
+
+export const UpdateCreativeCategoryResponse = zod.object({
+  "name": zod.string().min(1).max(updateCreativeCategoryResponseOneOneNameMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "id": zod.string()
+}))
+
+
+export const createCreativeTemplateBodyNameMax = 100;
+
+
+export const createCreativeTemplateBodySegmentsMax = 4;
+
+export const createCreativeTemplateBodyDescriptionMax = 2000;
+
+export const createCreativeTemplateBodyScenesMax = 4000;
+
+export const createCreativeTemplateBodyCharacterMotionMax = 2000;
+
+export const createCreativeTemplateBodyCameraMotionMax = 2000;
+
+export const createCreativeTemplateBodyVisualMax = 2000;
+
+export const createCreativeTemplateBodyNarrationMax = 4000;
+
+export const createCreativeTemplateBodyCtaMax = 1000;
+
+
+
+export const CreateCreativeTemplateBody = zod.object({
+  "name": zod.string().min(1).max(createCreativeTemplateBodyNameMax),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(createCreativeTemplateBodySegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "description": zod.string().max(createCreativeTemplateBodyDescriptionMax),
+  "scenes": zod.string().max(createCreativeTemplateBodyScenesMax),
+  "characterMotion": zod.string().max(createCreativeTemplateBodyCharacterMotionMax),
+  "cameraMotion": zod.string().max(createCreativeTemplateBodyCameraMotionMax),
+  "visual": zod.string().max(createCreativeTemplateBodyVisualMax),
+  "narration": zod.string().max(createCreativeTemplateBodyNarrationMax),
+  "cta": zod.string().max(createCreativeTemplateBodyCtaMax),
+  "active": zod.boolean()
+})
+
+export const createCreativeTemplateResponseOneOneNameMax = 100;
+
+
+export const createCreativeTemplateResponseOneOneSegmentsMax = 4;
+
+export const createCreativeTemplateResponseOneOneDescriptionMax = 2000;
+
+export const createCreativeTemplateResponseOneOneScenesMax = 4000;
+
+export const createCreativeTemplateResponseOneOneCharacterMotionMax = 2000;
+
+export const createCreativeTemplateResponseOneOneCameraMotionMax = 2000;
+
+export const createCreativeTemplateResponseOneOneVisualMax = 2000;
+
+export const createCreativeTemplateResponseOneOneNarrationMax = 4000;
+
+export const createCreativeTemplateResponseOneOneCtaMax = 1000;
+
+
+
+
+export const CreateCreativeTemplateResponse = zod.object({
+  "name": zod.string().min(1).max(createCreativeTemplateResponseOneOneNameMax),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(createCreativeTemplateResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "description": zod.string().max(createCreativeTemplateResponseOneOneDescriptionMax),
+  "scenes": zod.string().max(createCreativeTemplateResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(createCreativeTemplateResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(createCreativeTemplateResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(createCreativeTemplateResponseOneOneVisualMax),
+  "narration": zod.string().max(createCreativeTemplateResponseOneOneNarrationMax),
+  "cta": zod.string().max(createCreativeTemplateResponseOneOneCtaMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "id": zod.string()
+}))
+
+
+export const UpdateCreativeTemplateParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const updateCreativeTemplateBodyOneNameMax = 100;
+
+
+export const updateCreativeTemplateBodyOneSegmentsMax = 4;
+
+export const updateCreativeTemplateBodyOneDescriptionMax = 2000;
+
+export const updateCreativeTemplateBodyOneScenesMax = 4000;
+
+export const updateCreativeTemplateBodyOneCharacterMotionMax = 2000;
+
+export const updateCreativeTemplateBodyOneCameraMotionMax = 2000;
+
+export const updateCreativeTemplateBodyOneVisualMax = 2000;
+
+export const updateCreativeTemplateBodyOneNarrationMax = 4000;
+
+export const updateCreativeTemplateBodyOneCtaMax = 1000;
+
+
+
+
+export const UpdateCreativeTemplateBody = zod.object({
+  "name": zod.string().min(1).max(updateCreativeTemplateBodyOneNameMax),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(updateCreativeTemplateBodyOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "description": zod.string().max(updateCreativeTemplateBodyOneDescriptionMax),
+  "scenes": zod.string().max(updateCreativeTemplateBodyOneScenesMax),
+  "characterMotion": zod.string().max(updateCreativeTemplateBodyOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(updateCreativeTemplateBodyOneCameraMotionMax),
+  "visual": zod.string().max(updateCreativeTemplateBodyOneVisualMax),
+  "narration": zod.string().max(updateCreativeTemplateBodyOneNarrationMax),
+  "cta": zod.string().max(updateCreativeTemplateBodyOneCtaMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+}))
+
+export const updateCreativeTemplateResponseOneOneNameMax = 100;
+
+
+export const updateCreativeTemplateResponseOneOneSegmentsMax = 4;
+
+export const updateCreativeTemplateResponseOneOneDescriptionMax = 2000;
+
+export const updateCreativeTemplateResponseOneOneScenesMax = 4000;
+
+export const updateCreativeTemplateResponseOneOneCharacterMotionMax = 2000;
+
+export const updateCreativeTemplateResponseOneOneCameraMotionMax = 2000;
+
+export const updateCreativeTemplateResponseOneOneVisualMax = 2000;
+
+export const updateCreativeTemplateResponseOneOneNarrationMax = 4000;
+
+export const updateCreativeTemplateResponseOneOneCtaMax = 1000;
+
+
+
+
+export const UpdateCreativeTemplateResponse = zod.object({
+  "name": zod.string().min(1).max(updateCreativeTemplateResponseOneOneNameMax),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(updateCreativeTemplateResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "description": zod.string().max(updateCreativeTemplateResponseOneOneDescriptionMax),
+  "scenes": zod.string().max(updateCreativeTemplateResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(updateCreativeTemplateResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(updateCreativeTemplateResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(updateCreativeTemplateResponseOneOneVisualMax),
+  "narration": zod.string().max(updateCreativeTemplateResponseOneOneNarrationMax),
+  "cta": zod.string().max(updateCreativeTemplateResponseOneOneCtaMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "id": zod.string()
+}))
+
+
+export const listCreativeConceptsResponseOneOneTitleMax = 120;
+
+
+
+export const listCreativeConceptsResponseOneOneSegmentsMax = 3;
+
+export const listCreativeConceptsResponseOneOnePurposeMax = 2000;
+
+export const listCreativeConceptsResponseOneOneDirectionMax = 8000;
+
+export const listCreativeConceptsResponseOneOneScenesMax = 4000;
+
+export const listCreativeConceptsResponseOneOneCharacterMotionMax = 2000;
+
+export const listCreativeConceptsResponseOneOneCameraMotionMax = 2000;
+
+export const listCreativeConceptsResponseOneOneVisualMax = 2000;
+
+export const listCreativeConceptsResponseOneOneNarrationMax = 4000;
+
+export const listCreativeConceptsResponseOneOneSubtitleMax = 4000;
+
+export const listCreativeConceptsResponseOneOneCtaMax = 1000;
+
+export const listCreativeConceptsResponseOneOneDurationSecondsMax = 120;
+
+export const listCreativeConceptsResponseOneOneSourceIdsMax = 12;
+
+
+
+
+export const ListCreativeConceptsResponseItem = zod.object({
+  "title": zod.string().min(1).max(listCreativeConceptsResponseOneOneTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(listCreativeConceptsResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(listCreativeConceptsResponseOneOnePurposeMax),
+  "direction": zod.string().max(listCreativeConceptsResponseOneOneDirectionMax),
+  "scenes": zod.string().max(listCreativeConceptsResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(listCreativeConceptsResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(listCreativeConceptsResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(listCreativeConceptsResponseOneOneVisualMax),
+  "narration": zod.string().max(listCreativeConceptsResponseOneOneNarrationMax),
+  "subtitle": zod.string().max(listCreativeConceptsResponseOneOneSubtitleMax),
+  "cta": zod.string().max(listCreativeConceptsResponseOneOneCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(listCreativeConceptsResponseOneOneDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(listCreativeConceptsResponseOneOneSourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "prompt": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "blockers": zod.array(zod.string())
+})).and(zod.object({
+  "id": zod.string(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string(),
+  "categoryName": zod.string(),
+  "templateName": zod.string().nullable(),
+  "characterName": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "stale": zod.boolean(),
+  "staleReasons": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int(),
+  "url": zod.string(),
+  "ownerId": zod.string(),
+  "state": zod.enum(['PENDING', 'READY'])
+})),
+  "reviews": zod.array(zod.object({
+  "id": zod.string(),
+  "actorId": zod.string(),
+  "action": zod.string(),
+  "note": zod.string(),
+  "version": zod.number().int(),
+  "createdAt": zod.string()
+}))
+}))
+export const ListCreativeConceptsResponse = zod.array(ListCreativeConceptsResponseItem)
+
+
+export const createCreativeConceptBodyTitleMax = 120;
+
+
+
+export const createCreativeConceptBodySegmentsMax = 3;
+
+export const createCreativeConceptBodyPurposeMax = 2000;
+
+export const createCreativeConceptBodyDirectionMax = 8000;
+
+export const createCreativeConceptBodyScenesMax = 4000;
+
+export const createCreativeConceptBodyCharacterMotionMax = 2000;
+
+export const createCreativeConceptBodyCameraMotionMax = 2000;
+
+export const createCreativeConceptBodyVisualMax = 2000;
+
+export const createCreativeConceptBodyNarrationMax = 4000;
+
+export const createCreativeConceptBodySubtitleMax = 4000;
+
+export const createCreativeConceptBodyCtaMax = 1000;
+
+export const createCreativeConceptBodyDurationSecondsMax = 120;
+
+export const createCreativeConceptBodySourceIdsMax = 12;
+
+
+
+export const CreateCreativeConceptBody = zod.object({
+  "title": zod.string().min(1).max(createCreativeConceptBodyTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(createCreativeConceptBodySegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(createCreativeConceptBodyPurposeMax),
+  "direction": zod.string().max(createCreativeConceptBodyDirectionMax),
+  "scenes": zod.string().max(createCreativeConceptBodyScenesMax),
+  "characterMotion": zod.string().max(createCreativeConceptBodyCharacterMotionMax),
+  "cameraMotion": zod.string().max(createCreativeConceptBodyCameraMotionMax),
+  "visual": zod.string().max(createCreativeConceptBodyVisualMax),
+  "narration": zod.string().max(createCreativeConceptBodyNarrationMax),
+  "subtitle": zod.string().max(createCreativeConceptBodySubtitleMax),
+  "cta": zod.string().max(createCreativeConceptBodyCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(createCreativeConceptBodyDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(createCreativeConceptBodySourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+})
+
+export const createCreativeConceptResponseOneOneTitleMax = 120;
+
+
+
+export const createCreativeConceptResponseOneOneSegmentsMax = 3;
+
+export const createCreativeConceptResponseOneOnePurposeMax = 2000;
+
+export const createCreativeConceptResponseOneOneDirectionMax = 8000;
+
+export const createCreativeConceptResponseOneOneScenesMax = 4000;
+
+export const createCreativeConceptResponseOneOneCharacterMotionMax = 2000;
+
+export const createCreativeConceptResponseOneOneCameraMotionMax = 2000;
+
+export const createCreativeConceptResponseOneOneVisualMax = 2000;
+
+export const createCreativeConceptResponseOneOneNarrationMax = 4000;
+
+export const createCreativeConceptResponseOneOneSubtitleMax = 4000;
+
+export const createCreativeConceptResponseOneOneCtaMax = 1000;
+
+export const createCreativeConceptResponseOneOneDurationSecondsMax = 120;
+
+export const createCreativeConceptResponseOneOneSourceIdsMax = 12;
+
+
+
+
+export const CreateCreativeConceptResponse = zod.object({
+  "title": zod.string().min(1).max(createCreativeConceptResponseOneOneTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(createCreativeConceptResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(createCreativeConceptResponseOneOnePurposeMax),
+  "direction": zod.string().max(createCreativeConceptResponseOneOneDirectionMax),
+  "scenes": zod.string().max(createCreativeConceptResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(createCreativeConceptResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(createCreativeConceptResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(createCreativeConceptResponseOneOneVisualMax),
+  "narration": zod.string().max(createCreativeConceptResponseOneOneNarrationMax),
+  "subtitle": zod.string().max(createCreativeConceptResponseOneOneSubtitleMax),
+  "cta": zod.string().max(createCreativeConceptResponseOneOneCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(createCreativeConceptResponseOneOneDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(createCreativeConceptResponseOneOneSourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "prompt": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "blockers": zod.array(zod.string())
+})).and(zod.object({
+  "id": zod.string(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string(),
+  "categoryName": zod.string(),
+  "templateName": zod.string().nullable(),
+  "characterName": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "stale": zod.boolean(),
+  "staleReasons": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int(),
+  "url": zod.string(),
+  "ownerId": zod.string(),
+  "state": zod.enum(['PENDING', 'READY'])
+})),
+  "reviews": zod.array(zod.object({
+  "id": zod.string(),
+  "actorId": zod.string(),
+  "action": zod.string(),
+  "note": zod.string(),
+  "version": zod.number().int(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+export const previewCreativePromptBodyTitleMax = 120;
+
+
+
+export const previewCreativePromptBodySegmentsMax = 3;
+
+export const previewCreativePromptBodyPurposeMax = 2000;
+
+export const previewCreativePromptBodyDirectionMax = 8000;
+
+export const previewCreativePromptBodyScenesMax = 4000;
+
+export const previewCreativePromptBodyCharacterMotionMax = 2000;
+
+export const previewCreativePromptBodyCameraMotionMax = 2000;
+
+export const previewCreativePromptBodyVisualMax = 2000;
+
+export const previewCreativePromptBodyNarrationMax = 4000;
+
+export const previewCreativePromptBodySubtitleMax = 4000;
+
+export const previewCreativePromptBodyCtaMax = 1000;
+
+export const previewCreativePromptBodyDurationSecondsMax = 120;
+
+export const previewCreativePromptBodySourceIdsMax = 12;
+
+
+
+export const PreviewCreativePromptBody = zod.object({
+  "title": zod.string().min(1).max(previewCreativePromptBodyTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(previewCreativePromptBodySegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(previewCreativePromptBodyPurposeMax),
+  "direction": zod.string().max(previewCreativePromptBodyDirectionMax),
+  "scenes": zod.string().max(previewCreativePromptBodyScenesMax),
+  "characterMotion": zod.string().max(previewCreativePromptBodyCharacterMotionMax),
+  "cameraMotion": zod.string().max(previewCreativePromptBodyCameraMotionMax),
+  "visual": zod.string().max(previewCreativePromptBodyVisualMax),
+  "narration": zod.string().max(previewCreativePromptBodyNarrationMax),
+  "subtitle": zod.string().max(previewCreativePromptBodySubtitleMax),
+  "cta": zod.string().max(previewCreativePromptBodyCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(previewCreativePromptBodyDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(previewCreativePromptBodySourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+})
+
+export const PreviewCreativePromptResponse = zod.object({
+  "prompt": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "blockers": zod.array(zod.string())
+})
+
+
+export const GetCreativeConceptParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const getCreativeConceptResponseOneOneTitleMax = 120;
+
+
+
+export const getCreativeConceptResponseOneOneSegmentsMax = 3;
+
+export const getCreativeConceptResponseOneOnePurposeMax = 2000;
+
+export const getCreativeConceptResponseOneOneDirectionMax = 8000;
+
+export const getCreativeConceptResponseOneOneScenesMax = 4000;
+
+export const getCreativeConceptResponseOneOneCharacterMotionMax = 2000;
+
+export const getCreativeConceptResponseOneOneCameraMotionMax = 2000;
+
+export const getCreativeConceptResponseOneOneVisualMax = 2000;
+
+export const getCreativeConceptResponseOneOneNarrationMax = 4000;
+
+export const getCreativeConceptResponseOneOneSubtitleMax = 4000;
+
+export const getCreativeConceptResponseOneOneCtaMax = 1000;
+
+export const getCreativeConceptResponseOneOneDurationSecondsMax = 120;
+
+export const getCreativeConceptResponseOneOneSourceIdsMax = 12;
+
+
+
+
+export const GetCreativeConceptResponse = zod.object({
+  "title": zod.string().min(1).max(getCreativeConceptResponseOneOneTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(getCreativeConceptResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(getCreativeConceptResponseOneOnePurposeMax),
+  "direction": zod.string().max(getCreativeConceptResponseOneOneDirectionMax),
+  "scenes": zod.string().max(getCreativeConceptResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(getCreativeConceptResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(getCreativeConceptResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(getCreativeConceptResponseOneOneVisualMax),
+  "narration": zod.string().max(getCreativeConceptResponseOneOneNarrationMax),
+  "subtitle": zod.string().max(getCreativeConceptResponseOneOneSubtitleMax),
+  "cta": zod.string().max(getCreativeConceptResponseOneOneCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(getCreativeConceptResponseOneOneDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(getCreativeConceptResponseOneOneSourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "prompt": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "blockers": zod.array(zod.string())
+})).and(zod.object({
+  "id": zod.string(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string(),
+  "categoryName": zod.string(),
+  "templateName": zod.string().nullable(),
+  "characterName": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "stale": zod.boolean(),
+  "staleReasons": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int(),
+  "url": zod.string(),
+  "ownerId": zod.string(),
+  "state": zod.enum(['PENDING', 'READY'])
+})),
+  "reviews": zod.array(zod.object({
+  "id": zod.string(),
+  "actorId": zod.string(),
+  "action": zod.string(),
+  "note": zod.string(),
+  "version": zod.number().int(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+export const UpdateCreativeConceptParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const updateCreativeConceptBodyOneTitleMax = 120;
+
+
+
+export const updateCreativeConceptBodyOneSegmentsMax = 3;
+
+export const updateCreativeConceptBodyOnePurposeMax = 2000;
+
+export const updateCreativeConceptBodyOneDirectionMax = 8000;
+
+export const updateCreativeConceptBodyOneScenesMax = 4000;
+
+export const updateCreativeConceptBodyOneCharacterMotionMax = 2000;
+
+export const updateCreativeConceptBodyOneCameraMotionMax = 2000;
+
+export const updateCreativeConceptBodyOneVisualMax = 2000;
+
+export const updateCreativeConceptBodyOneNarrationMax = 4000;
+
+export const updateCreativeConceptBodyOneSubtitleMax = 4000;
+
+export const updateCreativeConceptBodyOneCtaMax = 1000;
+
+export const updateCreativeConceptBodyOneDurationSecondsMax = 120;
+
+export const updateCreativeConceptBodyOneSourceIdsMax = 12;
+
+
+
+
+export const UpdateCreativeConceptBody = zod.object({
+  "title": zod.string().min(1).max(updateCreativeConceptBodyOneTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(updateCreativeConceptBodyOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(updateCreativeConceptBodyOnePurposeMax),
+  "direction": zod.string().max(updateCreativeConceptBodyOneDirectionMax),
+  "scenes": zod.string().max(updateCreativeConceptBodyOneScenesMax),
+  "characterMotion": zod.string().max(updateCreativeConceptBodyOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(updateCreativeConceptBodyOneCameraMotionMax),
+  "visual": zod.string().max(updateCreativeConceptBodyOneVisualMax),
+  "narration": zod.string().max(updateCreativeConceptBodyOneNarrationMax),
+  "subtitle": zod.string().max(updateCreativeConceptBodyOneSubtitleMax),
+  "cta": zod.string().max(updateCreativeConceptBodyOneCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(updateCreativeConceptBodyOneDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(updateCreativeConceptBodyOneSourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+}))
+
+export const updateCreativeConceptResponseOneOneTitleMax = 120;
+
+
+
+export const updateCreativeConceptResponseOneOneSegmentsMax = 3;
+
+export const updateCreativeConceptResponseOneOnePurposeMax = 2000;
+
+export const updateCreativeConceptResponseOneOneDirectionMax = 8000;
+
+export const updateCreativeConceptResponseOneOneScenesMax = 4000;
+
+export const updateCreativeConceptResponseOneOneCharacterMotionMax = 2000;
+
+export const updateCreativeConceptResponseOneOneCameraMotionMax = 2000;
+
+export const updateCreativeConceptResponseOneOneVisualMax = 2000;
+
+export const updateCreativeConceptResponseOneOneNarrationMax = 4000;
+
+export const updateCreativeConceptResponseOneOneSubtitleMax = 4000;
+
+export const updateCreativeConceptResponseOneOneCtaMax = 1000;
+
+export const updateCreativeConceptResponseOneOneDurationSecondsMax = 120;
+
+export const updateCreativeConceptResponseOneOneSourceIdsMax = 12;
+
+
+
+
+export const UpdateCreativeConceptResponse = zod.object({
+  "title": zod.string().min(1).max(updateCreativeConceptResponseOneOneTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(updateCreativeConceptResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(updateCreativeConceptResponseOneOnePurposeMax),
+  "direction": zod.string().max(updateCreativeConceptResponseOneOneDirectionMax),
+  "scenes": zod.string().max(updateCreativeConceptResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(updateCreativeConceptResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(updateCreativeConceptResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(updateCreativeConceptResponseOneOneVisualMax),
+  "narration": zod.string().max(updateCreativeConceptResponseOneOneNarrationMax),
+  "subtitle": zod.string().max(updateCreativeConceptResponseOneOneSubtitleMax),
+  "cta": zod.string().max(updateCreativeConceptResponseOneOneCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(updateCreativeConceptResponseOneOneDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(updateCreativeConceptResponseOneOneSourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "prompt": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "blockers": zod.array(zod.string())
+})).and(zod.object({
+  "id": zod.string(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string(),
+  "categoryName": zod.string(),
+  "templateName": zod.string().nullable(),
+  "characterName": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "stale": zod.boolean(),
+  "staleReasons": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int(),
+  "url": zod.string(),
+  "ownerId": zod.string(),
+  "state": zod.enum(['PENDING', 'READY'])
+})),
+  "reviews": zod.array(zod.object({
+  "id": zod.string(),
+  "actorId": zod.string(),
+  "action": zod.string(),
+  "note": zod.string(),
+  "version": zod.number().int(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+export const DeleteCreativeConceptParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+
+
+
+export const DeleteCreativeConceptBody = zod.object({
+  "version": zod.number().int().min(1)
+})
+
+export const DeleteCreativeConceptResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+export const TransitionCreativeConceptParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+
+export const transitionCreativeConceptBodyNoteMax = 2000;
+
+
+
+export const TransitionCreativeConceptBody = zod.object({
+  "version": zod.number().int().min(1),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "note": zod.string().max(transitionCreativeConceptBodyNoteMax)
+})
+
+export const transitionCreativeConceptResponseOneOneTitleMax = 120;
+
+
+
+export const transitionCreativeConceptResponseOneOneSegmentsMax = 3;
+
+export const transitionCreativeConceptResponseOneOnePurposeMax = 2000;
+
+export const transitionCreativeConceptResponseOneOneDirectionMax = 8000;
+
+export const transitionCreativeConceptResponseOneOneScenesMax = 4000;
+
+export const transitionCreativeConceptResponseOneOneCharacterMotionMax = 2000;
+
+export const transitionCreativeConceptResponseOneOneCameraMotionMax = 2000;
+
+export const transitionCreativeConceptResponseOneOneVisualMax = 2000;
+
+export const transitionCreativeConceptResponseOneOneNarrationMax = 4000;
+
+export const transitionCreativeConceptResponseOneOneSubtitleMax = 4000;
+
+export const transitionCreativeConceptResponseOneOneCtaMax = 1000;
+
+export const transitionCreativeConceptResponseOneOneDurationSecondsMax = 120;
+
+export const transitionCreativeConceptResponseOneOneSourceIdsMax = 12;
+
+
+
+
+export const TransitionCreativeConceptResponse = zod.object({
+  "title": zod.string().min(1).max(transitionCreativeConceptResponseOneOneTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(transitionCreativeConceptResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(transitionCreativeConceptResponseOneOnePurposeMax),
+  "direction": zod.string().max(transitionCreativeConceptResponseOneOneDirectionMax),
+  "scenes": zod.string().max(transitionCreativeConceptResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(transitionCreativeConceptResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(transitionCreativeConceptResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(transitionCreativeConceptResponseOneOneVisualMax),
+  "narration": zod.string().max(transitionCreativeConceptResponseOneOneNarrationMax),
+  "subtitle": zod.string().max(transitionCreativeConceptResponseOneOneSubtitleMax),
+  "cta": zod.string().max(transitionCreativeConceptResponseOneOneCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(transitionCreativeConceptResponseOneOneDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(transitionCreativeConceptResponseOneOneSourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "prompt": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "blockers": zod.array(zod.string())
+})).and(zod.object({
+  "id": zod.string(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string(),
+  "categoryName": zod.string(),
+  "templateName": zod.string().nullable(),
+  "characterName": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "stale": zod.boolean(),
+  "staleReasons": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int(),
+  "url": zod.string(),
+  "ownerId": zod.string(),
+  "state": zod.enum(['PENDING', 'READY'])
+})),
+  "reviews": zod.array(zod.object({
+  "id": zod.string(),
+  "actorId": zod.string(),
+  "action": zod.string(),
+  "note": zod.string(),
+  "version": zod.number().int(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+export const RequestConceptUploadParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+
+export const requestConceptUploadBodyNameMax = 200;
+
+export const requestConceptUploadBodySizeMax = 20971520;
+
+
+
+export const RequestConceptUploadBody = zod.object({
+  "version": zod.number().int().min(1),
+  "name": zod.string().min(1).max(requestConceptUploadBodyNameMax),
+  "size": zod.number().int().min(1).max(requestConceptUploadBodySizeMax),
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp', 'video/mp4'])
+})
+
+export const RequestConceptUploadResponse = zod.object({
+  "uploadId": zod.string(),
+  "uploadURL": zod.string()
+})
+
+
+export const FinalizeConceptUploadParams = zod.object({
+  "id": zod.coerce.string(),
+  "uploadId": zod.coerce.string()
+})
+
+
+
+
+export const FinalizeConceptUploadBody = zod.object({
+  "version": zod.number().int().min(1)
+})
+
+export const finalizeConceptUploadResponseOneOneTitleMax = 120;
+
+
+
+export const finalizeConceptUploadResponseOneOneSegmentsMax = 3;
+
+export const finalizeConceptUploadResponseOneOnePurposeMax = 2000;
+
+export const finalizeConceptUploadResponseOneOneDirectionMax = 8000;
+
+export const finalizeConceptUploadResponseOneOneScenesMax = 4000;
+
+export const finalizeConceptUploadResponseOneOneCharacterMotionMax = 2000;
+
+export const finalizeConceptUploadResponseOneOneCameraMotionMax = 2000;
+
+export const finalizeConceptUploadResponseOneOneVisualMax = 2000;
+
+export const finalizeConceptUploadResponseOneOneNarrationMax = 4000;
+
+export const finalizeConceptUploadResponseOneOneSubtitleMax = 4000;
+
+export const finalizeConceptUploadResponseOneOneCtaMax = 1000;
+
+export const finalizeConceptUploadResponseOneOneDurationSecondsMax = 120;
+
+export const finalizeConceptUploadResponseOneOneSourceIdsMax = 12;
+
+
+
+
+export const FinalizeConceptUploadResponse = zod.object({
+  "title": zod.string().min(1).max(finalizeConceptUploadResponseOneOneTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(finalizeConceptUploadResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(finalizeConceptUploadResponseOneOnePurposeMax),
+  "direction": zod.string().max(finalizeConceptUploadResponseOneOneDirectionMax),
+  "scenes": zod.string().max(finalizeConceptUploadResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(finalizeConceptUploadResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(finalizeConceptUploadResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(finalizeConceptUploadResponseOneOneVisualMax),
+  "narration": zod.string().max(finalizeConceptUploadResponseOneOneNarrationMax),
+  "subtitle": zod.string().max(finalizeConceptUploadResponseOneOneSubtitleMax),
+  "cta": zod.string().max(finalizeConceptUploadResponseOneOneCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(finalizeConceptUploadResponseOneOneDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(finalizeConceptUploadResponseOneOneSourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "prompt": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "blockers": zod.array(zod.string())
+})).and(zod.object({
+  "id": zod.string(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string(),
+  "categoryName": zod.string(),
+  "templateName": zod.string().nullable(),
+  "characterName": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "stale": zod.boolean(),
+  "staleReasons": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int(),
+  "url": zod.string(),
+  "ownerId": zod.string(),
+  "state": zod.enum(['PENDING', 'READY'])
+})),
+  "reviews": zod.array(zod.object({
+  "id": zod.string(),
+  "actorId": zod.string(),
+  "action": zod.string(),
+  "note": zod.string(),
+  "version": zod.number().int(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+export const DeleteConceptAttachmentParams = zod.object({
+  "id": zod.coerce.string(),
+  "uploadId": zod.coerce.string()
+})
+
+
+
+
+export const DeleteConceptAttachmentBody = zod.object({
+  "version": zod.number().int().min(1)
+})
+
+export const deleteConceptAttachmentResponseOneOneTitleMax = 120;
+
+
+
+export const deleteConceptAttachmentResponseOneOneSegmentsMax = 3;
+
+export const deleteConceptAttachmentResponseOneOnePurposeMax = 2000;
+
+export const deleteConceptAttachmentResponseOneOneDirectionMax = 8000;
+
+export const deleteConceptAttachmentResponseOneOneScenesMax = 4000;
+
+export const deleteConceptAttachmentResponseOneOneCharacterMotionMax = 2000;
+
+export const deleteConceptAttachmentResponseOneOneCameraMotionMax = 2000;
+
+export const deleteConceptAttachmentResponseOneOneVisualMax = 2000;
+
+export const deleteConceptAttachmentResponseOneOneNarrationMax = 4000;
+
+export const deleteConceptAttachmentResponseOneOneSubtitleMax = 4000;
+
+export const deleteConceptAttachmentResponseOneOneCtaMax = 1000;
+
+export const deleteConceptAttachmentResponseOneOneDurationSecondsMax = 120;
+
+export const deleteConceptAttachmentResponseOneOneSourceIdsMax = 12;
+
+
+
+
+export const DeleteConceptAttachmentResponse = zod.object({
+  "title": zod.string().min(1).max(deleteConceptAttachmentResponseOneOneTitleMax),
+  "characterId": zod.string().min(1),
+  "categoryId": zod.string().min(1),
+  "segments": zod.array(zod.enum(['MIKRO', 'MINI', 'REGULAR', 'NONE'])).min(1).max(deleteConceptAttachmentResponseOneOneSegmentsMax),
+  "style": zod.enum(['UGC', 'CINEMATIC']),
+  "mode": zod.enum(['HEMAT', 'AI']),
+  "templateId": zod.string().nullable(),
+  "purpose": zod.string().max(deleteConceptAttachmentResponseOneOnePurposeMax),
+  "direction": zod.string().max(deleteConceptAttachmentResponseOneOneDirectionMax),
+  "scenes": zod.string().max(deleteConceptAttachmentResponseOneOneScenesMax),
+  "characterMotion": zod.string().max(deleteConceptAttachmentResponseOneOneCharacterMotionMax),
+  "cameraMotion": zod.string().max(deleteConceptAttachmentResponseOneOneCameraMotionMax),
+  "visual": zod.string().max(deleteConceptAttachmentResponseOneOneVisualMax),
+  "narration": zod.string().max(deleteConceptAttachmentResponseOneOneNarrationMax),
+  "subtitle": zod.string().max(deleteConceptAttachmentResponseOneOneSubtitleMax),
+  "cta": zod.string().max(deleteConceptAttachmentResponseOneOneCtaMax),
+  "format": zod.enum(['9:16', '16:9', '1:1']),
+  "durationSeconds": zod.number().int().min(1).max(deleteConceptAttachmentResponseOneOneDurationSecondsMax),
+  "sourceIds": zod.array(zod.string()).max(deleteConceptAttachmentResponseOneOneSourceIdsMax),
+  "publicMode": zod.boolean(),
+  "materialConsent": zod.boolean()
+}).and(zod.object({
+  "version": zod.number().int().min(1)
+})).and(zod.object({
+  "prompt": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "blockers": zod.array(zod.string())
+})).and(zod.object({
+  "id": zod.string(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string(),
+  "categoryName": zod.string(),
+  "templateName": zod.string().nullable(),
+  "characterName": zod.string(),
+  "status": zod.enum(['DRAFT', 'READY_FOR_REVIEW', 'APPROVED', 'REJECTED']),
+  "stale": zod.boolean(),
+  "staleReasons": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "attachments": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int(),
+  "url": zod.string(),
+  "ownerId": zod.string(),
+  "state": zod.enum(['PENDING', 'READY'])
+})),
+  "reviews": zod.array(zod.object({
+  "id": zod.string(),
+  "actorId": zod.string(),
+  "action": zod.string(),
+  "note": zod.string(),
+  "version": zod.number().int(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+export const GetConceptAttachmentParams = zod.object({
+  "id": zod.coerce.string(),
+  "uploadId": zod.coerce.string()
+})
+
+export const GetConceptAttachmentResponse = zod.unknown()
+
+
+export const GenerateCreativeVideoResponse = zod.void()
+
+
 export const GetAppInfoResponse = zod.object({
   "name": zod.string(),
   "stage": zod.string(),

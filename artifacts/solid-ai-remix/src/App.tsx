@@ -18,6 +18,8 @@ import CharacterPage from '@/pages/character';
 import Knowledge from '@/pages/knowledge';
 import KnowledgeDetail from '@/pages/knowledge-detail';
 import Team from '@/pages/team';
+import CreativePage from '@/pages/creative';
+import CreativeLibraryPage from '@/pages/creative-library';
 import { registerServiceWorker } from '@/lib/pwa';
 
 registerServiceWorker();
@@ -159,6 +161,8 @@ function Router() {
         <Route path="/character">{() => <Private render={(me) => <CharacterPage me={me} />} />}</Route>
         <Route path="/knowledge">{() => <Private render={() => <Knowledge />} />}</Route>
         <Route path="/knowledge/:id">{() => <Private render={() => <KnowledgeDetail />} />}</Route>
+        <Route path="/creative">{() => <Private render={(me) => <CreativePage me={me} />} />}</Route>
+        <Route path="/creative/library">{() => <Private render={(me) => <CreativeLibraryPage me={me} />} />}</Route>
         <Route path="/team">{() => <Private render={(me) => <Team me={me} />} />}</Route>
         <Route component={NotFound} />
       </Switch>

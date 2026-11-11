@@ -30,6 +30,20 @@ import type {
   Character,
   CharacterInput,
   CharacterResult,
+  ConceptUploadInput,
+  ConceptVersionInput,
+  CreativeCategory,
+  CreativeCategoryInput,
+  CreativeCategoryUpdate,
+  CreativeConcept,
+  CreativeConceptInput,
+  CreativeConceptUpdate,
+  CreativeLibrary,
+  CreativePreview,
+  CreativeStatusInput,
+  CreativeTemplate,
+  CreativeTemplateInput,
+  CreativeTemplateUpdate,
   HealthStatus,
   KnowledgeDetail,
   KnowledgeList,
@@ -68,6 +82,1458 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetCreativeLibraryUrl = () => {
+
+
+
+
+  return `/api/creative/library`
+}
+
+export const getCreativeLibrary = async ( options?: Parameters<typeof customFetch>[1]): Promise<CreativeLibrary> => {
+
+  return customFetch<CreativeLibrary>(getGetCreativeLibraryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCreativeLibraryQueryKey = () => {
+    return [
+    `/api/creative/library`
+    ] as const;
+    }
+
+
+export const getGetCreativeLibraryQueryOptions = <TData = Awaited<ReturnType<typeof getCreativeLibrary>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeLibrary>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCreativeLibraryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCreativeLibrary>>> = ({ signal }) => getCreativeLibrary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCreativeLibrary>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCreativeLibraryQueryResult = NonNullable<Awaited<ReturnType<typeof getCreativeLibrary>>>
+export type GetCreativeLibraryQueryError = ErrorType<unknown>
+
+
+export function useGetCreativeLibrary<TData = Awaited<ReturnType<typeof getCreativeLibrary>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeLibrary>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCreativeLibrary>>,
+          TError,
+          Awaited<ReturnType<typeof getCreativeLibrary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCreativeLibrary<TData = Awaited<ReturnType<typeof getCreativeLibrary>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeLibrary>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCreativeLibrary>>,
+          TError,
+          Awaited<ReturnType<typeof getCreativeLibrary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCreativeLibrary<TData = Awaited<ReturnType<typeof getCreativeLibrary>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeLibrary>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetCreativeLibrary<TData = Awaited<ReturnType<typeof getCreativeLibrary>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeLibrary>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetCreativeLibraryQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCreativeCategoryUrl = () => {
+
+
+
+
+  return `/api/creative/categories`
+}
+
+export const createCreativeCategory = async (creativeCategoryInput: CreativeCategoryInput, options?: Parameters<typeof customFetch>[1]): Promise<CreativeCategory> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeCategory>(getCreateCreativeCategoryUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(creativeCategoryInput)
+  }
+);}
+
+
+
+
+
+export const getCreateCreativeCategoryMutationKey = () => ['createCreativeCategory'] as const;
+
+export const getCreateCreativeCategoryMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCreativeCategory>>, TError,CreateCreativeCategoryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCreativeCategory>>, TError,CreateCreativeCategoryMutationVariables, TContext> => {
+
+const mutationKey = getCreateCreativeCategoryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCreativeCategory>>, CreateCreativeCategoryMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCreativeCategory(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCreativeCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof createCreativeCategory>>>
+    export type CreateCreativeCategoryMutationBody = BodyType<CreativeCategoryInput>
+    export type CreateCreativeCategoryMutationError = ErrorType<unknown>
+    export type CreateCreativeCategoryMutationVariables = {data: BodyType<CreativeCategoryInput>}
+
+    export const useCreateCreativeCategory = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCreativeCategory>>, TError,CreateCreativeCategoryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createCreativeCategory>>,
+        TError,
+        CreateCreativeCategoryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateCreativeCategoryMutationOptions(options), queryClient);
+    }
+
+export const getUpdateCreativeCategoryUrl = (id: string,) => {
+
+
+
+
+  return `/api/creative/categories/${id}`
+}
+
+export const updateCreativeCategory = async (id: string,
+    creativeCategoryUpdate: CreativeCategoryUpdate, options?: Parameters<typeof customFetch>[1]): Promise<CreativeCategory> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeCategory>(getUpdateCreativeCategoryUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(creativeCategoryUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateCreativeCategoryMutationKey = () => ['updateCreativeCategory'] as const;
+
+export const getUpdateCreativeCategoryMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCreativeCategory>>, TError,UpdateCreativeCategoryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCreativeCategory>>, TError,UpdateCreativeCategoryMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCreativeCategoryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCreativeCategory>>, UpdateCreativeCategoryMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCreativeCategory(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCreativeCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof updateCreativeCategory>>>
+    export type UpdateCreativeCategoryMutationBody = BodyType<CreativeCategoryUpdate>
+    export type UpdateCreativeCategoryMutationError = ErrorType<unknown>
+    export type UpdateCreativeCategoryMutationVariables = {id: string;data: BodyType<CreativeCategoryUpdate>}
+
+    export const useUpdateCreativeCategory = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCreativeCategory>>, TError,UpdateCreativeCategoryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateCreativeCategory>>,
+        TError,
+        UpdateCreativeCategoryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateCreativeCategoryMutationOptions(options), queryClient);
+    }
+
+export const getCreateCreativeTemplateUrl = () => {
+
+
+
+
+  return `/api/creative/templates`
+}
+
+export const createCreativeTemplate = async (creativeTemplateInput: CreativeTemplateInput, options?: Parameters<typeof customFetch>[1]): Promise<CreativeTemplate> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeTemplate>(getCreateCreativeTemplateUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(creativeTemplateInput)
+  }
+);}
+
+
+
+
+
+export const getCreateCreativeTemplateMutationKey = () => ['createCreativeTemplate'] as const;
+
+export const getCreateCreativeTemplateMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCreativeTemplate>>, TError,CreateCreativeTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCreativeTemplate>>, TError,CreateCreativeTemplateMutationVariables, TContext> => {
+
+const mutationKey = getCreateCreativeTemplateMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCreativeTemplate>>, CreateCreativeTemplateMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCreativeTemplate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCreativeTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof createCreativeTemplate>>>
+    export type CreateCreativeTemplateMutationBody = BodyType<CreativeTemplateInput>
+    export type CreateCreativeTemplateMutationError = ErrorType<unknown>
+    export type CreateCreativeTemplateMutationVariables = {data: BodyType<CreativeTemplateInput>}
+
+    export const useCreateCreativeTemplate = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCreativeTemplate>>, TError,CreateCreativeTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createCreativeTemplate>>,
+        TError,
+        CreateCreativeTemplateMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateCreativeTemplateMutationOptions(options), queryClient);
+    }
+
+export const getUpdateCreativeTemplateUrl = (id: string,) => {
+
+
+
+
+  return `/api/creative/templates/${id}`
+}
+
+export const updateCreativeTemplate = async (id: string,
+    creativeTemplateUpdate: CreativeTemplateUpdate, options?: Parameters<typeof customFetch>[1]): Promise<CreativeTemplate> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeTemplate>(getUpdateCreativeTemplateUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(creativeTemplateUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateCreativeTemplateMutationKey = () => ['updateCreativeTemplate'] as const;
+
+export const getUpdateCreativeTemplateMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCreativeTemplate>>, TError,UpdateCreativeTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCreativeTemplate>>, TError,UpdateCreativeTemplateMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCreativeTemplateMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCreativeTemplate>>, UpdateCreativeTemplateMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCreativeTemplate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCreativeTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof updateCreativeTemplate>>>
+    export type UpdateCreativeTemplateMutationBody = BodyType<CreativeTemplateUpdate>
+    export type UpdateCreativeTemplateMutationError = ErrorType<unknown>
+    export type UpdateCreativeTemplateMutationVariables = {id: string;data: BodyType<CreativeTemplateUpdate>}
+
+    export const useUpdateCreativeTemplate = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCreativeTemplate>>, TError,UpdateCreativeTemplateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateCreativeTemplate>>,
+        TError,
+        UpdateCreativeTemplateMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateCreativeTemplateMutationOptions(options), queryClient);
+    }
+
+export const getListCreativeConceptsUrl = () => {
+
+
+
+
+  return `/api/creative/concepts`
+}
+
+export const listCreativeConcepts = async ( options?: Parameters<typeof customFetch>[1]): Promise<CreativeConcept[]> => {
+
+  return customFetch<CreativeConcept[]>(getListCreativeConceptsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCreativeConceptsQueryKey = () => {
+    return [
+    `/api/creative/concepts`
+    ] as const;
+    }
+
+
+export const getListCreativeConceptsQueryOptions = <TData = Awaited<ReturnType<typeof listCreativeConcepts>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCreativeConcepts>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCreativeConceptsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCreativeConcepts>>> = ({ signal }) => listCreativeConcepts({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCreativeConcepts>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListCreativeConceptsQueryResult = NonNullable<Awaited<ReturnType<typeof listCreativeConcepts>>>
+export type ListCreativeConceptsQueryError = ErrorType<unknown>
+
+
+export function useListCreativeConcepts<TData = Awaited<ReturnType<typeof listCreativeConcepts>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCreativeConcepts>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listCreativeConcepts>>,
+          TError,
+          Awaited<ReturnType<typeof listCreativeConcepts>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListCreativeConcepts<TData = Awaited<ReturnType<typeof listCreativeConcepts>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCreativeConcepts>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listCreativeConcepts>>,
+          TError,
+          Awaited<ReturnType<typeof listCreativeConcepts>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListCreativeConcepts<TData = Awaited<ReturnType<typeof listCreativeConcepts>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCreativeConcepts>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListCreativeConcepts<TData = Awaited<ReturnType<typeof listCreativeConcepts>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listCreativeConcepts>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListCreativeConceptsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCreativeConceptUrl = () => {
+
+
+
+
+  return `/api/creative/concepts`
+}
+
+export const createCreativeConcept = async (creativeConceptInput: CreativeConceptInput, options?: Parameters<typeof customFetch>[1]): Promise<CreativeConcept> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeConcept>(getCreateCreativeConceptUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(creativeConceptInput)
+  }
+);}
+
+
+
+
+
+export const getCreateCreativeConceptMutationKey = () => ['createCreativeConcept'] as const;
+
+export const getCreateCreativeConceptMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCreativeConcept>>, TError,CreateCreativeConceptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCreativeConcept>>, TError,CreateCreativeConceptMutationVariables, TContext> => {
+
+const mutationKey = getCreateCreativeConceptMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCreativeConcept>>, CreateCreativeConceptMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCreativeConcept(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCreativeConceptMutationResult = NonNullable<Awaited<ReturnType<typeof createCreativeConcept>>>
+    export type CreateCreativeConceptMutationBody = BodyType<CreativeConceptInput>
+    export type CreateCreativeConceptMutationError = ErrorType<unknown>
+    export type CreateCreativeConceptMutationVariables = {data: BodyType<CreativeConceptInput>}
+
+    export const useCreateCreativeConcept = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCreativeConcept>>, TError,CreateCreativeConceptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createCreativeConcept>>,
+        TError,
+        CreateCreativeConceptMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateCreativeConceptMutationOptions(options), queryClient);
+    }
+
+export const getPreviewCreativePromptUrl = () => {
+
+
+
+
+  return `/api/creative/preview`
+}
+
+export const previewCreativePrompt = async (creativeConceptInput: CreativeConceptInput, options?: Parameters<typeof customFetch>[1]): Promise<CreativePreview> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativePreview>(getPreviewCreativePromptUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(creativeConceptInput)
+  }
+);}
+
+
+
+
+
+export const getPreviewCreativePromptMutationKey = () => ['previewCreativePrompt'] as const;
+
+export const getPreviewCreativePromptMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof previewCreativePrompt>>, TError,PreviewCreativePromptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof previewCreativePrompt>>, TError,PreviewCreativePromptMutationVariables, TContext> => {
+
+const mutationKey = getPreviewCreativePromptMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof previewCreativePrompt>>, PreviewCreativePromptMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  previewCreativePrompt(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PreviewCreativePromptMutationResult = NonNullable<Awaited<ReturnType<typeof previewCreativePrompt>>>
+    export type PreviewCreativePromptMutationBody = BodyType<CreativeConceptInput>
+    export type PreviewCreativePromptMutationError = ErrorType<unknown>
+    export type PreviewCreativePromptMutationVariables = {data: BodyType<CreativeConceptInput>}
+
+    export const usePreviewCreativePrompt = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof previewCreativePrompt>>, TError,PreviewCreativePromptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof previewCreativePrompt>>,
+        TError,
+        PreviewCreativePromptMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPreviewCreativePromptMutationOptions(options), queryClient);
+    }
+
+export const getGetCreativeConceptUrl = (id: string,) => {
+
+
+
+
+  return `/api/creative/concepts/${id}`
+}
+
+export const getCreativeConcept = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<CreativeConcept> => {
+
+  return customFetch<CreativeConcept>(getGetCreativeConceptUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCreativeConceptQueryKey = (id: string,) => {
+    return [
+    `/api/creative/concepts/${id}`
+    ] as const;
+    }
+
+
+export const getGetCreativeConceptQueryOptions = <TData = Awaited<ReturnType<typeof getCreativeConcept>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeConcept>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCreativeConceptQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCreativeConcept>>> = ({ signal }) => getCreativeConcept(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCreativeConcept>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCreativeConceptQueryResult = NonNullable<Awaited<ReturnType<typeof getCreativeConcept>>>
+export type GetCreativeConceptQueryError = ErrorType<unknown>
+
+
+export function useGetCreativeConcept<TData = Awaited<ReturnType<typeof getCreativeConcept>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeConcept>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCreativeConcept>>,
+          TError,
+          Awaited<ReturnType<typeof getCreativeConcept>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCreativeConcept<TData = Awaited<ReturnType<typeof getCreativeConcept>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeConcept>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCreativeConcept>>,
+          TError,
+          Awaited<ReturnType<typeof getCreativeConcept>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCreativeConcept<TData = Awaited<ReturnType<typeof getCreativeConcept>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeConcept>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetCreativeConcept<TData = Awaited<ReturnType<typeof getCreativeConcept>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCreativeConcept>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetCreativeConceptQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateCreativeConceptUrl = (id: string,) => {
+
+
+
+
+  return `/api/creative/concepts/${id}`
+}
+
+export const updateCreativeConcept = async (id: string,
+    creativeConceptUpdate: CreativeConceptUpdate, options?: Parameters<typeof customFetch>[1]): Promise<CreativeConcept> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeConcept>(getUpdateCreativeConceptUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(creativeConceptUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateCreativeConceptMutationKey = () => ['updateCreativeConcept'] as const;
+
+export const getUpdateCreativeConceptMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCreativeConcept>>, TError,UpdateCreativeConceptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCreativeConcept>>, TError,UpdateCreativeConceptMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCreativeConceptMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCreativeConcept>>, UpdateCreativeConceptMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCreativeConcept(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCreativeConceptMutationResult = NonNullable<Awaited<ReturnType<typeof updateCreativeConcept>>>
+    export type UpdateCreativeConceptMutationBody = BodyType<CreativeConceptUpdate>
+    export type UpdateCreativeConceptMutationError = ErrorType<unknown>
+    export type UpdateCreativeConceptMutationVariables = {id: string;data: BodyType<CreativeConceptUpdate>}
+
+    export const useUpdateCreativeConcept = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCreativeConcept>>, TError,UpdateCreativeConceptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateCreativeConcept>>,
+        TError,
+        UpdateCreativeConceptMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateCreativeConceptMutationOptions(options), queryClient);
+    }
+
+export const getDeleteCreativeConceptUrl = (id: string,) => {
+
+
+
+
+  return `/api/creative/concepts/${id}`
+}
+
+export const deleteCreativeConcept = async (id: string,
+    conceptVersionInput: ConceptVersionInput, options?: Parameters<typeof customFetch>[1]): Promise<Success> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Success>(getDeleteCreativeConceptUrl(id),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(conceptVersionInput)
+  }
+);}
+
+
+
+
+
+export const getDeleteCreativeConceptMutationKey = () => ['deleteCreativeConcept'] as const;
+
+export const getDeleteCreativeConceptMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCreativeConcept>>, TError,DeleteCreativeConceptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCreativeConcept>>, TError,DeleteCreativeConceptMutationVariables, TContext> => {
+
+const mutationKey = getDeleteCreativeConceptMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCreativeConcept>>, DeleteCreativeConceptMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  deleteCreativeConcept(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCreativeConceptMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCreativeConcept>>>
+    export type DeleteCreativeConceptMutationBody = BodyType<ConceptVersionInput>
+    export type DeleteCreativeConceptMutationError = ErrorType<unknown>
+    export type DeleteCreativeConceptMutationVariables = {id: string;data: BodyType<ConceptVersionInput>}
+
+    export const useDeleteCreativeConcept = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCreativeConcept>>, TError,DeleteCreativeConceptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCreativeConcept>>,
+        TError,
+        DeleteCreativeConceptMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteCreativeConceptMutationOptions(options), queryClient);
+    }
+
+export const getTransitionCreativeConceptUrl = (id: string,) => {
+
+
+
+
+  return `/api/creative/concepts/${id}/status`
+}
+
+export const transitionCreativeConcept = async (id: string,
+    creativeStatusInput: CreativeStatusInput, options?: Parameters<typeof customFetch>[1]): Promise<CreativeConcept> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeConcept>(getTransitionCreativeConceptUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(creativeStatusInput)
+  }
+);}
+
+
+
+
+
+export const getTransitionCreativeConceptMutationKey = () => ['transitionCreativeConcept'] as const;
+
+export const getTransitionCreativeConceptMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transitionCreativeConcept>>, TError,TransitionCreativeConceptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof transitionCreativeConcept>>, TError,TransitionCreativeConceptMutationVariables, TContext> => {
+
+const mutationKey = getTransitionCreativeConceptMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof transitionCreativeConcept>>, TransitionCreativeConceptMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  transitionCreativeConcept(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TransitionCreativeConceptMutationResult = NonNullable<Awaited<ReturnType<typeof transitionCreativeConcept>>>
+    export type TransitionCreativeConceptMutationBody = BodyType<CreativeStatusInput>
+    export type TransitionCreativeConceptMutationError = ErrorType<unknown>
+    export type TransitionCreativeConceptMutationVariables = {id: string;data: BodyType<CreativeStatusInput>}
+
+    export const useTransitionCreativeConcept = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transitionCreativeConcept>>, TError,TransitionCreativeConceptMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof transitionCreativeConcept>>,
+        TError,
+        TransitionCreativeConceptMutationVariables,
+        TContext
+      > => {
+      return useMutation(getTransitionCreativeConceptMutationOptions(options), queryClient);
+    }
+
+export const getRequestConceptUploadUrl = (id: string,) => {
+
+
+
+
+  return `/api/creative/concepts/${id}/uploads`
+}
+
+export const requestConceptUpload = async (id: string,
+    conceptUploadInput: ConceptUploadInput, options?: Parameters<typeof customFetch>[1]): Promise<UploadTicket> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<UploadTicket>(getRequestConceptUploadUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(conceptUploadInput)
+  }
+);}
+
+
+
+
+
+export const getRequestConceptUploadMutationKey = () => ['requestConceptUpload'] as const;
+
+export const getRequestConceptUploadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestConceptUpload>>, TError,RequestConceptUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestConceptUpload>>, TError,RequestConceptUploadMutationVariables, TContext> => {
+
+const mutationKey = getRequestConceptUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestConceptUpload>>, RequestConceptUploadMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  requestConceptUpload(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestConceptUploadMutationResult = NonNullable<Awaited<ReturnType<typeof requestConceptUpload>>>
+    export type RequestConceptUploadMutationBody = BodyType<ConceptUploadInput>
+    export type RequestConceptUploadMutationError = ErrorType<unknown>
+    export type RequestConceptUploadMutationVariables = {id: string;data: BodyType<ConceptUploadInput>}
+
+    export const useRequestConceptUpload = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestConceptUpload>>, TError,RequestConceptUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof requestConceptUpload>>,
+        TError,
+        RequestConceptUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRequestConceptUploadMutationOptions(options), queryClient);
+    }
+
+export const getFinalizeConceptUploadUrl = (id: string,
+    uploadId: string,) => {
+
+
+
+
+  return `/api/creative/concepts/${id}/uploads/${uploadId}`
+}
+
+export const finalizeConceptUpload = async (id: string,
+    uploadId: string,
+    conceptVersionInput: ConceptVersionInput, options?: Parameters<typeof customFetch>[1]): Promise<CreativeConcept> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeConcept>(getFinalizeConceptUploadUrl(id,uploadId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(conceptVersionInput)
+  }
+);}
+
+
+
+
+
+export const getFinalizeConceptUploadMutationKey = () => ['finalizeConceptUpload'] as const;
+
+export const getFinalizeConceptUploadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizeConceptUpload>>, TError,FinalizeConceptUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof finalizeConceptUpload>>, TError,FinalizeConceptUploadMutationVariables, TContext> => {
+
+const mutationKey = getFinalizeConceptUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof finalizeConceptUpload>>, FinalizeConceptUploadMutationVariables> = (props) => {
+          const {id,uploadId,data} = props ?? {};
+
+          return  finalizeConceptUpload(id,uploadId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FinalizeConceptUploadMutationResult = NonNullable<Awaited<ReturnType<typeof finalizeConceptUpload>>>
+    export type FinalizeConceptUploadMutationBody = BodyType<ConceptVersionInput>
+    export type FinalizeConceptUploadMutationError = ErrorType<unknown>
+    export type FinalizeConceptUploadMutationVariables = {id: string;uploadId: string;data: BodyType<ConceptVersionInput>}
+
+    export const useFinalizeConceptUpload = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizeConceptUpload>>, TError,FinalizeConceptUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof finalizeConceptUpload>>,
+        TError,
+        FinalizeConceptUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getFinalizeConceptUploadMutationOptions(options), queryClient);
+    }
+
+export const getDeleteConceptAttachmentUrl = (id: string,
+    uploadId: string,) => {
+
+
+
+
+  return `/api/creative/concepts/${id}/uploads/${uploadId}`
+}
+
+export const deleteConceptAttachment = async (id: string,
+    uploadId: string,
+    conceptVersionInput: ConceptVersionInput, options?: Parameters<typeof customFetch>[1]): Promise<CreativeConcept> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CreativeConcept>(getDeleteConceptAttachmentUrl(id,uploadId),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(conceptVersionInput)
+  }
+);}
+
+
+
+
+
+export const getDeleteConceptAttachmentMutationKey = () => ['deleteConceptAttachment'] as const;
+
+export const getDeleteConceptAttachmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteConceptAttachment>>, TError,DeleteConceptAttachmentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteConceptAttachment>>, TError,DeleteConceptAttachmentMutationVariables, TContext> => {
+
+const mutationKey = getDeleteConceptAttachmentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteConceptAttachment>>, DeleteConceptAttachmentMutationVariables> = (props) => {
+          const {id,uploadId,data} = props ?? {};
+
+          return  deleteConceptAttachment(id,uploadId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteConceptAttachmentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteConceptAttachment>>>
+    export type DeleteConceptAttachmentMutationBody = BodyType<ConceptVersionInput>
+    export type DeleteConceptAttachmentMutationError = ErrorType<unknown>
+    export type DeleteConceptAttachmentMutationVariables = {id: string;uploadId: string;data: BodyType<ConceptVersionInput>}
+
+    export const useDeleteConceptAttachment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteConceptAttachment>>, TError,DeleteConceptAttachmentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteConceptAttachment>>,
+        TError,
+        DeleteConceptAttachmentMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteConceptAttachmentMutationOptions(options), queryClient);
+    }
+
+export const getGetConceptAttachmentUrl = (id: string,
+    uploadId: string,) => {
+
+
+
+
+  return `/api/creative/concepts/${id}/attachments/${uploadId}`
+}
+
+export const getConceptAttachment = async (id: string,
+    uploadId: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetConceptAttachmentUrl(id,uploadId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetConceptAttachmentQueryKey = (id: string,
+    uploadId: string,) => {
+    return [
+    `/api/creative/concepts/${id}/attachments/${uploadId}`
+    ] as const;
+    }
+
+
+export const getGetConceptAttachmentQueryOptions = <TData = Awaited<ReturnType<typeof getConceptAttachment>>, TError = ErrorType<unknown>>(id: string,
+    uploadId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConceptAttachment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetConceptAttachmentQueryKey(id,uploadId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getConceptAttachment>>> = ({ signal }) => getConceptAttachment(id,uploadId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined && uploadId !== null && uploadId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getConceptAttachment>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetConceptAttachmentQueryResult = NonNullable<Awaited<ReturnType<typeof getConceptAttachment>>>
+export type GetConceptAttachmentQueryError = ErrorType<unknown>
+
+
+export function useGetConceptAttachment<TData = Awaited<ReturnType<typeof getConceptAttachment>>, TError = ErrorType<unknown>>(
+ id: string,
+    uploadId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConceptAttachment>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getConceptAttachment>>,
+          TError,
+          Awaited<ReturnType<typeof getConceptAttachment>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetConceptAttachment<TData = Awaited<ReturnType<typeof getConceptAttachment>>, TError = ErrorType<unknown>>(
+ id: string,
+    uploadId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConceptAttachment>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getConceptAttachment>>,
+          TError,
+          Awaited<ReturnType<typeof getConceptAttachment>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetConceptAttachment<TData = Awaited<ReturnType<typeof getConceptAttachment>>, TError = ErrorType<unknown>>(
+ id: string,
+    uploadId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConceptAttachment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetConceptAttachment<TData = Awaited<ReturnType<typeof getConceptAttachment>>, TError = ErrorType<unknown>>(
+ id: string,
+    uploadId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getConceptAttachment>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetConceptAttachmentQueryOptions(id,uploadId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGenerateCreativeVideoUrl = () => {
+
+
+
+
+  return `/api/creative/generate`
+}
+
+export const generateCreativeVideo = async ( options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
+
+  return customFetch<unknown>(getGenerateCreativeVideoUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getGenerateCreativeVideoMutationKey = () => ['generateCreativeVideo'] as const;
+
+export const getGenerateCreativeVideoMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateCreativeVideo>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateCreativeVideo>>, TError,void, TContext> => {
+
+const mutationKey = getGenerateCreativeVideoMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateCreativeVideo>>, void> = () => {
+
+
+          return  generateCreativeVideo(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateCreativeVideoMutationResult = NonNullable<Awaited<ReturnType<typeof generateCreativeVideo>>>
+
+    export type GenerateCreativeVideoMutationError = ErrorType<void>
+
+
+    export const useGenerateCreativeVideo = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateCreativeVideo>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof generateCreativeVideo>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getGenerateCreativeVideoMutationOptions(options), queryClient);
+    }
 
 export const getGetAppInfoUrl = () => {
 

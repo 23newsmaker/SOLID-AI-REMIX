@@ -4,6 +4,7 @@ import { overviewRouter } from "./overview";
 import { characterRouter } from "./character";
 import { knowledgeRouter } from "./knowledge";
 import { teamRouter } from "./team";
+import { creativeRouter } from "./creative";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(overviewRouter);
 router.use(characterRouter);
 router.use(knowledgeRouter);
 router.use(teamRouter);
+router.use(creativeRouter);
 
 export default router;

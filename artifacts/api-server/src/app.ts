@@ -7,6 +7,7 @@ import { clerkMiddleware } from "@clerk/express";
 import { publishableKeyFromHost } from "@clerk/shared/keys";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
 import { rateLimit } from "express-rate-limit";
+import { CreativeError } from "./lib/creative-policy";
 
 const app: Express = express();
 app.set("trust proxy", 1);
@@ -34,7 +35,7 @@ app.use(
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 // All browser API calls are same-origin. Do not allow arbitrary cross-origin credentials.
 app.use(cors({ origin: false }));
-app.use(express.json({ limit: "32kb" }));
+app.use(express.json({ limit: "128kb" }));
 app.use(express.urlencoded({ extended: false, limit: "32kb" }));
 app.use(clerkMiddleware((req) => ({
   publishableKey: publishableKeyFromHost(getClerkProxyHost(req) ?? "", process.env.CLERK_PUBLISHABLE_KEY),
@@ -56,6 +57,12 @@ app.use("/api", rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: "draf
 app.use("/api", router);
 app.use((error: unknown, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (res.headersSent) { res.end(); return; }
+  if (error instanceof CreativeError) {
+    res.status(error.status).json({ error: error.message }); return;
+  }
+  if (typeof error === "object" && error && "status" in error && error.status === 413) {
+    res.status(413).json({ error: "Ukuran masukan terlalu besar. Ringkas isian sebelum menyimpan." }); return;
+  }
   if (error instanceof Error && error.name === "ZodError") {
     res.status(400).json({ error: "Data tidak sesuai. Periksa isian dan coba lagi." }); return;
   }

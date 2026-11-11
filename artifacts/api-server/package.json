@@ -8,7 +8,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "import-kb": "tsx scripts/import-kb.ts"
+    "import-kb": "tsx scripts/import-kb.ts",
+    "validate-creative": "tsx scripts/validate-creative.ts"
   },
   "dependencies": {
     "@clerk/express": "^2.1.88",

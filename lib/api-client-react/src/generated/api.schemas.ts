@@ -5,6 +5,278 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
+export type CreativeSegment = typeof CreativeSegment[keyof typeof CreativeSegment];
+
+
+export const CreativeSegment = {
+  MIKRO: 'MIKRO',
+  MINI: 'MINI',
+  REGULAR: 'REGULAR',
+  NONE: 'NONE',
+} as const;
+
+export interface CreativeCategoryInput {
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  name: string;
+  active: boolean;
+}
+
+export type CreativeCategoryUpdate = CreativeCategoryInput & {
+  /** @minimum 1 */
+  version: number;
+};
+
+export type CreativeCategory = CreativeCategoryUpdate & {
+  id: string;
+};
+
+export type CreativeTemplateInputStyle = typeof CreativeTemplateInputStyle[keyof typeof CreativeTemplateInputStyle];
+
+
+export const CreativeTemplateInputStyle = {
+  UGC: 'UGC',
+  CINEMATIC: 'CINEMATIC',
+} as const;
+
+export interface CreativeTemplateInput {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  name: string;
+  /** @minLength 1 */
+  categoryId: string;
+  /**
+     * @minItems 1
+     * @maxItems 4
+     */
+  segments: CreativeSegment[];
+  style: CreativeTemplateInputStyle;
+  /** @maxLength 2000 */
+  description: string;
+  /** @maxLength 4000 */
+  scenes: string;
+  /** @maxLength 2000 */
+  characterMotion: string;
+  /** @maxLength 2000 */
+  cameraMotion: string;
+  /** @maxLength 2000 */
+  visual: string;
+  /** @maxLength 4000 */
+  narration: string;
+  /** @maxLength 1000 */
+  cta: string;
+  active: boolean;
+}
+
+export type CreativeTemplateUpdate = CreativeTemplateInput & {
+  /** @minimum 1 */
+  version: number;
+};
+
+export type CreativeTemplate = CreativeTemplateUpdate & {
+  id: string;
+};
+
+export interface CreativeLibrary {
+  categories: CreativeCategory[];
+  templates: CreativeTemplate[];
+  maxConcepts: number;
+  maxImages: number;
+  maxImageBytes: number;
+  maxVideos: number;
+  maxVideoBytes: number;
+  maxTotalBytes: number;
+}
+
+export type CreativeConceptInputStyle = typeof CreativeConceptInputStyle[keyof typeof CreativeConceptInputStyle];
+
+
+export const CreativeConceptInputStyle = {
+  UGC: 'UGC',
+  CINEMATIC: 'CINEMATIC',
+} as const;
+
+export type CreativeConceptInputMode = typeof CreativeConceptInputMode[keyof typeof CreativeConceptInputMode];
+
+
+export const CreativeConceptInputMode = {
+  HEMAT: 'HEMAT',
+  AI: 'AI',
+} as const;
+
+export type CreativeConceptInputFormat = typeof CreativeConceptInputFormat[keyof typeof CreativeConceptInputFormat];
+
+
+export const CreativeConceptInputFormat = {
+  '9:16': '9:16',
+  '16:9': '16:9',
+  '1:1': '1:1',
+} as const;
+
+export interface CreativeConceptInput {
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  title: string;
+  /** @minLength 1 */
+  characterId: string;
+  /** @minLength 1 */
+  categoryId: string;
+  /**
+     * @minItems 1
+     * @maxItems 3
+     */
+  segments: CreativeSegment[];
+  style: CreativeConceptInputStyle;
+  mode: CreativeConceptInputMode;
+  /** @nullable */
+  templateId: string | null;
+  /** @maxLength 2000 */
+  purpose: string;
+  /** @maxLength 8000 */
+  direction: string;
+  /** @maxLength 4000 */
+  scenes: string;
+  /** @maxLength 2000 */
+  characterMotion: string;
+  /** @maxLength 2000 */
+  cameraMotion: string;
+  /** @maxLength 2000 */
+  visual: string;
+  /** @maxLength 4000 */
+  narration: string;
+  /** @maxLength 4000 */
+  subtitle: string;
+  /** @maxLength 1000 */
+  cta: string;
+  format: CreativeConceptInputFormat;
+  /**
+     * @minimum 1
+     * @maximum 120
+     */
+  durationSeconds: number;
+  /** @maxItems 12 */
+  sourceIds: string[];
+  publicMode: boolean;
+  materialConsent: boolean;
+}
+
+export interface ConceptVersionInput {
+  /** @minimum 1 */
+  version: number;
+}
+
+export type CreativeConceptUpdate = CreativeConceptInput & ConceptVersionInput;
+
+export interface CreativePreview {
+  prompt: string;
+  warnings: string[];
+  blockers: string[];
+}
+
+export type ConceptAttachmentState = typeof ConceptAttachmentState[keyof typeof ConceptAttachmentState];
+
+
+export const ConceptAttachmentState = {
+  PENDING: 'PENDING',
+  READY: 'READY',
+} as const;
+
+export interface ConceptAttachment {
+  id: string;
+  name: string;
+  contentType: string;
+  size: number;
+  url: string;
+  ownerId: string;
+  state: ConceptAttachmentState;
+}
+
+export interface CreativeReview {
+  id: string;
+  actorId: string;
+  action: string;
+  note: string;
+  version: number;
+  createdAt: string;
+}
+
+export type CreativeConceptStatus = typeof CreativeConceptStatus[keyof typeof CreativeConceptStatus];
+
+
+export const CreativeConceptStatus = {
+  DRAFT: 'DRAFT',
+  READY_FOR_REVIEW: 'READY_FOR_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+export type CreativeConcept = CreativeConceptUpdate & CreativePreview & ({
+  id: string;
+  ownerId: string;
+  ownerName: string;
+  categoryName: string;
+  /** @nullable */
+  templateName: string | null;
+  characterName: string;
+  status: CreativeConceptStatus;
+  stale: boolean;
+  staleReasons: string[];
+  createdAt: string;
+  updatedAt: string;
+  attachments: ConceptAttachment[];
+  reviews: CreativeReview[];
+});
+
+export type CreativeStatusInputStatus = typeof CreativeStatusInputStatus[keyof typeof CreativeStatusInputStatus];
+
+
+export const CreativeStatusInputStatus = {
+  DRAFT: 'DRAFT',
+  READY_FOR_REVIEW: 'READY_FOR_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+export interface CreativeStatusInput {
+  /** @minimum 1 */
+  version: number;
+  status: CreativeStatusInputStatus;
+  /** @maxLength 2000 */
+  note: string;
+}
+
+export type ConceptUploadInputContentType = typeof ConceptUploadInputContentType[keyof typeof ConceptUploadInputContentType];
+
+
+export const ConceptUploadInputContentType = {
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+  'image/webp': 'image/webp',
+  'video/mp4': 'video/mp4',
+} as const;
+
+export interface ConceptUploadInput {
+  /** @minimum 1 */
+  version: number;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 20971520
+     */
+  size: number;
+  contentType: ConceptUploadInputContentType;
+}
+
 export interface AppInfo {
   name: string;
   stage: string;

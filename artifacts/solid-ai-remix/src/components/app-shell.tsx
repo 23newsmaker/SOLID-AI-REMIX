@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useClerk } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { LayoutGrid, UserRound, BookOpenText, Users, LogOut, Download } from 'lucide-react';
+import { LayoutGrid, UserRound, BookOpenText, Users, LogOut, Download, Clapperboard } from 'lucide-react';
 import type { Member } from '@workspace/api-client-react';
 import { Wordmark } from '@/components/brand';
 import { roleLabel, initials } from '@/lib/labels';
@@ -26,6 +26,7 @@ export function AppShell({ me, children }: { me: Member; children: ReactNode }) 
   const { canInstall, install } = useInstallPrompt();
   const nav = [
     { href: '/studio', label: 'Studio', icon: LayoutGrid },
+    { href: '/creative', label: 'Kreatif', icon: Clapperboard },
     { href: '/character', label: 'Karakter', icon: UserRound },
     { href: '/knowledge', label: 'Pengetahuan', icon: BookOpenText },
     { href: '/team', label: 'Tim', icon: Users },
@@ -85,7 +86,7 @@ export function AppShell({ me, children }: { me: Member; children: ReactNode }) 
         <div key={loc} className="rise mx-auto max-w-5xl">{children}</div>
       </main>
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl bg-sidebar p-1.5 shadow-lg md:hidden" aria-label="Navigasi utama">
+      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 rounded-2xl bg-sidebar p-1.5 shadow-lg md:hidden" aria-label="Navigasi utama">
         {nav.map((n) => (
           <Link
             key={n.href}

@@ -28,3 +28,17 @@ mtime_ms = 1794380941461
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/b015863c-b759-47be-9765-d4f0f78ad50b/227cfc2b-96a1-4b77-9096-1a8ecea17022"
 storage_version_token = "1794380978353821"
 content_type = "text/csv"
+
+[[outputs]]
+id = "f75LriFgyt4vOS4_OKqWo"
+uri = "file://generated-artifacts/phase-b-validation/final-report.html"
+type = "html"
+title = "Laporan Creative Engine Tahap B"
+description = "19 PASS, 0 FAIL, 4 NOT TESTED; bukti simpan/review, pembersihan data uji, batasan dan contoh Prompt Builder tersimpan."
+logical_id = "f2957562-d7af-44b5-a300-237a739ec033"
+content_hash = "sha256:507b2938fd1d895c0219e3018cacd41c5cf2426aa6b0d97eecd498a2d810320a"
+size = 12713
+mtime_ms = 1794382979438
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/f2957562-d7af-44b5-a300-237a739ec033/b8151039-834c-4a8f-8ce3-e8316d060be5"
+storage_version_token = "1794383051512090"
+content_type = "text/html"

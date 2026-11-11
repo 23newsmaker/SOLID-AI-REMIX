@@ -11,6 +11,237 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /creative/library:
+    get:
+      operationId: getCreativeLibrary
+      responses:
+        "200":
+          description: Kategori dan template sesuai role
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeLibrary"}
+  /creative/categories:
+    post:
+      operationId: createCreativeCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreativeCategoryInput"}
+      responses:
+        "200":
+          description: Kategori tersimpan
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeCategory"}
+  /creative/categories/{id}:
+    put:
+      operationId: updateCreativeCategory
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreativeCategoryUpdate"}
+      responses:
+        "200":
+          description: Kategori diperbarui dengan versi
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeCategory"}
+  /creative/templates:
+    post:
+      operationId: createCreativeTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreativeTemplateInput"}
+      responses:
+        "200":
+          description: Template tersimpan
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeTemplate"}
+  /creative/templates/{id}:
+    put:
+      operationId: updateCreativeTemplate
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreativeTemplateUpdate"}
+      responses:
+        "200":
+          description: Template diperbarui dengan versi
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeTemplate"}
+  /creative/concepts:
+    get:
+      operationId: listCreativeConcepts
+      responses:
+        "200":
+          description: Konsep sesuai izin termasuk metadata dan prompt
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/CreativeConcept"}
+    post:
+      operationId: createCreativeConcept
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreativeConceptInput"}
+      responses:
+        "200":
+          description: Draft tersimpan
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeConcept"}
+  /creative/preview:
+    post:
+      operationId: previewCreativePrompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreativeConceptInput"}
+      responses:
+        "200":
+          description: Prompt deterministik tanpa generation
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativePreview"}
+  /creative/concepts/{id}:
+    get:
+      operationId: getCreativeConcept
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Konsep dan status kedaluwarsa
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeConcept"}
+    put:
+      operationId: updateCreativeConcept
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreativeConceptUpdate"}
+      responses:
+        "200":
+          description: Versi baru selalu Draft
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeConcept"}
+    delete:
+      operationId: deleteCreativeConcept
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ConceptVersionInput"}
+      responses:
+        "200":
+          description: Konsep dan bahan dihapus
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Success"}
+  /creative/concepts/{id}/status:
+    post:
+      operationId: transitionCreativeConcept
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreativeStatusInput"}
+      responses:
+        "200":
+          description: Status berubah dengan audit review
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeConcept"}
+  /creative/concepts/{id}/uploads:
+    post:
+      operationId: requestConceptUpload
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ConceptUploadInput"}
+      responses:
+        "200":
+          description: Reservasi kuota unggah staging privat
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UploadTicket"}
+  /creative/concepts/{id}/uploads/{uploadId}:
+    post:
+      operationId: finalizeConceptUpload
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: uploadId, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ConceptVersionInput"}
+      responses:
+        "200":
+          description: Isi diverifikasi lalu disalin ke objek final immutable
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeConcept"}
+    delete:
+      operationId: deleteConceptAttachment
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: uploadId, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ConceptVersionInput"}
+      responses:
+        "200":
+          description: Bahan dihapus dan konsep kembali Draft
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreativeConcept"}
+  /creative/concepts/{id}/attachments/{uploadId}:
+    get:
+      operationId: getConceptAttachment
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: uploadId, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Bahan privat, bukan foto karakter
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}
+  /creative/generate:
+    post:
+      operationId: generateCreativeVideo
+      responses:
+        "403":
+          description: Generation selalu diblokir Tahap B
   /app-info:
     get:
       operationId: getAppInfo
@@ -181,6 +412,176 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    CreativeSegment:
+      type: string
+      enum: [MIKRO, MINI, REGULAR, NONE]
+    CreativeCategoryInput:
+      type: object
+      required: [name, active]
+      properties:
+        name: {type: string, minLength: 1, maxLength: 80}
+        active: {type: boolean}
+    CreativeCategoryUpdate:
+      allOf:
+        - {$ref: "#/components/schemas/CreativeCategoryInput"}
+        - type: object
+          required: [version]
+          properties:
+            version: {type: integer, minimum: 1}
+    CreativeCategory:
+      allOf:
+        - {$ref: "#/components/schemas/CreativeCategoryUpdate"}
+        - type: object
+          required: [id]
+          properties:
+            id: {type: string}
+    CreativeTemplateInput:
+      type: object
+      required: [name, categoryId, segments, style, description, scenes, characterMotion, cameraMotion, visual, narration, cta, active]
+      properties:
+        name: {type: string, minLength: 1, maxLength: 100}
+        categoryId: {type: string, minLength: 1}
+        segments:
+          type: array
+          minItems: 1
+          maxItems: 4
+          items: {$ref: "#/components/schemas/CreativeSegment"}
+        style: {type: string, enum: [UGC, CINEMATIC]}
+        description: {type: string, maxLength: 2000}
+        scenes: {type: string, maxLength: 4000}
+        characterMotion: {type: string, maxLength: 2000}
+        cameraMotion: {type: string, maxLength: 2000}
+        visual: {type: string, maxLength: 2000}
+        narration: {type: string, maxLength: 4000}
+        cta: {type: string, maxLength: 1000}
+        active: {type: boolean}
+    CreativeTemplateUpdate:
+      allOf:
+        - {$ref: "#/components/schemas/CreativeTemplateInput"}
+        - type: object
+          required: [version]
+          properties:
+            version: {type: integer, minimum: 1}
+    CreativeTemplate:
+      allOf:
+        - {$ref: "#/components/schemas/CreativeTemplateUpdate"}
+        - type: object
+          required: [id]
+          properties:
+            id: {type: string}
+    CreativeLibrary:
+      type: object
+      required: [categories, templates, maxConcepts, maxImages, maxImageBytes, maxVideos, maxVideoBytes, maxTotalBytes]
+      properties:
+        categories: {type: array, items: {$ref: "#/components/schemas/CreativeCategory"}}
+        templates: {type: array, items: {$ref: "#/components/schemas/CreativeTemplate"}}
+        maxConcepts: {type: integer}
+        maxImages: {type: integer}
+        maxImageBytes: {type: integer}
+        maxVideos: {type: integer}
+        maxVideoBytes: {type: integer}
+        maxTotalBytes: {type: integer}
+    CreativeConceptInput:
+      type: object
+      required: [title, characterId, categoryId, segments, style, mode, templateId, purpose, direction, scenes, characterMotion, cameraMotion, visual, narration, subtitle, cta, format, durationSeconds, sourceIds, publicMode, materialConsent]
+      properties:
+        title: {type: string, minLength: 1, maxLength: 120}
+        characterId: {type: string, minLength: 1}
+        categoryId: {type: string, minLength: 1}
+        segments:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items: {$ref: "#/components/schemas/CreativeSegment"}
+        style: {type: string, enum: [UGC, CINEMATIC]}
+        mode: {type: string, enum: [HEMAT, AI]}
+        templateId: {type: [string, "null"]}
+        purpose: {type: string, maxLength: 2000}
+        direction: {type: string, maxLength: 8000}
+        scenes: {type: string, maxLength: 4000}
+        characterMotion: {type: string, maxLength: 2000}
+        cameraMotion: {type: string, maxLength: 2000}
+        visual: {type: string, maxLength: 2000}
+        narration: {type: string, maxLength: 4000}
+        subtitle: {type: string, maxLength: 4000}
+        cta: {type: string, maxLength: 1000}
+        format: {type: string, enum: ["9:16", "16:9", "1:1"]}
+        durationSeconds: {type: integer, minimum: 1, maximum: 120}
+        sourceIds: {type: array, maxItems: 12, items: {type: string}}
+        publicMode: {type: boolean}
+        materialConsent: {type: boolean}
+    CreativeConceptUpdate:
+      allOf:
+        - {$ref: "#/components/schemas/CreativeConceptInput"}
+        - {$ref: "#/components/schemas/ConceptVersionInput"}
+    ConceptVersionInput:
+      type: object
+      required: [version]
+      properties:
+        version: {type: integer, minimum: 1}
+    CreativePreview:
+      type: object
+      required: [prompt, warnings, blockers]
+      properties:
+        prompt: {type: string}
+        warnings: {type: array, items: {type: string}}
+        blockers: {type: array, items: {type: string}}
+    ConceptAttachment:
+      type: object
+      required: [id, name, contentType, size, url, ownerId, state]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        contentType: {type: string}
+        size: {type: integer}
+        url: {type: string}
+        ownerId: {type: string}
+        state: {type: string, enum: [PENDING, READY]}
+    CreativeReview:
+      type: object
+      required: [id, actorId, action, note, version, createdAt]
+      properties:
+        id: {type: string}
+        actorId: {type: string}
+        action: {type: string}
+        note: {type: string}
+        version: {type: integer}
+        createdAt: {type: string}
+    CreativeConcept:
+      allOf:
+        - {$ref: "#/components/schemas/CreativeConceptUpdate"}
+        - {$ref: "#/components/schemas/CreativePreview"}
+        - type: object
+          required: [id, ownerId, ownerName, categoryName, templateName, characterName, status, stale, staleReasons, createdAt, updatedAt, attachments, reviews]
+          properties:
+            id: {type: string}
+            ownerId: {type: string}
+            ownerName: {type: string}
+            categoryName: {type: string}
+            templateName: {type: [string, "null"]}
+            characterName: {type: string}
+            status: {type: string, enum: [DRAFT, READY_FOR_REVIEW, APPROVED, REJECTED]}
+            stale: {type: boolean}
+            staleReasons: {type: array, items: {type: string}}
+            createdAt: {type: string}
+            updatedAt: {type: string}
+            attachments: {type: array, items: {$ref: "#/components/schemas/ConceptAttachment"}}
+            reviews: {type: array, items: {$ref: "#/components/schemas/CreativeReview"}}
+    CreativeStatusInput:
+      type: object
+      required: [version, status, note]
+      properties:
+        version: {type: integer, minimum: 1}
+        status: {type: string, enum: [DRAFT, READY_FOR_REVIEW, APPROVED, REJECTED]}
+        note: {type: string, maxLength: 2000}
+    ConceptUploadInput:
+      type: object
+      required: [version, name, size, contentType]
+      properties:
+        version: {type: integer, minimum: 1}
+        name: {type: string, minLength: 1, maxLength: 200}
+        size: {type: integer, minimum: 1, maximum: 20971520}
+        contentType: {type: string, enum: [image/jpeg, image/png, image/webp, video/mp4]}
     AppInfo:
       type: object
       required: [name, stage, generationEnabled, llmEnabled, dailyLimit, maxMembers]

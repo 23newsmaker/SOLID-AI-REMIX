@@ -1,7 +1,7 @@
 # SOLID AI REMIX
 
 Internal content-production studio for the Solid Gold creator/marketing team.
-Current delivery is Phase A foundation only. No LLM API or video provider is invoked.
+Current delivery includes the Phase B Creative Engine. No LLM API or video provider is invoked.
 See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 
 ## Run & Operate
@@ -11,6 +11,7 @@ See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 - `pnpm run typecheck` — all packages.
 - `pnpm --filter @workspace/api-spec run codegen` — API hooks/Zod from the contract.
 - `pnpm --filter @workspace/db run push` — development schema only; Publish owns production schema.
+- `pnpm --filter @workspace/api-server run validate-creative` — isolated real-handler/DB/storage checks; writes ignored evidence and cleans only its unique fixtures.
 - `pnpm --filter @workspace/api-server run import-kb /absolute/path/to/SOLID_AI_REMIX_KB_v1` — explicit, idempotent original KB import into private App Storage plus database metadata.
 
 ## Stack and ownership
@@ -34,13 +35,14 @@ See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 
 ## Current limitations
 
-- No draft/video jobs, templates, TTS, video rendering, provider integration or public-content approvals yet.
+- Creative Engine at `/creative`: versioned concepts, deterministic JSON prompts, private optional attachments, and separate compliance review. Library management at `/creative/library` is ADMIN/SUPER_ADMIN only.
+- No video jobs, TTS, rendering, provider integration, or UI for approving KB sources. A concept approval never grants approval to its sources.
 - Initial import: 77 source entries (including 58 legacy nodes). Markdown full text searchable. PDF/DOCX/PPTX are metadata-only until extraction is implemented. Original binary bytes are preserved privately.
 - Every initial source is unapproved for publication. Public results correctly remain empty.
 - First-admin grant and KB import were prepared in development. Production has a separate Clerk user store/database: on publishing, bootstrap env prepares that environment's grant, but production KB DATA must be imported explicitly before use; never assume dev rows migrate with schema.
 - Saved character photo is not a trained digital avatar and does not establish identity consistency.
 - Character photos retained until replaced/deleted; upload tickets expire after 15 minutes. Abandoned uploads are cleaned when their owner next requests an upload; periodic global cleanup is not implemented.
-- No signed-in UI/browser interaction verification was performed in this first build. Type checks, unauthenticated API probes and public screenshots are the available verification.
+- Phase B validation evidence is generated under `generated-artifacts/phase-b-validation/`; do not confuse handler-level checks with browser/auth verification. The final report names each method and limitation.
 
 ## Security invariants
 
@@ -50,3 +52,8 @@ See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 - Auth, API and private responses are no-store. Service worker only caches app icons/manifest.
 - Preserve source originals; imported legacy PUBLIC labels are not approval grants. Source-selected conflict resolution does not approve whole documents or cross-segment values.
 - No startup schema migrations or production SQL mutation from agent tools.
+- Concept edits and attachment finalization/removal increment versions and reset status to Draft. Review decisions are audit records, never permission for self-approval; ADMIN is not a compliance approver.
+- Quotas: 10 saved concepts/member; 3 JPG/PNG/WebP up to 5 MiB each + 1 MP4 up to 20 MiB, total 35 MiB/concept. Pending/tombstoned reservations count. No OCR, transcription, media interpretation, or provider-format promises.
+- `ffmpeg` is a declared system dependency solely for local `ffprobe` MP4 container/stream validation; no video generation occurs. If unavailable, MP4 validation fails explicitly.
+- Removed attachments stop being served immediately; bytes are cleaned after signed PUT expiry plus a safety delay. Cleanup runs every five minutes and at startup, with a paginated sweep for untracked final objects older than one hour.
+- Concept snapshots contain character identity/revision but never a copy of its photo/path. Stale references invalidate production readiness and block approval until re-saved. Revoked source permissions hide stored prompts.

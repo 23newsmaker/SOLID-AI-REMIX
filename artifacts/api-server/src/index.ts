@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { prepareAdminGrant } from "./lib/bootstrapAdmin";
+import { startCreativeCleanup } from "./lib/creative-storage";
 
 const rawPort = process.env["PORT"];
 
@@ -23,6 +24,7 @@ prepareAdminGrant().then(() => app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+  startCreativeCleanup();
 })).catch(() => {
   logger.error("Cannot prepare internal access configuration");
   process.exit(1);

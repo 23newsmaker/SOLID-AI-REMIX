@@ -1,1 +1,2 @@
 - [Product boundaries](product-boundaries.md) — owner-agreed scope, simple character-first workflow and phased cost constraints.
+- [Source provenance](source-provenance.md) — task workspaces may carry unrelated source-attachment deletions; preserve originals when reconciling with main.
