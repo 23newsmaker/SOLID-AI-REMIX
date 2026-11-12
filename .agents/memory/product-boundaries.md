@@ -15,6 +15,12 @@ The experience must remain simple like TikTok AI Cast/Remix: register a face-bas
 
 **How to apply:** Prioritize the short creator workflow over exposing every A–F module as a separate daily-use feature. DR did not prescribe three menus; analyze what is needed and make UI/UX as simple and practical as possible, without imposing a fixed menu count. Hide technical settings behind admin controls/defaults; do not add features just to make the system appear complete. A stored reference photo is not training a face model. Test identity consistency instead of promising parity with TikTok.
 
+DR approved planning one saved voice profile per character: record a sample once, then use that character's voice for new narration. The discussed initial recording is optional and storage is separate from paid cloning activation.
+
+**Why:** DR wants the selected character consistently associated with its own voice, without repeating recording for every script.
+
+**How to apply:** Distinguish a stored voice sample from real voice cloning/TTS. Do not imply new sentences can be produced by replaying the sample, promise perfect identity, or infer lip-sync. External transfer, provider activation and spending require separate approval; planning approval is not activation approval.
+
 DR no longer wants a ten-member limit: "bebas aja brp anggota"; DR must be able to open a Super Admin dashboard. Three videos per user/day and expected average one remain the previously agreed usage assumptions; the member-count change does not authorize unlimited rendering or spending. Two modes: economical photo zoom/pan with Indonesian narration/subtitles, plus optional genuine AI motion. UGC/cinematic are styles, not separate engines. Lip-sync and batch generation are postponed.
 
 **Why:** Limit cost while retaining the original creative goal. The economical alternative must not be presented as equivalent to genuine generated subject motion.
