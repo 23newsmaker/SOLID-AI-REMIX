@@ -3,7 +3,7 @@ import { ClerkProvider, Show, useClerk, useAuth } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
-import { Route, Switch, Redirect, useLocation, Router as WouterRouter } from 'wouter';
+import { Route, Switch, Redirect, useLocation } from 'wouter';
 import type { Member } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -11,7 +11,6 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { AppShell } from '@/components/app-shell';
 import { MemberGate } from '@/components/member-gate';
 import NotFound from '@/pages/not-found';
-import SharedStudioPage from '@/pages/shared-studio';
 import { SignInPage, SignUpPage } from '@/pages/auth';
 import Studio from '@/pages/studio';
 import CharacterPage from '@/pages/character';
@@ -25,10 +24,7 @@ import OperationsPage from '@/pages/operations';
 import ProvidersPage from '@/pages/providers';
 import FactsPage from '@/pages/facts';
 import VideoReviewPage from '@/pages/video-review';
-import { registerServiceWorker } from '@/lib/pwa';
 import { installActivityRefresh } from '@/lib/activity-polling';
-
-registerServiceWorker();
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } });
 
@@ -159,8 +155,6 @@ function Router() {
         <Route path="/" component={HomeRedirect} />
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
-        <Route path="/studio/member/:folderId" component={SharedStudioPage} />
-        <Route path="/studio" component={SharedStudioPage} />
         <Route path="/admin/studio">{() => <Private render={(me) => <Studio me={me} />} />}</Route>
         <Route path="/character">{() => <Private render={(me) => <CharacterPage me={me} />} />}</Route>
         <Route path="/knowledge">{() => <Private render={() => <Knowledge />} />}</Route>
@@ -208,11 +202,11 @@ function ClerkProviderWithRoutes() {
 }
 
 function App() {
-  return (
-    <WouterRouter base={basePath}>
-      <ClerkProviderWithRoutes />
-    </WouterRouter>
-  );
+  // Leaving admin unmounts Clerk's user-change listener. Do not retain private
+  // query data while that listener is absent (e.g. sign-out in another tab).
+  // The shared studio owns a separate client and must not be cleared here.
+  useEffect(() => () => queryClient.clear(), []);
+  return <ClerkProviderWithRoutes />;
 }
 
 export default App;

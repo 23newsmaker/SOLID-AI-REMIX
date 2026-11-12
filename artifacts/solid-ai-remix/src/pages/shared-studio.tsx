@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { lazy, Suspense, useState, type FormEvent } from 'react';
 import { Link, useRoute } from 'wouter';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, FolderOpen, LockKeyhole, Plus, LogOut } from 'lucide-react';
@@ -7,8 +7,11 @@ import {
 } from '@workspace/api-client-react';
 import { BrandMark } from '@/components/brand';
 import { errMsg } from '@/lib/labels';
-import { StudioWorkspace } from '@/components/shared-studio/workspace';
 import '@/components/shared-studio/studio.css';
+
+// The gateway/folder list needs neither the editor nor its media/dialog code.
+const StudioWorkspace = lazy(() => import('@/components/shared-studio/workspace')
+  .then(module => ({ default: module.StudioWorkspace })));
 
 // Shared credentials and admin credentials are independent. A Clerk sign-in in
 // another tab must not clear an in-progress shared folder's upload/form cache.
@@ -84,7 +87,9 @@ function StudioContents({ folderId }: { folderId: string | null }) {
   if (folders.isError) return <main className="ss-frame ss-main"><p role="alert">{errMsg(folders.error)}</p><a className="ss-btn" href={`${import.meta.env.BASE_URL}studio`}>Kembali ke pintu studio</a></main>;
   if (folderId) {
     const folder = folders.data?.find(f => f.id === folderId);
-    return folder ? <StudioWorkspace key={folder.id} folder={folder} onUsageChange={() => { void folders.refetch(); }} />
+    return folder ? <Suspense fallback={<main className="ss-frame ss-main" role="status" aria-live="polite">Memuat ruang kerja...</main>}>
+      <StudioWorkspace key={folder.id} folder={folder} onUsageChange={() => { void folders.refetch(); }} />
+    </Suspense>
       : <main className="ss-frame ss-main"><p>Folder tidak tersedia.</p><Link href="/studio" className="ss-btn"><ArrowLeft size={15} />Folder anggota</Link></main>;
   }
   return <main className="ss-frame ss-main">

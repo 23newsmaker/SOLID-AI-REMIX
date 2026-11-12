@@ -1,6 +1,7 @@
 - [Product boundaries](product-boundaries.md) — owner-agreed scope, simple character-first workflow and phased cost constraints.
 - [Source provenance](source-provenance.md) — task workspaces may carry unrelated source-attachment deletions; preserve originals when reconciling with main.
 - [Authenticated test safety](authenticated-test-safety.md) — let programmatic Clerk sessions settle; clean only recorded synthetic identities, never owner accounts.
+- [Auth cache lifecycle](auth-cache-lifecycle.md) — privileged caches must not outlive their identity listener; shared-password studio state stays independent.
 - [HTTP query dates](http-query-dates.md) — keep date query parameters as ISO strings; generated date validators may incorrectly expect JavaScript Date objects.
 - [Raster text bounds](text-rendering.md) — SVG textLength is ignored by local rasterization; fit using glyph-aware wrapping and inspect actual dimensions.
 - [Worker lifecycle boundary](worker-lifecycle-boundary.md) — idle optimization and page-close tests do not prove that renders survive Autoscale instance shutdown.
