@@ -100,6 +100,7 @@ creativeConceptRouter.delete("/concepts/:id", async (req, res) => {
   res.json({ ok: true });
 });
 creativeConceptRouter.post("/concepts/:id/status", async (req, res) => {
+  if (req.studioFolderId) throw new CreativeError(409, "Studio bersama memakai pemeriksaan pembuat, bukan antrean persetujuan.");
   const { id } = TransitionCreativeConceptParams.parse(req.params);
   const input = TransitionCreativeConceptBody.parse(req.body);
   const me = req.member!;

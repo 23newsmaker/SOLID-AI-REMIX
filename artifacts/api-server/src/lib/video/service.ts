@@ -10,6 +10,7 @@ import { getSettings, costRecord, enforceBudgets } from "../operations/controls"
 import { finalStale, filePermission } from "../operations/final-review";
 import { prepareText, TextLayoutError } from "./layout";
 import { notifyVideoWork } from "./signals";
+import { CLEANUP_PENDING, previousVideoError, cleanVideoObjects } from "./result-cleanup";
 
 export const globalVideoLock = (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => tx.execute(sql`SELECT pg_advisory_xact_lock(7101700)`);
 export const videoAdmin = (me: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(me.role);
@@ -49,6 +50,8 @@ export async function serializeJob(job: VideoJobRow, viewer?: MemberRecord) {
   const canServe = !viewer || filePermission(job, viewer);
   const publish = job.publicationStatus === "APPROVED_FOR_PUBLICATION" && !state.stale && !job.deleted;
   return { ...job, options: job.options as VideoRenderOptions,
+    cleanupPending: job.deleted && !!job.error?.includes(CLEANUP_PENDING),
+    error: previousVideoError(job.error),
     diagnostics: job.simulation ? null : job.diagnostics as VideoDiagnostics | null,
     cost: costRecord(job), publicationStale: state.stale,
     retentionNoticeAt: job.retentionNoticeAt?.toISOString() ?? null,
@@ -125,9 +128,17 @@ export async function deleteResult(id: string, me: MemberRecord) {
   const job = await readJob(id, me);
   if (job.ownerId !== me.id && !videoAdmin(me)) throw new CreativeError(403, "Reviewer tidak dapat menghapus video anggota lain.");
   if (!["COMPLETED", "FAILED", "CANCELLED", "UNKNOWN"].includes(job.status)) throw new CreativeError(409, "Batalkan pekerjaan aktif sebelum menghapus.");
-  // Revoke serving first; deterministic paths keep failed cleanup retryable.
-  await db.update(videoJobs).set({ deleted: true, updatedAt: new Date() }).where(eq(videoJobs.id, id));
-  for (const path of [job.resultPath, job.rawResultPath, `/objects/videos/${id}-final.mp4`].filter((p): p is string => !!p)) await videoFile(path).delete({ ignoreNotFound: true });
+  // Revoke access first. Preserve an explicit retry state until EVERY object is gone.
+  const originalError = previousVideoError(job.error);
+  await db.update(videoJobs).set({
+    deleted: true, updatedAt: new Date(),
+    error: `${originalError ? `${originalError}\n` : ""}${CLEANUP_PENDING} Pembersihan file belum selesai.`,
+  }).where(eq(videoJobs.id, id));
+  const complete = await cleanVideoObjects(job, path => videoFile(path).delete({ ignoreNotFound: true }));
+  if (!complete) {
+    throw new CreativeError(503, "Akses video sudah ditutup, tetapi sebagian file belum terhapus. Klik Ulangi penghapusan untuk membersihkan storage.");
+  }
+  await db.update(videoJobs).set({ error: originalError, updatedAt: new Date() }).where(eq(videoJobs.id, id));
   await db.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "VIDEO_DELETED", description: `Hasil ${id} dihapus; riwayat job/biaya dipertahankan.` });
 }
 export async function updateSettings(input: VideoSettingsInput, me: MemberRecord) {

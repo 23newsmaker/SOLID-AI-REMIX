@@ -9,17 +9,23 @@ import { videoRouter } from "./video";
 import { operationsRouter } from "./operations";
 import { audit } from "../lib/operations/audit";
 import { logger } from "../lib/logger";
+import { studioRouter } from "./studio";
+import { studioCheckRouter } from "./studio-checks";
 
 const router: IRouter = Router();
 router.use((req, res, next) => {
   if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) res.once("finish", () => {
     if (req.member) void audit(req.member.id, "API_MUTATION_RESULT", req.path.slice(0, 240), null,
-      { method: req.method, status: res.statusCode }).catch(() => logger.warn("Request audit deferred"));
+      { method: req.method, status: res.statusCode,
+        ...(req.studioFolderId ? { folderId: req.studioFolderId, sessionHash: req.studioSessionHash, identityVerified: false } : {}),
+      }).catch(() => logger.warn("Request audit deferred"));
   });
   next();
 });
 
 router.use(healthRouter);
+router.use(studioRouter);
+router.use(studioCheckRouter);
 router.use(overviewRouter);
 router.use(characterRouter);
 router.use(knowledgeRouter);

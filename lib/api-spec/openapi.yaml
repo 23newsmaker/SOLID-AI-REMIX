@@ -11,6 +11,97 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /studio/session:
+    get:
+      operationId: getStudioSession
+      responses:
+        "200":
+          description: Studio gate status only, no member or asset data
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StudioSession"}
+    post:
+      operationId: enterStudio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/StudioPasswordInput"}
+      responses:
+        "200":
+          description: Set a secure HttpOnly shared studio cookie
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StudioSession"}
+    delete:
+      operationId: leaveStudio
+      responses:
+        "200":
+          description: Clear studio cookie
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StudioOk"}
+  /studio/folders:
+    get:
+      operationId: listStudioFolders
+      responses:
+        "200":
+          description: Explicitly shared folders; studio cookie required
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/StudioFolder"}}
+    post:
+      operationId: createStudioFolder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/StudioFolderInput"}
+      responses:
+        "200":
+          description: New directory member, not a Clerk account
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StudioFolder"}
+  /studio/share:
+    post:
+      operationId: shareStudioFolder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/StudioShareInput"}
+      responses:
+        "200":
+          description: Owner/admin explicitly shares an existing folder without copying assets
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StudioFolder"}
+  /studio/folders/{folderId}/checks/{id}:
+    parameters:
+      - {name: folderId, in: path, required: true, schema: {type: string}}
+      - {name: id, in: path, required: true, schema: {type: string}}
+    get:
+      operationId: getStudioSelfCheck
+      responses:
+        "200":
+          description: Creator self-check, bound to current output and input revisions
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StudioSelfCheck"}
+    post:
+      operationId: saveStudioSelfCheck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/StudioSelfCheckInput"}
+      responses:
+        "200":
+          description: Record self-check without granting independent approval or charging a job
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StudioSelfCheck"}
   /operations/report:
     get:
       operationId: getOperationsReport
@@ -725,6 +816,57 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    StudioOk:
+      type: object
+      required: [ok]
+      properties:
+        ok: {type: boolean}
+    StudioSession:
+      type: object
+      required: [configured, authenticated]
+      properties:
+        configured: {type: boolean}
+        authenticated: {type: boolean}
+    StudioPasswordInput:
+      type: object
+      required: [password]
+      properties:
+        password: {type: string, minLength: 1, maxLength: 256}
+    StudioFolderInput:
+      type: object
+      required: [name]
+      properties:
+        name: {type: string, minLength: 1, maxLength: 80}
+    StudioShareInput:
+      type: object
+      required: [memberId, consent]
+      properties:
+        memberId: {type: string, minLength: 1}
+        consent: {type: boolean}
+    StudioFolder:
+      type: object
+      required: [id, name, memberId, characterName, photoUrl, dailyUsed, dailyLimit]
+      properties:
+        id: {type: string}
+        memberId: {type: string}
+        name: {type: string}
+        characterName: {type: [string, "null"]}
+        photoUrl: {type: [string, "null"]}
+        dailyUsed: {type: integer}
+        dailyLimit: {type: integer}
+    StudioSelfCheckInput:
+      type: object
+      required: [confirmed, conceptVersion]
+      properties:
+        confirmed: {type: boolean}
+        conceptVersion: {type: integer, minimum: 1}
+    StudioSelfCheck:
+      type: object
+      required: [checked, stale, checkedAt]
+      properties:
+        checked: {type: boolean}
+        stale: {type: boolean}
+        checkedAt: {type: [string, "null"]}
     OperationsSettingsInput:
       type: object
       required: [paused, dailyLimit, budgetUsd, dailyBudgetUsd, userBudgetUsd, warningPercent, retentionDays]
@@ -1040,6 +1182,7 @@ components:
         resultUrl: {type: [string, "null"]}
         rawResultUrl: {type: [string, "null"]}
         deleted: {type: boolean}
+        cleanupPending: {type: boolean, description: File access revoked but storage cleanup still needs retry}
         options: {$ref: "#/components/schemas/VideoRenderOptions"}
     VideoConfig:
       type: object

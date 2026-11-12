@@ -1,9 +1,10 @@
 import { and, eq } from "drizzle-orm";
-import { db, characters, conceptAttachments, type MemberRecord } from "@workspace/db";
+import { db, characters, conceptAttachments, studioFolders, type MemberRecord } from "@workspace/db";
 import type { VideoRenderOptions } from "@workspace/api-zod";
 import { buildCreative, parseConcept, staleReasons, type CreativeSnapshot } from "../creative-builder";
 import { checkVersion, CreativeError, requireOwnerEditor } from "../creative-policy";
 import { readConcept, readyMaterials, type CreativeTx } from "../creative-service";
+import { studioConfigured } from "../studio-access";
 
 export const costNote = "Provider video/TTS/LLM: tidak dipanggil. Biaya CPU rendering dan penyimpanan belum diukur, bukan gratis atau total USD0. Batas anggaran mengontrol biaya provider yang diketahui; komputasi juga dibatasi 3 job/hari dan satu renderer.";
 export function quotaDay(at = new Date()) {
@@ -16,19 +17,25 @@ export function subtitleChunks(text: string) {
 export async function eligibleConcept(id: string, version: number, me: MemberRecord, options: VideoRenderOptions, tx?: CreativeTx) {
   const conn = tx ?? db;
   const row = await readConcept(id, me, tx);
-  requireOwnerEditor(me, row);
+  const [folder] = studioConfigured()
+    ? await conn.select({ id: studioFolders.id }).from(studioFolders).where(eq(studioFolders.memberId, me.id)).limit(1)
+    : [];
+  const actor = folder ? { ...me, role: "CREATOR" as const } : me;
+  requireOwnerEditor(actor, row);
   checkVersion(row.version, version);
-  if (me.status !== "ACTIVE" || row.status !== "APPROVED") throw new CreativeError(409, "Konsep harus disetujui reviewer dan pembuat harus aktif.");
+  if (me.status !== "ACTIVE" || (!folder && row.status !== "APPROVED")) {
+    throw new CreativeError(409, "Folder harus aktif; alur pribadi lama tetap memerlukan persetujuan reviewer.");
+  }
   const data = parseConcept(row.data);
   if (data.publicMode && (row.snapshot as CreativeSnapshot).policyVersion !== 2) throw new CreativeError(409, "Persetujuan lama perlu diikat ke fakta spesifik atau deklarasi netral, lalu review ulang.");
   const materials = await readyMaterials(id, tx);
   const reasons = await staleReasons(row.snapshot as CreativeSnapshot, conn);
-  const built = await buildCreative(data, me, conn, materials);
+  const built = await buildCreative(data, actor, conn, materials);
   const pending = await conn.select({ id: conceptAttachments.id }).from(conceptAttachments).where(and(
     eq(conceptAttachments.conceptId, id), eq(conceptAttachments.state, "PENDING"),
   )).limit(1);
   if (reasons.length || built.blockers.length || row.blockers.length || pending.length || (materials.length && !data.materialConsent)) {
-    throw new CreativeError(409, "Bahan/rujukan berubah atau belum diizinkan. Simpan ulang konsep dan ajukan review: " +
+    throw new CreativeError(409, "Bahan/rujukan berubah atau belum diizinkan. Perbaiki dan simpan ulang: " +
       [...reasons, ...built.blockers].join(" "));
   }
   if (data.format !== "9:16" || data.durationSeconds < 10 || data.durationSeconds > 15) throw new CreativeError(400, "Profil Hemat awal: vertikal9:16, durasi10–15detik. Edit konsep dan review ulang.");

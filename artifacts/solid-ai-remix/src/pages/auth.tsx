@@ -24,18 +24,19 @@ function AuthFrame({ title, children }: { title: string; children: ReactNode }) 
 
 export function SignInPage() {
   return (
-    <AuthFrame title="Studio Anda menunggu.">
-      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+    <AuthFrame title="Akses pengelola studio.">
+      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} forceRedirectUrl={`${basePath}/operations`} />
       <p className="mt-5 text-center text-sm text-muted-foreground" data-testid="text-owner-signin-help">
         Pemilik aplikasi: gunakan akun yang ditetapkan sebagai Super Admin. Tidak perlu membuat akun kedua. Jika lupa password, gunakan pilihan pemulihan pada formulir masuk.
       </p>
+      <a href={`${basePath}/studio`} className="mt-4 block text-center text-sm underline">Anggota: buka studio dengan password bersama</a>
     </AuthFrame>
   );
 }
 
 export function SignUpPage() {
   return (
-    <AuthFrame title="Daftar akun internal Anda.">
+    <AuthFrame title="Akun pengelola internal.">
       <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
     </AuthFrame>
   );

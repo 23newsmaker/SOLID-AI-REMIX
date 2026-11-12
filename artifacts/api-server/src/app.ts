@@ -8,6 +8,8 @@ import { publishableKeyFromHost } from "@clerk/shared/keys";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
 import { rateLimit, ipKeyGenerator } from "express-rate-limit";
 import { CreativeError } from "./lib/creative-policy";
+import { readStudioSession } from "./lib/studio-access";
+import { createHash } from "node:crypto";
 
 const app: Express = express();
 app.set("trust proxy", 1);
@@ -53,7 +55,11 @@ app.use("/api", (req, res, next) => {
   next();
 });
 app.use("/api", rateLimit({ windowMs: 60_000, limit: 120,
-  keyGenerator: req => getAuth(req).userId ?? ipKeyGenerator(req.ip ?? "127.0.0.1"),
+  keyGenerator: req => {
+    const studio = readStudioSession(req);
+    return studio ? `studio:${createHash("sha256").update(studio.id).digest("hex")}`
+      : getAuth(req).userId ?? ipKeyGenerator(req.ip ?? "127.0.0.1");
+  },
   standardHeaders: "draft-7", legacyHeaders: false, message: { error: "Terlalu banyak permintaan. Coba lagi sebentar." } }));
 
 app.use("/api", router);

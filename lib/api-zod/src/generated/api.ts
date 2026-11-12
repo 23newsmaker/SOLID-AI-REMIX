@@ -8,6 +8,113 @@
 import * as zod from 'zod';
 
 
+export const GetStudioSessionResponse = zod.object({
+  "configured": zod.boolean(),
+  "authenticated": zod.boolean()
+})
+
+
+export const enterStudioBodyPasswordMax = 256;
+
+
+
+export const EnterStudioBody = zod.object({
+  "password": zod.string().min(1).max(enterStudioBodyPasswordMax)
+})
+
+export const EnterStudioResponse = zod.object({
+  "configured": zod.boolean(),
+  "authenticated": zod.boolean()
+})
+
+
+export const LeaveStudioResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+export const ListStudioFoldersResponseItem = zod.object({
+  "id": zod.string(),
+  "memberId": zod.string(),
+  "name": zod.string(),
+  "characterName": zod.string().nullable(),
+  "photoUrl": zod.string().nullable(),
+  "dailyUsed": zod.number().int(),
+  "dailyLimit": zod.number().int()
+})
+export const ListStudioFoldersResponse = zod.array(ListStudioFoldersResponseItem)
+
+
+export const createStudioFolderBodyNameMax = 80;
+
+
+
+export const CreateStudioFolderBody = zod.object({
+  "name": zod.string().min(1).max(createStudioFolderBodyNameMax)
+})
+
+export const CreateStudioFolderResponse = zod.object({
+  "id": zod.string(),
+  "memberId": zod.string(),
+  "name": zod.string(),
+  "characterName": zod.string().nullable(),
+  "photoUrl": zod.string().nullable(),
+  "dailyUsed": zod.number().int(),
+  "dailyLimit": zod.number().int()
+})
+
+
+
+
+
+export const ShareStudioFolderBody = zod.object({
+  "memberId": zod.string().min(1),
+  "consent": zod.boolean()
+})
+
+export const ShareStudioFolderResponse = zod.object({
+  "id": zod.string(),
+  "memberId": zod.string(),
+  "name": zod.string(),
+  "characterName": zod.string().nullable(),
+  "photoUrl": zod.string().nullable(),
+  "dailyUsed": zod.number().int(),
+  "dailyLimit": zod.number().int()
+})
+
+
+export const GetStudioSelfCheckParams = zod.object({
+  "folderId": zod.coerce.string(),
+  "id": zod.coerce.string()
+})
+
+export const GetStudioSelfCheckResponse = zod.object({
+  "checked": zod.boolean(),
+  "stale": zod.boolean(),
+  "checkedAt": zod.string().nullable()
+})
+
+
+export const SaveStudioSelfCheckParams = zod.object({
+  "folderId": zod.coerce.string(),
+  "id": zod.coerce.string()
+})
+
+
+
+
+export const SaveStudioSelfCheckBody = zod.object({
+  "confirmed": zod.boolean(),
+  "conceptVersion": zod.number().int().min(1)
+})
+
+export const SaveStudioSelfCheckResponse = zod.object({
+  "checked": zod.boolean(),
+  "stale": zod.boolean(),
+  "checkedAt": zod.string().nullable()
+})
+
+
 export const getOperationsReportQueryFromRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const getOperationsReportQueryToRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const getOperationsReportQueryProviderMax = 120;
@@ -205,6 +312,7 @@ export const GetOperationsReportResponse = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -528,6 +636,7 @@ export const GetRetentionPreviewResponse = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -655,6 +764,7 @@ export const ApproveRetentionPolicyResponse = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -976,6 +1086,7 @@ export const GetFinalVideoReviewResponse = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1092,6 +1203,7 @@ export const TransitionFinalVideoReviewResponse = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1208,6 +1320,7 @@ export const ListVideoJobsResponseItem = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1322,6 +1435,7 @@ export const CreateVideoJobResponse = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1410,6 +1524,7 @@ export const GetVideoJobResponse = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1507,6 +1622,7 @@ export const CancelVideoJobResponse = zod.object({
   "resultUrl": zod.string().nullable(),
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
+  "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),

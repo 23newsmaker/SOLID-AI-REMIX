@@ -5,15 +5,17 @@ import { randomUUID, createHash } from "node:crypto";
 import { audit } from "../lib/operations/audit";
 import { activatePendingOwner } from "../lib/bootstrapAdmin";
 import type { Request, RequestHandler } from "express";
+import { attachStudioMember } from "../lib/studio-member";
 
 declare global {
   namespace Express {
-    interface Request { member?: MemberRecord }
+    interface Request { member?: MemberRecord; studioFolderId?: string; studioSessionHash?: string }
   }
 }
 
 export const requireMember: RequestHandler = async (req, res, next) => {
   try {
+    if (await attachStudioMember(req, res)) { next(); return; }
     const userId = getAuth(req).userId;
     if (!userId) { res.status(401).json({ error: "Silakan masuk terlebih dahulu." }); return; }
     const existing = await db.select().from(members).where(eq(members.id, userId)).limit(1);

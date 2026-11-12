@@ -47,6 +47,7 @@ operationsRouter.get("/video/jobs/:id/review", requireMember, requireActive, asy
   res.json(api.GetFinalVideoReviewResponse.parse(await finalEvidence(idOf(req.params), req.member!)));
 });
 operationsRouter.post("/video/jobs/:id/review", requireMember, requireActive, async (req, res) => {
+  if (req.studioFolderId) throw new CreativeError(409, "Studio bersama memakai pemeriksaan pembuat, bukan antrean review.");
   res.json(api.TransitionFinalVideoReviewResponse.parse(await finalTransition(idOf(req.params), req.body, req.member!)));
 });
 operationsRouter.get("/video/jobs/:id/reference", requireMember, requireActive, async (req, res, next) => {

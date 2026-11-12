@@ -70,6 +70,14 @@ import type {
   RetentionApprovalInput,
   RetentionPreview,
   SourcePolicyInput,
+  StudioFolder,
+  StudioFolderInput,
+  StudioOk,
+  StudioPasswordInput,
+  StudioSelfCheck,
+  StudioSelfCheckInput,
+  StudioSession,
+  StudioShareInput,
   Success,
   UploadInput,
   UploadTicket,
@@ -106,6 +114,698 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetStudioSessionUrl = () => {
+
+
+
+
+  return `/api/studio/session`
+}
+
+export const getStudioSession = async ( options?: Parameters<typeof customFetch>[1]): Promise<StudioSession> => {
+
+  return customFetch<StudioSession>(getGetStudioSessionUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStudioSessionQueryKey = () => {
+    return [
+    `/api/studio/session`
+    ] as const;
+    }
+
+
+export const getGetStudioSessionQueryOptions = <TData = Awaited<ReturnType<typeof getStudioSession>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSession>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStudioSessionQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStudioSession>>> = ({ signal }) => getStudioSession({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStudioSession>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetStudioSessionQueryResult = NonNullable<Awaited<ReturnType<typeof getStudioSession>>>
+export type GetStudioSessionQueryError = ErrorType<unknown>
+
+
+export function useGetStudioSession<TData = Awaited<ReturnType<typeof getStudioSession>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSession>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getStudioSession>>,
+          TError,
+          Awaited<ReturnType<typeof getStudioSession>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetStudioSession<TData = Awaited<ReturnType<typeof getStudioSession>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSession>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getStudioSession>>,
+          TError,
+          Awaited<ReturnType<typeof getStudioSession>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetStudioSession<TData = Awaited<ReturnType<typeof getStudioSession>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSession>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetStudioSession<TData = Awaited<ReturnType<typeof getStudioSession>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSession>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetStudioSessionQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getEnterStudioUrl = () => {
+
+
+
+
+  return `/api/studio/session`
+}
+
+export const enterStudio = async (studioPasswordInput: StudioPasswordInput, options?: Parameters<typeof customFetch>[1]): Promise<StudioSession> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<StudioSession>(getEnterStudioUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(studioPasswordInput)
+  }
+);}
+
+
+
+
+
+export const getEnterStudioMutationKey = () => ['enterStudio'] as const;
+
+export const getEnterStudioMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof enterStudio>>, TError,EnterStudioMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof enterStudio>>, TError,EnterStudioMutationVariables, TContext> => {
+
+const mutationKey = getEnterStudioMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof enterStudio>>, EnterStudioMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  enterStudio(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type EnterStudioMutationResult = NonNullable<Awaited<ReturnType<typeof enterStudio>>>
+    export type EnterStudioMutationBody = BodyType<StudioPasswordInput>
+    export type EnterStudioMutationError = ErrorType<unknown>
+    export type EnterStudioMutationVariables = {data: BodyType<StudioPasswordInput>}
+
+    export const useEnterStudio = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof enterStudio>>, TError,EnterStudioMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof enterStudio>>,
+        TError,
+        EnterStudioMutationVariables,
+        TContext
+      > => {
+      return useMutation(getEnterStudioMutationOptions(options), queryClient);
+    }
+
+export const getLeaveStudioUrl = () => {
+
+
+
+
+  return `/api/studio/session`
+}
+
+export const leaveStudio = async ( options?: Parameters<typeof customFetch>[1]): Promise<StudioOk> => {
+
+  return customFetch<StudioOk>(getLeaveStudioUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getLeaveStudioMutationKey = () => ['leaveStudio'] as const;
+
+export const getLeaveStudioMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof leaveStudio>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof leaveStudio>>, TError,void, TContext> => {
+
+const mutationKey = getLeaveStudioMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof leaveStudio>>, void> = () => {
+
+
+          return  leaveStudio(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LeaveStudioMutationResult = NonNullable<Awaited<ReturnType<typeof leaveStudio>>>
+
+    export type LeaveStudioMutationError = ErrorType<unknown>
+
+
+    export const useLeaveStudio = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof leaveStudio>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof leaveStudio>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getLeaveStudioMutationOptions(options), queryClient);
+    }
+
+export const getListStudioFoldersUrl = () => {
+
+
+
+
+  return `/api/studio/folders`
+}
+
+export const listStudioFolders = async ( options?: Parameters<typeof customFetch>[1]): Promise<StudioFolder[]> => {
+
+  return customFetch<StudioFolder[]>(getListStudioFoldersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListStudioFoldersQueryKey = () => {
+    return [
+    `/api/studio/folders`
+    ] as const;
+    }
+
+
+export const getListStudioFoldersQueryOptions = <TData = Awaited<ReturnType<typeof listStudioFolders>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStudioFolders>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListStudioFoldersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listStudioFolders>>> = ({ signal }) => listStudioFolders({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listStudioFolders>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListStudioFoldersQueryResult = NonNullable<Awaited<ReturnType<typeof listStudioFolders>>>
+export type ListStudioFoldersQueryError = ErrorType<unknown>
+
+
+export function useListStudioFolders<TData = Awaited<ReturnType<typeof listStudioFolders>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStudioFolders>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listStudioFolders>>,
+          TError,
+          Awaited<ReturnType<typeof listStudioFolders>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListStudioFolders<TData = Awaited<ReturnType<typeof listStudioFolders>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStudioFolders>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listStudioFolders>>,
+          TError,
+          Awaited<ReturnType<typeof listStudioFolders>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListStudioFolders<TData = Awaited<ReturnType<typeof listStudioFolders>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStudioFolders>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListStudioFolders<TData = Awaited<ReturnType<typeof listStudioFolders>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listStudioFolders>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListStudioFoldersQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateStudioFolderUrl = () => {
+
+
+
+
+  return `/api/studio/folders`
+}
+
+export const createStudioFolder = async (studioFolderInput: StudioFolderInput, options?: Parameters<typeof customFetch>[1]): Promise<StudioFolder> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<StudioFolder>(getCreateStudioFolderUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(studioFolderInput)
+  }
+);}
+
+
+
+
+
+export const getCreateStudioFolderMutationKey = () => ['createStudioFolder'] as const;
+
+export const getCreateStudioFolderMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createStudioFolder>>, TError,CreateStudioFolderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createStudioFolder>>, TError,CreateStudioFolderMutationVariables, TContext> => {
+
+const mutationKey = getCreateStudioFolderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createStudioFolder>>, CreateStudioFolderMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createStudioFolder(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateStudioFolderMutationResult = NonNullable<Awaited<ReturnType<typeof createStudioFolder>>>
+    export type CreateStudioFolderMutationBody = BodyType<StudioFolderInput>
+    export type CreateStudioFolderMutationError = ErrorType<unknown>
+    export type CreateStudioFolderMutationVariables = {data: BodyType<StudioFolderInput>}
+
+    export const useCreateStudioFolder = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createStudioFolder>>, TError,CreateStudioFolderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createStudioFolder>>,
+        TError,
+        CreateStudioFolderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateStudioFolderMutationOptions(options), queryClient);
+    }
+
+export const getShareStudioFolderUrl = () => {
+
+
+
+
+  return `/api/studio/share`
+}
+
+export const shareStudioFolder = async (studioShareInput: StudioShareInput, options?: Parameters<typeof customFetch>[1]): Promise<StudioFolder> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<StudioFolder>(getShareStudioFolderUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(studioShareInput)
+  }
+);}
+
+
+
+
+
+export const getShareStudioFolderMutationKey = () => ['shareStudioFolder'] as const;
+
+export const getShareStudioFolderMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof shareStudioFolder>>, TError,ShareStudioFolderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof shareStudioFolder>>, TError,ShareStudioFolderMutationVariables, TContext> => {
+
+const mutationKey = getShareStudioFolderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof shareStudioFolder>>, ShareStudioFolderMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  shareStudioFolder(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ShareStudioFolderMutationResult = NonNullable<Awaited<ReturnType<typeof shareStudioFolder>>>
+    export type ShareStudioFolderMutationBody = BodyType<StudioShareInput>
+    export type ShareStudioFolderMutationError = ErrorType<unknown>
+    export type ShareStudioFolderMutationVariables = {data: BodyType<StudioShareInput>}
+
+    export const useShareStudioFolder = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof shareStudioFolder>>, TError,ShareStudioFolderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof shareStudioFolder>>,
+        TError,
+        ShareStudioFolderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getShareStudioFolderMutationOptions(options), queryClient);
+    }
+
+export const getGetStudioSelfCheckUrl = (folderId: string,
+    id: string,) => {
+
+
+
+
+  return `/api/studio/folders/${folderId}/checks/${id}`
+}
+
+export const getStudioSelfCheck = async (folderId: string,
+    id: string, options?: Parameters<typeof customFetch>[1]): Promise<StudioSelfCheck> => {
+
+  return customFetch<StudioSelfCheck>(getGetStudioSelfCheckUrl(folderId,id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStudioSelfCheckQueryKey = (folderId: string,
+    id: string,) => {
+    return [
+    `/api/studio/folders/${folderId}/checks/${id}`
+    ] as const;
+    }
+
+
+export const getGetStudioSelfCheckQueryOptions = <TData = Awaited<ReturnType<typeof getStudioSelfCheck>>, TError = ErrorType<unknown>>(folderId: string,
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSelfCheck>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStudioSelfCheckQueryKey(folderId,id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStudioSelfCheck>>> = ({ signal }) => getStudioSelfCheck(folderId,id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: folderId !== null && folderId !== undefined && id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStudioSelfCheck>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetStudioSelfCheckQueryResult = NonNullable<Awaited<ReturnType<typeof getStudioSelfCheck>>>
+export type GetStudioSelfCheckQueryError = ErrorType<unknown>
+
+
+export function useGetStudioSelfCheck<TData = Awaited<ReturnType<typeof getStudioSelfCheck>>, TError = ErrorType<unknown>>(
+ folderId: string,
+    id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSelfCheck>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getStudioSelfCheck>>,
+          TError,
+          Awaited<ReturnType<typeof getStudioSelfCheck>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetStudioSelfCheck<TData = Awaited<ReturnType<typeof getStudioSelfCheck>>, TError = ErrorType<unknown>>(
+ folderId: string,
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSelfCheck>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getStudioSelfCheck>>,
+          TError,
+          Awaited<ReturnType<typeof getStudioSelfCheck>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetStudioSelfCheck<TData = Awaited<ReturnType<typeof getStudioSelfCheck>>, TError = ErrorType<unknown>>(
+ folderId: string,
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSelfCheck>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetStudioSelfCheck<TData = Awaited<ReturnType<typeof getStudioSelfCheck>>, TError = ErrorType<unknown>>(
+ folderId: string,
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getStudioSelfCheck>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetStudioSelfCheckQueryOptions(folderId,id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveStudioSelfCheckUrl = (folderId: string,
+    id: string,) => {
+
+
+
+
+  return `/api/studio/folders/${folderId}/checks/${id}`
+}
+
+export const saveStudioSelfCheck = async (folderId: string,
+    id: string,
+    studioSelfCheckInput: StudioSelfCheckInput, options?: Parameters<typeof customFetch>[1]): Promise<StudioSelfCheck> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<StudioSelfCheck>(getSaveStudioSelfCheckUrl(folderId,id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(studioSelfCheckInput)
+  }
+);}
+
+
+
+
+
+export const getSaveStudioSelfCheckMutationKey = () => ['saveStudioSelfCheck'] as const;
+
+export const getSaveStudioSelfCheckMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveStudioSelfCheck>>, TError,SaveStudioSelfCheckMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveStudioSelfCheck>>, TError,SaveStudioSelfCheckMutationVariables, TContext> => {
+
+const mutationKey = getSaveStudioSelfCheckMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveStudioSelfCheck>>, SaveStudioSelfCheckMutationVariables> = (props) => {
+          const {folderId,id,data} = props ?? {};
+
+          return  saveStudioSelfCheck(folderId,id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveStudioSelfCheckMutationResult = NonNullable<Awaited<ReturnType<typeof saveStudioSelfCheck>>>
+    export type SaveStudioSelfCheckMutationBody = BodyType<StudioSelfCheckInput>
+    export type SaveStudioSelfCheckMutationError = ErrorType<unknown>
+    export type SaveStudioSelfCheckMutationVariables = {folderId: string;id: string;data: BodyType<StudioSelfCheckInput>}
+
+    export const useSaveStudioSelfCheck = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveStudioSelfCheck>>, TError,SaveStudioSelfCheckMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof saveStudioSelfCheck>>,
+        TError,
+        SaveStudioSelfCheckMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveStudioSelfCheckMutationOptions(options), queryClient);
+    }
 
 export const getGetOperationsReportUrl = (params?: GetOperationsReportParams,) => {
   const normalizedParams = new URLSearchParams();

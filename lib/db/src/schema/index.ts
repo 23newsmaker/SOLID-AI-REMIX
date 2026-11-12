@@ -24,3 +24,4 @@ export * from "./audit";
 export * from "./creative";
 export * from "./video";
 export * from "./compliance";
+export * from "./studio";

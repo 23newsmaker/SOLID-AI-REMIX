@@ -11,7 +11,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { AppShell } from '@/components/app-shell';
 import { MemberGate } from '@/components/member-gate';
 import NotFound from '@/pages/not-found';
-import Landing from '@/pages/landing';
+import SharedStudioPage from '@/pages/shared-studio';
 import { SignInPage, SignUpPage } from '@/pages/auth';
 import Studio from '@/pages/studio';
 import CharacterPage from '@/pages/character';
@@ -123,14 +123,7 @@ function ClerkQueryClientCacheInvalidator() {
 }
 
 function HomeRedirect() {
-  const { isLoaded } = useAuth();
-  if (!isLoaded) return <SessionLoading />;
-  return (
-    <>
-      <Show when="signed-in"><Redirect to="/studio" /></Show>
-      <Show when="signed-out"><Landing /></Show>
-    </>
-  );
+  return <Redirect to="/studio" />;
 }
 
 function Private({ render }: { render: (me: Member) => ReactNode }) {
@@ -166,7 +159,9 @@ function Router() {
         <Route path="/" component={HomeRedirect} />
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
-        <Route path="/studio">{() => <Private render={(me) => <Studio me={me} />} />}</Route>
+        <Route path="/studio/member/:folderId" component={SharedStudioPage} />
+        <Route path="/studio" component={SharedStudioPage} />
+        <Route path="/admin/studio">{() => <Private render={(me) => <Studio me={me} />} />}</Route>
         <Route path="/character">{() => <Private render={(me) => <CharacterPage me={me} />} />}</Route>
         <Route path="/knowledge">{() => <Private render={() => <Knowledge />} />}</Route>
         <Route path="/knowledge/:id">{() => <Private render={() => <KnowledgeDetail />} />}</Route>
@@ -195,8 +190,8 @@ function ClerkProviderWithRoutes() {
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
       localization={{
-        signIn: { start: { title: 'Masuk ke studio', subtitle: 'Gunakan akun karyawan Solid Gold Anda' } },
-        signUp: { start: { title: 'Buat akun karyawan', subtitle: 'Akun aktif setelah disetujui Super Admin' } },
+        signIn: { start: { title: 'Masuk sebagai pengelola', subtitle: 'Anggota studio cukup memakai password bersama' } },
+        signUp: { start: { title: 'Daftar akun pengelola', subtitle: 'Hak admin hanya dapat diberikan pemilik aplikasi' } },
       }}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}

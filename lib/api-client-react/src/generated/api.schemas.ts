@@ -5,6 +5,62 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
+export interface StudioOk {
+  ok: boolean;
+}
+
+export interface StudioSession {
+  configured: boolean;
+  authenticated: boolean;
+}
+
+export interface StudioPasswordInput {
+  /**
+     * @minLength 1
+     * @maxLength 256
+     */
+  password: string;
+}
+
+export interface StudioFolderInput {
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  name: string;
+}
+
+export interface StudioShareInput {
+  /** @minLength 1 */
+  memberId: string;
+  consent: boolean;
+}
+
+export interface StudioFolder {
+  id: string;
+  memberId: string;
+  name: string;
+  /** @nullable */
+  characterName: string | null;
+  /** @nullable */
+  photoUrl: string | null;
+  dailyUsed: number;
+  dailyLimit: number;
+}
+
+export interface StudioSelfCheckInput {
+  confirmed: boolean;
+  /** @minimum 1 */
+  conceptVersion: number;
+}
+
+export interface StudioSelfCheck {
+  checked: boolean;
+  stale: boolean;
+  /** @nullable */
+  checkedAt: string | null;
+}
+
 export interface OperationsSettingsInput {
   paused: boolean;
   /**
@@ -303,6 +359,8 @@ export interface VideoJob {
   /** @nullable */
   rawResultUrl: string | null;
   deleted: boolean;
+  /** File access revoked but storage cleanup still needs retry */
+  cleanupPending?: boolean;
   options: VideoRenderOptions;
 }
 

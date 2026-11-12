@@ -37,11 +37,11 @@ export async function finalStale(job: VideoJobRow, checkFile = false, tx?: Creat
     return { stale: false, reasons: [] as string[] };
   } catch { return { stale: true, reasons: ["Hasil, versi konsep, karakter, bahan atau izin fakta/sumber berubah. Ajukan versi baru untuk review."] }; }
 }
-async function ensureHash(job: VideoJobRow) {
+async function ensureHash(job: VideoJobRow, forceHash = false) {
   const file = videoFile(job.resultPath!);
   const [meta] = await file.getMetadata();
   if (!meta.size || Number(meta.size) > 20 * 1024 * 1024 || meta.contentType !== "video/mp4") throw new CreativeError(409, "Berkas final tidak layak diperiksa.");
-  let resultHash = job.resultHash;
+  let resultHash = forceHash ? null : job.resultHash;
   if (!resultHash) {
     const hash = createHash("sha256");
     let bytes = 0;
@@ -53,6 +53,15 @@ async function ensureHash(job: VideoJobRow) {
     resultHash = hash.digest("hex");
   }
   return { resultHash, md5: meta.md5Hash ?? "", generation: String(meta.generation) };
+}
+// Evidence capture is shared; a creator self-check is not a compliance decision.
+export async function studioCheckBinding(job: VideoJobRow, forceHash = false, tx?: CreativeTx) {
+  if (!job.conceptId || job.status !== "COMPLETED" || job.deleted || job.simulation || !job.resultPath) {
+    throw new CreativeError(409, "Video nyata yang selesai diperlukan untuk pemeriksaan.");
+  }
+  const physical = await ensureHash(job, forceHash);
+  if (!physical.md5 || !physical.generation) throw new CreativeError(409, "Identitas berkas hasil belum tersedia.");
+  return { ...physical, digest: await currentDigest({ ...job, resultHash: physical.resultHash }, tx) };
 }
 export async function finalEvidence(id: string, me: MemberRecord) {
   const job = await readJob(id, me);

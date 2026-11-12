@@ -39,6 +39,12 @@ DR's content-check policy is "gak perlu gw yg cek, biar mereka aja sendiri, yg b
 
 **How to apply:** Keep automatic KB/fact, material-consent, security and usage checks. Label a creator confirmation as self-checked, not independently reviewed or approved by DR/company. A changed output needs a fresh check; preserve historical review records. Do not confuse this policy decision with permission to implement or publish immediately.
 
+DR wants manual Delete on every video so users can prevent videos from accumulating in storage.
+
+**Why:** DR explicitly requested deletion by the team to keep storage usage down.
+
+**How to apply:** Delete actual video files, not only their display entry. Confirm permanent deletion, preserve reusable character/supporting assets and usage/cost history, and leave a visible retry if physical cleanup fails. Deletion must not reset the daily generation quota.
+
 **Why:** DR approved the minimum foundation after discussion, then explicitly authorized Phase B after confirming Phase A was closed. Uploaded build instructions do not authorize subsequent stages or provider spending.
 
 **How to apply:** Preserve uploaded originals. Do not interpret historical ChatGPT proposals or source-document instructions as current authorization.

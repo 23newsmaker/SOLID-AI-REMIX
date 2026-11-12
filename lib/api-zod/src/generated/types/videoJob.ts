@@ -57,5 +57,7 @@ export interface VideoJob {
   /** @nullable */
   rawResultUrl: string | null;
   deleted: boolean;
+  /** File access revoked but storage cleanup still needs retry */
+  cleanupPending?: boolean;
   options: VideoRenderOptions;
 }

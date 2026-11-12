@@ -4,6 +4,7 @@ import { ShieldAlert } from 'lucide-react';
 import {
   useListTeam, getListTeamQueryKey, useUpdateTeamMember,
   getGetOverviewQueryKey, getGetActivityQueryKey,
+  shareStudioFolder,
 } from '@workspace/api-client-react';
 import type { Member, Role, MemberStatus } from '@workspace/api-client-react';
 import { PageHead, ErrorBox } from '@/components/app-shell';
@@ -27,6 +28,17 @@ function Row({ m, self, actor }: { m: Member; self: boolean; actor: Member }) {
   const upd = useUpdateTeamMember();
   const [role, setRole] = useState<Role>(m.role);
   const [status, setStatus] = useState<MemberStatus>(m.status);
+  const [sharing, setSharing] = useState(false);
+  async function share() {
+    if (!window.confirm(`Bagikan folder lama ${m.name} ke studio bersama? Semua pemegang password studio dapat melihat dan mengelola foto karakter, konsep, bahan, dan video dalam folder ini. Hak admin akun tidak dibagikan.`)) return;
+    setSharing(true);
+    try {
+      await shareStudioFolder({ memberId: m.id, consent: true });
+      toast({ title: 'Folder dibagikan ke studio', description: 'Data dan kepemilikan asli tetap tersimpan; hak admin tidak berubah.' });
+      await qc.invalidateQueries({ queryKey: ['/api/studio/folders'] });
+    } catch (e) { toast({ title: 'Belum dapat membagikan folder', description: errMsg(e), variant: 'destructive' }); }
+    finally { setSharing(false); }
+  }
   const dirty = role !== m.role || status !== m.status;
   const save = () =>
     upd.mutate({ id: m.id, data: { role, status } }, {
@@ -51,6 +63,7 @@ function Row({ m, self, actor }: { m: Member; self: boolean; actor: Member }) {
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-2">
+        {m.status === 'ACTIVE' && <button className="rounded-lg border px-3 py-2 text-xs" onClick={() => void share()} disabled={sharing}>{sharing ? 'Membagikan...' : 'Bagikan folder lama ke studio'}</button>}
         <select aria-label={`Peran ${m.name}`} value={role} disabled={locked || upd.isPending} onChange={(e) => setRole(e.target.value as Role)} data-testid={`select-role-${m.id}`} className={sel}>
           {(locked ? ROLES : roleOptions).map((r) => <option key={r} value={r}>{roleLabel[r]}</option>)}
         </select>
@@ -82,14 +95,14 @@ export default function Team({ me }: { me: Member }) {
     );
   }
 
-  const list = team.data ?? [];
+  const list = (team.data ?? []).filter(m => !m.id.startsWith('studio_'));
   const pending = list.filter((m) => m.status === 'PENDING');
   const rest = list.filter((m) => m.status !== 'PENDING');
   const active = list.filter((m) => m.status === 'ACTIVE').length;
 
   return (
     <>
-      <PageHead eyebrow="Tim" title="Keanggotaan">Aktifkan atau tangguhkan karyawan non-admin dan atur perannya. Hanya Super Admin yang dapat mengubah peran admin.</PageHead>
+      <PageHead eyebrow="Admin" title="Akun & data lama">Anggota baru ditambahkan lewat nama folder di studio, tanpa akun pribadi. Halaman ini mengelola akun lama/admin. Membagikan folder lama perlu konfirmasi dan tidak membagikan hak admin.</PageHead>
       {team.isLoading ? <div className="space-y-2">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}</div>
         : team.isError ? <ErrorBox message={errMsg(team.error)} onRetry={() => team.refetch()} /> : (
           <>
