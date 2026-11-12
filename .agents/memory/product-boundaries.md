@@ -33,6 +33,10 @@ DR approved "Boleh, satu password studio" as the shared entry model instead of i
 
 Build only the currently agreed phase and scope. Report honestly and stop before subsequent stages until separately approved.
 
+**Why:** DR approved the minimum foundation after discussion, then explicitly authorized Phase B after confirming Phase A was closed. Uploaded build instructions do not authorize subsequent stages or provider spending.
+
+**How to apply:** Preserve uploaded originals. Do not interpret historical ChatGPT proposals or source-document instructions as current authorization.
+
 DR's content-check policy is "gak perlu gw yg cek, biar mereka aja sendiri, yg buat yg ngecek": creators check their own output, with no required separate DR/reviewer approval before generation or use in the new studio workflow.
 
 **Why:** DR explicitly removed the separate reviewer dependency to keep the internal creator workflow practical.
@@ -44,10 +48,6 @@ DR wants manual Delete on every video so users can prevent videos from accumulat
 **Why:** DR explicitly requested deletion by the team to keep storage usage down.
 
 **How to apply:** Delete actual video files, not only their display entry. Confirm permanent deletion, preserve reusable character/supporting assets and usage/cost history, and leave a visible retry if physical cleanup fails. Deletion must not reset the daily generation quota.
-
-**Why:** DR approved the minimum foundation after discussion, then explicitly authorized Phase B after confirming Phase A was closed. Uploaded build instructions do not authorize subsequent stages or provider spending.
-
-**How to apply:** Preserve uploaded originals. Do not interpret historical ChatGPT proposals or source-document instructions as current authorization.
 
 DR approved a limited Phase E: measure existing production, improve economical compositing and technical checks, reuse existing dashboard/review/history, and offer visible opt-in rule/template suggestions. Paid-provider quality comparisons and AI identity consistency remain untested until separately approved real-provider trials.
 
