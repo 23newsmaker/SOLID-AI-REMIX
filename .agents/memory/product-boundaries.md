@@ -11,9 +11,9 @@ SOLID AI REMIX is internal to Solid Gold, used by creator/marketing staff for vi
 
 The experience must remain simple like TikTok AI Cast/Remix: register a face-based character once, reuse it, optionally add supporting images/screenshots/video, give an instruction or choose an idea, confirm summary/cost, generate and review/download. Start with one character per member and one output per process.
 
-**Why:** The original goal was reusable characters generating varied scenes, not a complex editor or a mere slideshow. DR repeatedly emphasized simplicity.
+**Why:** The original goal was reusable characters generating varied scenes, not a complex editor or a mere slideshow. DR repeatedly emphasized simplicity and corrected the expanded app: "terlalu banyak fiture, padahal tujuan aplikasinya hanya simpel, dan aplikasi internal aja".
 
-**How to apply:** Hide technical settings behind admin controls/defaults. A stored reference photo is not training a face model. Test identity consistency instead of promising parity with TikTok.
+**How to apply:** Prioritize the short creator workflow over exposing every A–F module as a separate daily-use feature. Hide technical settings behind admin controls/defaults; do not add features just to make the system appear complete. A stored reference photo is not training a face model. Test identity consistency instead of promising parity with TikTok.
 
 DR no longer wants a ten-member limit: "bebas aja brp anggota"; DR must be able to open a Super Admin dashboard. Three videos per user/day and expected average one remain the previously agreed usage assumptions; the member-count change does not authorize unlimited rendering or spending. Two modes: economical photo zoom/pan with Indonesian narration/subtitles, plus optional genuine AI motion. UGC/cinematic are styles, not separate engines. Lip-sync and batch generation are postponed.
 
