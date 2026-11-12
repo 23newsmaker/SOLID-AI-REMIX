@@ -1,7 +1,7 @@
 [project]
 name = "repl-nix-workspace"
 version = "0.1.0"
-description = "Add your description here"
+description = "CPU-only experimental voice benchmark dependencies; not an application service"
 authors = [
     { name = "23newsmaker", email = "23newsmaker@gmail.com" }
 ]
@@ -9,9 +9,7 @@ requires-python = ">=3.13"
 dependencies = [
     "numpy>=2.5.4",
     "onnxruntime>=1.31.1",
-    "psutil>=7.2.2",
     "sentencepiece>=0.2.3",
-    "soundfile>=0.14.0",
 ]
 
 [project.scripts]

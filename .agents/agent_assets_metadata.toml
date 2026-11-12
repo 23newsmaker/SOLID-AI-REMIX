@@ -210,3 +210,17 @@ mtime_ms = 1794397888029
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/6976f58a-7218-479c-9da4-c4ecb52af844/ea29d9fa-aee9-4729-a9d0-c5cc1a17e1b8"
 storage_version_token = "1794398573692611"
 content_type = "video/mp4"
+
+[[outputs]]
+id = "HmY_aWOvgUhUY7LP_zsfn"
+uri = "file://generated-artifacts/voice-local-test/laporan-uji-suara.html"
+type = "html"
+title = "Uji lokal: dua suara Indonesia"
+description = "Dengarkan sampel publik asli dan hasil sintesis lokal. Memuat waktu proses dan memori; pengucapan serta kemiripan belum dinilai."
+logical_id = "0382d9f1-b54d-4275-b96d-fd1d6ca89278"
+content_hash = "sha256:c181217dc85a9bfbbdc5ce8fd43fe5d11b99f0fcd70c77cbc83fee8aa96256fe"
+size = 1302978
+mtime_ms = 1794460601610
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/0382d9f1-b54d-4275-b96d-fd1d6ca89278/52eb0895-a2e0-4be2-a998-e255edb4faf2"
+storage_version_token = "1794460972046501"
+content_type = "text/html"

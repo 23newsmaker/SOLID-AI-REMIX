@@ -73,6 +73,12 @@ DR asked to hide the studio's production-summary sidebar and its two information
 
 **How to apply:** Do not restore these always-visible sidebar panels. Keep the generation confirmation, quota enforcement and underlying safety checks functional without them.
 
+For the studio folder-list page, DR wants the informational cards below the member list, side by side where space permits, responsive on mobile and compatible with PWA. DR also wants “Simpan karakter” next to “Pilih galeri” to save space.
+
+**Why:** DR said the layout was scattered and requested these placements.
+
+**How to apply:** Keep the folder list above the informational row; let cards and character action buttons wrap on small screens rather than overflowing or restoring the sidebar. PWA compatibility does not mean offline generation or caching private studio data.
+
 DR also requested hiding the KB fact picker and additional settings from the main studio form, so users can proceed to adding their assets.
 
 **Why:** DR wants a simple, uncluttered internal workflow.

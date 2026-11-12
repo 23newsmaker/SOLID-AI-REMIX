@@ -98,13 +98,13 @@ function StudioContents({ folderId }: { folderId: string | null }) {
       <div className="ss-modal-actions"><button type="button" className="ss-btn outline" onClick={() => setAdding(false)}>Batal</button><button className="ss-btn" disabled={add.isPending || !name.trim()}>{add.isPending ? 'Menambahkan...' : 'Buat folder anggota'}</button></div>
     </form>}
     {error && <p className="ss-alert" role="alert">{error}</p>}
-    <div className="ss-grid"><section className="ss-folder-list" aria-label="Folder anggota">
+    <div className="ss-stack"><section className="ss-folder-list" aria-label="Folder anggota">
       {!folders.data?.length && <div className="ss-panel"><h2>Belum ada folder anggota.</h2><p className="ss-helper">Tambahkan nama anggota untuk memulai. Data pribadi lama tidak otomatis dibagikan.</p></div>}
       {folders.data?.map(f => <Link href={`/studio/member/${encodeURIComponent(f.id)}`} className="ss-folder-card" key={f.id} data-testid={`studio-folder-${f.id}`}>
-        <span className="ss-folder-icon"><FolderOpen size={22} /></span><div><h3>{f.name}</h3><p>{f.characterName ? `Karakter: ${f.characterName}` : 'Belum ada karakter tersimpan'}</p></div>
-        <div className="ss-folder-meta"><span>{f.dailyUsed}/{f.dailyLimit} hari ini</span><ArrowRight size={16} /></div>
+        <span className="ss-folder-icon"><FolderOpen size={22} /></span><div className="ss-folder-text"><h3>{f.name}</h3><p>{f.characterName ? `Karakter: ${f.characterName}` : 'Belum ada karakter tersimpan'}</p></div>
+        <div className="ss-folder-meta"><span className="ss-folder-quota">{f.dailyUsed}/{f.dailyLimit} hari ini</span><ArrowRight size={16} /></div>
       </Link>)}
-    </section><aside className="ss-aside">
+    </section><aside className="ss-info-row" aria-label="Informasi studio">
       <section className="ss-quota"><div className="ss-quota-head">Foto → naskah → video</div><h2>Mode Hemat</h2><p>Foto bergerak dengan pan/zoom, subtitle, dan rekaman suara bila diunggah. Bukan AI Cast atau lip-sync.</p></section>
       <section className="ss-panel"><h2>Studio ini dipakai bersama</h2><p className="ss-helper">Pemegang password dapat melihat dan mengelola semua folder yang dibagikan. Nama folder bukan bukti identitas orang.</p><p className="ss-helper">Batas harian berlaku per folder. Menghapus video tidak mengembalikan kuota.</p></section>
       <section className="ss-help-card"><strong>Tetap ekonomis</strong>Tidak memanggil API video, TTS, atau chat AI berbayar. Komputasi rendering dan storage tetap dapat menimbulkan biaya.</section>

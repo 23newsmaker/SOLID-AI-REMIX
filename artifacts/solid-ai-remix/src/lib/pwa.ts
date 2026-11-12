@@ -5,7 +5,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 export function registerServiceWorker() {
   if (!('serviceWorker' in navigator) || !import.meta.env.PROD) return;
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register(`${base}/sw.js`).catch(() => undefined);
+    navigator.serviceWorker.register(`${base}/sw.js`).catch(() => {
+      console.warn('Fitur PWA offline belum berhasil didaftarkan. Studio tetap dapat digunakan saat online.');
+    });
   });
 }
 

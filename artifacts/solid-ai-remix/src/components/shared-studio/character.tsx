@@ -58,6 +58,7 @@ export function StudioCharacter({ folderId, name, character, onSaved }: {
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         <button type="button" className="ss-btn" disabled={busy} onClick={() => cameraInput.current?.click()} aria-describedby="character-camera-help" data-testid="button-take-character-photo"><Camera size={18} aria-hidden="true" />Ambil foto</button>
         <button type="button" className="ss-btn outline" disabled={busy} onClick={() => galleryInput.current?.click()} data-testid="button-choose-character-photo"><ImagePlus size={18} aria-hidden="true" />Pilih galeri</button>
+        <button type="submit" className="ss-btn" disabled={busy || !file || !characterName.trim()} data-testid="button-save-studio-character">{busy ? 'Menyimpan...' : 'Simpan karakter'}</button>
       </div>
       <input ref={cameraInput} type="file" accept="image/jpeg,image/png,image/webp" capture="user" disabled={busy} onChange={selectPhoto} hidden aria-label="Ambil foto wajah dengan kamera" data-testid="input-studio-character-camera" />
       <input ref={galleryInput} id="character-photo" type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={selectPhoto} hidden aria-label="Pilih foto wajah dari galeri" data-testid="input-studio-character-photo" />
@@ -67,8 +68,7 @@ export function StudioCharacter({ folderId, name, character, onSaved }: {
         <span className="ss-helper" style={{ overflowWrap: 'anywhere', minWidth: 0 }}>{file.name}</span>
       </div>}
       {error && <p className="ss-alert" role="alert">{error}</p>}
-      <div className="ss-modal-actions">{character && <button type="button" className="ss-btn outline" onClick={() => { setEditing(false); setFile(null); setError(''); }} disabled={busy}>Batal</button>}
-        <button className="ss-btn" disabled={busy || !file || !characterName.trim()} data-testid="button-save-studio-character">{busy ? 'Menyimpan...' : 'Simpan karakter'}</button></div>
+      {character && <div className="ss-modal-actions"><button type="button" className="ss-btn outline" onClick={() => { setEditing(false); setFile(null); setError(''); }} disabled={busy}>Batal</button></div>}
     </form>}
   </section>;
 }
