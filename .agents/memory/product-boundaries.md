@@ -25,6 +25,12 @@ DR no longer wants a ten-member limit: "bebas aja brp anggota"; DR must be able 
 
 **How to apply for member access:** Do not treat the former ten-member limit as a standing product requirement. Do not infer that removing the member cap also authorizes removing login, opening private files, or changing content-review policy.
 
+DR approved "Boleh, satu password studio" as the shared entry model instead of individual member credentials.
+
+**Why:** The discussed Shared Studio should remain easy for the internal team to enter without becoming unprotected public access.
+
+**How to apply:** Protect studio entry as a whole, including API and files, not just its page. Keep the actual password out of chat and memory. This decision alone is not approval to implement, publish, activate paid hosting, or remove separate privileged admin protections.
+
 Build only the currently agreed phase and scope. Report honestly and stop before subsequent stages until separately approved.
 
 **Why:** DR approved the minimum foundation after discussion, then explicitly authorized Phase B after confirming Phase A was closed. Uploaded build instructions do not authorize subsequent stages or provider spending.
