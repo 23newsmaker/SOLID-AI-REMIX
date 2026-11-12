@@ -49,6 +49,12 @@ DR wants manual Delete on every video so users can prevent videos from accumulat
 
 **How to apply:** Delete actual video files, not only their display entry. Confirm permanent deletion, preserve reusable character/supporting assets and usage/cost history, and leave a visible retry if physical cleanup fails. Deletion must not reset the daily generation quota.
 
+For the shared-studio character-photo checkbox and its explanation, DR said "ni gak perlu ditulisakan, otomatis semua dijinkan."
+
+**Why:** The user asked to remove this repeated permission step.
+
+**How to apply:** Treat saving a character photo in the shared studio as covered by the owner's internal permission policy, not as a separately checked uploader declaration. Keep that distinction in records. This does not authorize external AI-provider transfers or remove unrelated material checks.
+
 DR approved a limited Phase E: measure existing production, improve economical compositing and technical checks, reuse existing dashboard/review/history, and offer visible opt-in rule/template suggestions. Paid-provider quality comparisons and AI identity consistency remain untested until separately approved real-provider trials.
 
 **Why:** Avoid building broad optimization features without real video/cost evidence, adding routine LLM costs, or delaying practical delivery.

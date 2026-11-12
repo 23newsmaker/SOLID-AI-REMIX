@@ -121,7 +121,10 @@ characterRouter.put("/character", requireCharacterEditor, async (req, res) => {
     await tx.insert(auditLog).values({
       id: randomUUID(), userId: req.member!.id,
       action: old ? "CHARACTER_REPLACED" : "CHARACTER_SAVED",
-      description: old ? "Foto karakter diganti dengan persetujuan baru." : "Karakter pribadi disimpan dengan persetujuan penggunaan foto.",
+      description: req.studioFolderId
+        ? `Foto karakter ${old ? "diganti" : "disimpan"} berdasarkan izin internal studio bersama.`
+        : old ? "Foto karakter diganti dengan persetujuan baru." : "Karakter pribadi disimpan dengan persetujuan penggunaan foto.",
+      after: { consentBasis: req.studioFolderId ? "STUDIO_OWNER_POLICY" : "UPLOADER_CONFIRMATION" },
     });
     await file.delete({ ignoreNotFound: true });
     if (old) await privateFile(old.objectPath).delete({ ignoreNotFound: true });
