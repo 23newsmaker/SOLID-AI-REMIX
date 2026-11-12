@@ -15,11 +15,15 @@ The experience must remain simple like TikTok AI Cast/Remix: register a face-bas
 
 **How to apply:** Hide technical settings behind admin controls/defaults. A stored reference photo is not training a face model. Test identity consistency instead of promising parity with TikTok.
 
-DR agreed to at most ten users and three videos per user/day, with expected average one. Two modes: economical photo zoom/pan with Indonesian narration/subtitles, plus optional genuine AI motion. UGC/cinematic are styles, not separate engines. Lip-sync and batch generation are postponed.
+DR no longer wants a ten-member limit: "bebas aja brp anggota"; DR must be able to open a Super Admin dashboard. Three videos per user/day and expected average one remain the previously agreed usage assumptions; the member-count change does not authorize unlimited rendering or spending. Two modes: economical photo zoom/pan with Indonesian narration/subtitles, plus optional genuine AI motion. UGC/cinematic are styles, not separate engines. Lip-sync and batch generation are postponed.
 
 **Why:** Limit cost while retaining the original creative goal. The economical alternative must not be presented as equivalent to genuine generated subject motion.
 
 **How to apply:** Avoid routine ChatGPT/LLM calls; prioritize structured KB and approved templates. Be explicit about limited free-text understanding without LLM. Provider tests and paid generation require separate owner approval. The discussed monthly budget was a provisional planning allowance, not unconditional spending consent.
+
+**Why for member access:** DR clarified that the member count is flexible and that access to the owner's Super Admin dashboard is the priority.
+
+**How to apply for member access:** Do not treat the former ten-member limit as a standing product requirement. Do not infer that removing the member cap also authorizes removing login, opening private files, or changing content-review policy.
 
 Build only the currently agreed phase and scope. Report honestly and stop before subsequent stages until separately approved.
 
