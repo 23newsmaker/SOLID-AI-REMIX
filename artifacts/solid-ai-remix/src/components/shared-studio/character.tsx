@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'r
 import { Camera, ImagePlus } from 'lucide-react';
 import { requestCharacterUpload, saveCharacter, type Character, type UploadInputContentType } from '@workspace/api-client-react';
 import { errMsg } from '@/lib/labels';
+import { CharacterVoicePanel } from './character-voice';
 
 export function StudioCharacter({ folderId, name, character, onSaved }: {
   folderId: string; name: string; character: Character | null; onSaved: () => Promise<unknown>;
@@ -70,5 +71,6 @@ export function StudioCharacter({ folderId, name, character, onSaved }: {
       {error && <p className="ss-alert" role="alert">{error}</p>}
       {character && <div className="ss-modal-actions"><button type="button" className="ss-btn outline" onClick={() => { setEditing(false); setFile(null); setError(''); }} disabled={busy}>Batal</button></div>}
     </form>}
+    {character && <CharacterVoicePanel key={`${folderId}:${character.id}`} folderId={folderId} characterId={character.id} />}
   </section>;
 }

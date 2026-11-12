@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { errMsg, fmtDate } from '@/lib/labels';
+import { CharacterVoicePanel } from '@/components/shared-studio/character-voice';
 
 const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX = 5 * 1024 * 1024;
@@ -143,6 +144,9 @@ export default function CharacterPage({ me }: { me: Member }) {
                 )}
               </div>
             )}
+            {character && <div className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-card-border">
+              <CharacterVoicePanel key={character.id} characterId={character.id} readOnly={readOnly} />
+            </div>}
           </div>
         </div>
       ) : (

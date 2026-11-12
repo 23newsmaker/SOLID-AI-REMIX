@@ -6,7 +6,7 @@ import { CreativeError } from "./creative-policy";
 import { readStudioSession } from "./studio-access";
 import { creatorForFolder } from "./studio-policy";
 
-const urlKeys = new Set(["url", "photoUrl", "resultUrl", "rawResultUrl", "publicationUrl", "referenceUrl"]);
+const urlKeys = new Set(["url", "photoUrl", "sampleUrl", "resultUrl", "rawResultUrl", "publicationUrl", "referenceUrl"]);
 function scopedUrls(value: unknown, folderId: string, key = ""): unknown {
   if (typeof value === "string" && urlKeys.has(key) && value.startsWith("/api/")) {
     const url = new URL(value, "https://studio.invalid");

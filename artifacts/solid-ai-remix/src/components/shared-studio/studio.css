@@ -1,6 +1,11 @@
 
         .ss-root{--ink:#321d32;--muted:#756978;--line:#e5d9c8;--paper:#fbf6e9;--card:#fffdf6;--plum:#2a1430;--gold:#f5b82e;--tomato:#e8462a;min-height:100dvh;background:var(--paper);color:var(--ink);font-family:'Instrument Sans',sans-serif}
         .ss-root *{box-sizing:border-box}.ss-frame{max-width:1200px;margin:auto;padding:0 34px}
+        /* The voice panel also lives on the private character page, outside ss-root. */
+        .ss-voice-panel{--ink:#321d32;--muted:#756978;--line:#e5d9c8;--plum:#2a1430;--gold:#f5b82e;min-width:0;max-width:100%;color:var(--ink)}
+        .ss-voice-panel *{box-sizing:border-box}
+        .ss-voice-panel audio{min-width:0;max-width:100%}
+        .ss-voice-panel .ss-character,.ss-voice-panel .ss-modal-actions{flex-wrap:wrap;min-width:0}
         .ss-top{height:74px;border-bottom:1px solid var(--line);display:flex;align-items:center;background:rgba(251,246,233,.94)}
         .ss-top-inner{display:flex;align-items:center;justify-content:space-between;width:100%}
         .ss-brand{display:flex;align-items:center;gap:11px;min-width:0}.ss-brand-mark{width:39px;height:39px;flex:none}

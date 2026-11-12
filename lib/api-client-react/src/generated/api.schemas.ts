@@ -358,6 +358,20 @@ export interface VideoRenderOptions {
   cues: VideoCue[];
 }
 
+export interface VoiceJobBinding {
+  characterId: string;
+  /** @nullable */
+  sampleId: string | null;
+  sampleVersion: number;
+  /** @nullable */
+  provider: string | null;
+  /** @nullable */
+  providerProfileId: string | null;
+  /** @nullable */
+  providerVoiceVersion: string | null;
+  synthesisEnabled: false;
+}
+
 export interface VideoJob {
   diagnostics?: VideoDiagnostics | null;
   publicationStatus?: string;
@@ -407,6 +421,8 @@ export interface VideoJob {
   /** File access revoked but storage cleanup still needs retry */
   cleanupPending?: boolean;
   options: VideoRenderOptions;
+  /** Immutable voice selection metadata only; null for older jobs. Never a narration source. */
+  voiceBinding?: VoiceJobBinding | null;
 }
 
 export interface OperationsReport {
@@ -1004,6 +1020,64 @@ export interface Character {
   updatedAt: string;
   consentAt: string;
 }
+
+export type CharacterVoiceStatus = typeof CharacterVoiceStatus[keyof typeof CharacterVoiceStatus];
+
+
+export const CharacterVoiceStatus = {
+  NO_SAMPLE: 'NO_SAMPLE',
+  SAMPLE_SAVED_AUTOMATION_DISABLED: 'SAMPLE_SAVED_AUTOMATION_DISABLED',
+} as const;
+
+export interface CharacterVoice {
+  /** @nullable */
+  characterId: string | null;
+  version: number;
+  status: CharacterVoiceStatus;
+  /** @nullable */
+  sampleUrl: string | null;
+  /** @nullable */
+  durationSeconds: number | null;
+  /** @nullable */
+  updatedAt: string | null;
+  providerEnabled: false;
+}
+
+export interface VoiceVersionInput {
+  /** @minLength 1 */
+  characterId: string;
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export type VoiceUploadInputContentType = typeof VoiceUploadInputContentType[keyof typeof VoiceUploadInputContentType];
+
+
+export const VoiceUploadInputContentType = {
+  'audio/webm': 'audio/webm',
+  'audio/ogg': 'audio/ogg',
+  'audio/mp4': 'audio/mp4',
+  'audio/x-m4a': 'audio/x-m4a',
+  'audio/mpeg': 'audio/mpeg',
+  'audio/wav': 'audio/wav',
+  'audio/x-wav': 'audio/x-wav',
+  'audio/aac': 'audio/aac',
+} as const;
+
+export type VoiceUploadInput = VoiceVersionInput & {
+  /**
+     * @minimum 1
+     * @maximum 10485760
+     */
+  size: number;
+  contentType: VoiceUploadInputContentType;
+};
+
+export type VoiceSampleInput = VoiceVersionInput & {
+  /** @minLength 1 */
+  uploadId: string;
+  consent: true;
+};
 
 export interface CharacterResult {
   character: Character | null;

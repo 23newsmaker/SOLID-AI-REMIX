@@ -726,6 +726,60 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UploadTicket"
+  /character/voice:
+    get:
+      operationId: getCharacterVoice
+      responses:
+        "200":
+          description: Optional private sample, never an enabled clone
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CharacterVoice"}
+    put:
+      operationId: saveCharacterVoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/VoiceSampleInput"}
+      responses:
+        "200":
+          description: Validated sample saved with explicit voice permission
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CharacterVoice"}
+    delete:
+      operationId: deleteCharacterVoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/VoiceVersionInput"}
+      responses:
+        "200":
+          description: Sample access revoked; cleanup retries independently
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CharacterVoice"}
+  /character/voice/uploads:
+    post:
+      operationId: requestVoiceSampleUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/VoiceUploadInput"}
+      responses:
+        "200":
+          description: Private staging ticket bound to character and expected sample version
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UploadTicket"}
+  /character/voice/sample:
+    get:
+      operationId: getVoiceSample
+      responses:
+        "200": {description: "Authorized private WAV bytes, never a public object URL"}
   /character/photo:
     get:
       operationId: getCharacterPhoto
@@ -1207,6 +1261,22 @@ components:
         deleted: {type: boolean}
         cleanupPending: {type: boolean, description: File access revoked but storage cleanup still needs retry}
         options: {$ref: "#/components/schemas/VideoRenderOptions"}
+        voiceBinding:
+          description: "Immutable voice selection metadata only; null for older jobs. Never a narration source."
+          oneOf:
+            - {$ref: "#/components/schemas/VoiceJobBinding"}
+            - {type: "null"}
+    VoiceJobBinding:
+      type: object
+      required: [characterId, sampleId, sampleVersion, provider, providerProfileId, providerVoiceVersion, synthesisEnabled]
+      properties:
+        characterId: {type: string}
+        sampleId: {type: ["string", "null"]}
+        sampleVersion: {type: integer}
+        provider: {type: ["string", "null"]}
+        providerProfileId: {type: ["string", "null"]}
+        providerVoiceVersion: {type: ["string", "null"]}
+        synthesisEnabled: {type: boolean, enum: [false]}
     VideoConfig:
       type: object
       required: [paused, aiEnabled, provider, dailyLimit, dailyUsed, timezone, costNote, retentionNote, narrationNote]
@@ -1460,6 +1530,39 @@ components:
         photoUrl: {type: string}
         updatedAt: {type: string}
         consentAt: {type: string}
+    CharacterVoice:
+      type: object
+      required: [characterId, version, status, sampleUrl, durationSeconds, updatedAt, providerEnabled]
+      properties:
+        characterId: {type: ["string", "null"]}
+        version: {type: integer}
+        status: {type: string, enum: [NO_SAMPLE, SAMPLE_SAVED_AUTOMATION_DISABLED]}
+        sampleUrl: {type: ["string", "null"]}
+        durationSeconds: {type: ["number", "null"]}
+        updatedAt: {type: ["string", "null"]}
+        providerEnabled: {type: boolean, enum: [false]}
+    VoiceVersionInput:
+      type: object
+      required: [characterId, expectedVersion]
+      properties:
+        characterId: {type: string, minLength: 1}
+        expectedVersion: {type: integer, minimum: 0}
+    VoiceUploadInput:
+      allOf:
+        - {$ref: "#/components/schemas/VoiceVersionInput"}
+        - type: object
+          required: [size, contentType]
+          properties:
+            size: {type: integer, minimum: 1, maximum: 10485760}
+            contentType: {type: string, enum: [audio/webm, audio/ogg, audio/mp4, audio/x-m4a, audio/mpeg, audio/wav, audio/x-wav, audio/aac]}
+    VoiceSampleInput:
+      allOf:
+        - {$ref: "#/components/schemas/VoiceVersionInput"}
+        - type: object
+          required: [uploadId, consent]
+          properties:
+            uploadId: {type: string, minLength: 1}
+            consent: {type: boolean, enum: [true]}
     CharacterResult:
       type: object
       required: [character]

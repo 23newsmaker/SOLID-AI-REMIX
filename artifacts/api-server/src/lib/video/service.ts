@@ -13,6 +13,8 @@ import { notifyVideoWork } from "./signals";
 import { CLEANUP_PENDING, previousVideoError, cleanVideoObjects } from "./result-cleanup";
 import { legacyLogoIds } from "./branding";
 import { STUDIO_REFERENCE_POLICY } from "../studio-references";
+import { voiceJobBinding } from "../character-voice";
+import { voiceLock } from "../voice-storage";
 
 export const globalVideoLock = (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => tx.execute(sql`SELECT pg_advisory_xact_lock(7101700)`);
 export const videoAdmin = (me: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(me.role);
@@ -44,7 +46,7 @@ export async function videoConfig(me: MemberRecord) {
     paused: config.paused || !config.localEnabled, aiEnabled: false, provider: "local-compositor", dailyLimit: config.dailyLimit, dailyUsed: count!.n,
     timezone: "Asia/Jakarta", costNote,
     retentionNote: "Hasil privat disimpan sampai dihapus pemilik/admin; tidak ada penghapusan otomatis hasil asli. File temporer dibersihkan setelah proses.",
-    narrationNote: "Tanpa TTS/LLM. Unggah satu MP3/WAV maksimal5MiB lewat bahan konsep dan review ulang, atau hasil tanpa narasi. Rekaman dipotong mengikuti durasi10–15detik; isi suara diperiksa manusia. Cue subtitle disesuaikan manual.",
+     narrationNote: "Suara otomatis karakter belum aktif. Sampel identitas tidak diputar sebagai narasi. Unggah satu MP3/WAV maksimal 5 MiB lewat bahan konsep untuk narasi manual, atau hasil tanpa narasi. Rekaman dipotong mengikuti durasi video; isi suara diperiksa manusia.",
   };
 }
 export async function serializeJob(job: VideoJobRow, viewer?: MemberRecord) {
@@ -82,6 +84,7 @@ export async function createJob(raw: unknown, me: MemberRecord, studioFolderId?:
   const requestHash = createHash("sha256").update(JSON.stringify(input)).digest("hex");
   const queued = await db.transaction(async tx => {
     await ownerLock(tx, me.id);
+    await voiceLock(tx, me.id);
     await globalVideoLock(tx);
     const [old] = await tx.select().from(videoJobs).where(and(eq(videoJobs.ownerId, me.id), eq(videoJobs.requestKey, input.requestKey)));
     if (old) {
@@ -120,6 +123,7 @@ export async function createJob(raw: unknown, me: MemberRecord, studioFolderId?:
     const [job] = await tx.insert(videoJobs).values({
       id: randomUUID(), ownerId: me.id, conceptId: valid.row.id, conceptVersion: valid.row.version,
       characterId: valid.character.id, requestKey: input.requestKey, requestHash, title: valid.data.title,
+       voiceBinding: await voiceJobBinding(tx, me.id, valid.character.id),
       options: renderOptions, durationSeconds: valid.data.durationSeconds, quotaDay: quotaDay(),
       model: "ffmpeg-local", costSource: "LOCAL_NO_PAID_API", costDetails: { renderUsd: null, ttsUsd: 0, retryUsd: 0 },
     }).returning();

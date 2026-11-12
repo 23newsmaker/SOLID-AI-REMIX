@@ -9,6 +9,8 @@ export const videoJobs = pgTable("solid_video_jobs", {
   conceptId: text("concept_id").references(() => creativeConcepts.id, { onDelete: "set null" }),
   conceptVersion: integer("concept_version").notNull(),
   characterId: text("character_id").notNull(),
+  // Immutable selection only. Identity samples must never become narration.
+  voiceBinding: jsonb("voice_binding"),
   requestKey: text("request_key").notNull(),
   requestHash: text("request_hash").notNull(),
   title: text("title").notNull(),

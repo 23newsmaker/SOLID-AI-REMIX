@@ -3,6 +3,7 @@ import { logger } from "./lib/logger";
 import { prepareAdminGrant } from "./lib/bootstrapAdmin";
 import { startCreativeCleanup } from "./lib/creative-storage";
 import { startVideoWorker } from "./lib/video/worker";
+import { startVoiceCleanup } from "./lib/voice-storage";
 
 const rawPort = process.env["PORT"];
 
@@ -26,6 +27,7 @@ prepareAdminGrant().then(() => app.listen(port, (err) => {
 
   logger.info({ port }, "Server listening");
   startCreativeCleanup();
+  startVoiceCleanup();
   startVideoWorker();
 })).catch(() => {
   logger.error("Cannot prepare internal access configuration");

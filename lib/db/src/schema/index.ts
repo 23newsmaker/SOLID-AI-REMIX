@@ -19,6 +19,7 @@
 
 export * from "./members";
 export * from "./characters";
+export * from "./character-voice";
 export * from "./knowledge";
 export * from "./audit";
 export * from "./creative";

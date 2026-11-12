@@ -76,7 +76,7 @@ export function StudioMaterials({ folderId, concept, saveDraft, onUpdated, onPen
       <span className="ss-file-name">{a.name}<small>{a.state === 'READY' ? 'Tersimpan' : 'Unggahan belum selesai'} · {(a.size / 1024 / 1024).toFixed(1)} MiB</small></span>
       <button className="ss-remove" aria-label={`Hapus bahan ${a.name}`} disabled={busy} onClick={() => { if (window.confirm('Hapus bahan ini dari konsep? Tanda pemeriksaan hasil lama bisa tidak berlaku lagi.')) void remove(a.id); }}><X size={14} /></button>
     </div>)}</div>
-    <p className="ss-helper">Maks. 3 gambar, 1 MP4, 1 MP3/WAV; total 35 MiB. Bahan tidak dipahami oleh AI. Rekaman suara opsional; tidak ada TTS aktif.</p>
+    <p className="ss-helper">Maks. 3 gambar, 1 MP4, 1 MP3/WAV; total 35 MiB. Bahan tidak dipahami oleh AI. Rekaman MP3/WAV di sini adalah narasi manual untuk video ini saja, terpisah dari sampel identitas suara karakter. Tidak ada TTS aktif.</p>
     {error && <p className="ss-alert" role="alert">{error}</p>}
   </section>;
 }

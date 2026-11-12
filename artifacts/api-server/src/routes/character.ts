@@ -8,11 +8,14 @@ import { requireMember, requireActive, requireCharacterEditor } from "../middlew
 import { ObjectStorageService, objectStorageClient } from "../lib/objectStorage";
 import { setObjectAclPolicy } from "../lib/objectAcl";
 import { rateLimit } from "express-rate-limit";
+import { characterVoiceRouter } from "./character-voice";
+import { retireCharacterVoice, notifyVoiceCleanup } from "../lib/voice-storage";
 
 const storage = new ObjectStorageService();
 const MAX_BYTES = 5 * 1024 * 1024;
 export const characterRouter = Router();
 characterRouter.use("/character", requireMember, requireActive);
+characterRouter.use("/character", characterVoiceRouter);
 const serialize = (c: typeof characters.$inferSelect) => ({
   id: c.id, name: c.name,
   photoUrl: `/api/character/photo?v=${encodeURIComponent(c.updatedAt.toISOString())}`,
@@ -138,9 +141,11 @@ characterRouter.delete("/character", requireCharacterEditor, async (req, res) =>
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${req.member!.id}, 71014))`);
     const [character] = await tx.select().from(characters).where(eq(characters.userId, req.member!.id));
     if (!character) return;
+    await retireCharacterVoice(tx, character.id);
     await privateFile(character.objectPath).delete({ ignoreNotFound: true });
     await tx.delete(characters).where(eq(characters.id, character.id));
     await tx.insert(auditLog).values({ id: randomUUID(), userId: req.member!.id, action: "CHARACTER_DELETED", description: "Karakter dan foto aktif dihapus dari penyimpanan privat." });
   });
+  notifyVoiceCleanup();
   res.json({ ok: true });
 });

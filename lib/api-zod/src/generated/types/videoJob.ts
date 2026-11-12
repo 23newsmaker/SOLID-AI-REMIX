@@ -10,6 +10,7 @@ import type { VideoDiagnostics } from './videoDiagnostics';
 import type { VideoJobMode } from './videoJobMode';
 import type { VideoJobStatus } from './videoJobStatus';
 import type { VideoRenderOptions } from './videoRenderOptions';
+import type { VoiceJobBinding } from './voiceJobBinding';
 
 export interface VideoJob {
   diagnostics?: VideoDiagnostics | null;
@@ -60,4 +61,6 @@ export interface VideoJob {
   /** File access revoked but storage cleanup still needs retry */
   cleanupPending?: boolean;
   options: VideoRenderOptions;
+  /** Immutable voice selection metadata only; null for older jobs. Never a narration source. */
+  voiceBinding?: VoiceJobBinding | null;
 }

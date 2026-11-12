@@ -328,7 +328,16 @@ export const GetOperationsReportResponse = zod.object({
   "start": zod.number().min(getOperationsReportResponseJobsItemOptionsCuesItemStartMin).max(getOperationsReportResponseJobsItemOptionsCuesItemStartMax),
   "end": zod.number().min(getOperationsReportResponseJobsItemOptionsCuesItemEndMin).max(getOperationsReportResponseJobsItemOptionsCuesItemEndMax)
 })).min(1).max(getOperationsReportResponseJobsItemOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 })),
   "summary": zod.object({
   "id": zod.string(),
@@ -659,7 +668,16 @@ export const GetRetentionPreviewResponse = zod.object({
   "start": zod.number().min(getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMin).max(getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMax),
   "end": zod.number().min(getRetentionPreviewResponseCandidatesItemOptionsCuesItemEndMin).max(getRetentionPreviewResponseCandidatesItemOptionsCuesItemEndMax)
 })).min(1).max(getRetentionPreviewResponseCandidatesItemOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 }))
 })
 
@@ -794,7 +812,16 @@ export const ApproveRetentionPolicyResponse = zod.object({
   "start": zod.number().min(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMin).max(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMax),
   "end": zod.number().min(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemEndMin).max(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemEndMax)
 })).min(1).max(approveRetentionPolicyResponseCandidatesItemOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 }))
 })
 
@@ -1123,7 +1150,16 @@ export const GetFinalVideoReviewResponse = zod.object({
   "start": zod.number().min(getFinalVideoReviewResponseJobOptionsCuesItemStartMin).max(getFinalVideoReviewResponseJobOptionsCuesItemStartMax),
   "end": zod.number().min(getFinalVideoReviewResponseJobOptionsCuesItemEndMin).max(getFinalVideoReviewResponseJobOptionsCuesItemEndMax)
 })).min(1).max(getFinalVideoReviewResponseJobOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 }),
   "stale": zod.boolean(),
   "reasons": zod.array(zod.string()),
@@ -1247,7 +1283,16 @@ export const TransitionFinalVideoReviewResponse = zod.object({
   "start": zod.number().min(transitionFinalVideoReviewResponseJobOptionsCuesItemStartMin).max(transitionFinalVideoReviewResponseJobOptionsCuesItemStartMax),
   "end": zod.number().min(transitionFinalVideoReviewResponseJobOptionsCuesItemEndMin).max(transitionFinalVideoReviewResponseJobOptionsCuesItemEndMax)
 })).min(1).max(transitionFinalVideoReviewResponseJobOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 }),
   "stale": zod.boolean(),
   "reasons": zod.array(zod.string()),
@@ -1371,7 +1416,16 @@ export const ListVideoJobsResponseItem = zod.object({
   "start": zod.number().min(listVideoJobsResponseOptionsCuesItemStartMin).max(listVideoJobsResponseOptionsCuesItemStartMax),
   "end": zod.number().min(listVideoJobsResponseOptionsCuesItemEndMin).max(listVideoJobsResponseOptionsCuesItemEndMax)
 })).min(1).max(listVideoJobsResponseOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 })
 export const ListVideoJobsResponse = zod.array(ListVideoJobsResponseItem)
 
@@ -1500,7 +1554,16 @@ export const CreateVideoJobResponse = zod.object({
   "start": zod.number().min(createVideoJobResponseOptionsCuesItemStartMin).max(createVideoJobResponseOptionsCuesItemStartMax),
   "end": zod.number().min(createVideoJobResponseOptionsCuesItemEndMin).max(createVideoJobResponseOptionsCuesItemEndMax)
 })).min(1).max(createVideoJobResponseOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 })
 
 
@@ -1596,7 +1659,16 @@ export const GetVideoJobResponse = zod.object({
   "start": zod.number().min(getVideoJobResponseOptionsCuesItemStartMin).max(getVideoJobResponseOptionsCuesItemStartMax),
   "end": zod.number().min(getVideoJobResponseOptionsCuesItemEndMin).max(getVideoJobResponseOptionsCuesItemEndMax)
 })).min(1).max(getVideoJobResponseOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 })
 
 
@@ -1701,7 +1773,16 @@ export const CancelVideoJobResponse = zod.object({
   "start": zod.number().min(cancelVideoJobResponseOptionsCuesItemStartMin).max(cancelVideoJobResponseOptionsCuesItemStartMax),
   "end": zod.number().min(cancelVideoJobResponseOptionsCuesItemEndMin).max(cancelVideoJobResponseOptionsCuesItemEndMax)
 })).min(1).max(cancelVideoJobResponseOptionsCuesMax)
-})
+}),
+  "voiceBinding": zod.union([zod.object({
+  "characterId": zod.string(),
+  "sampleId": zod.string().nullable(),
+  "sampleVersion": zod.number().int(),
+  "provider": zod.string().nullable(),
+  "providerProfileId": zod.string().nullable(),
+  "providerVoiceVersion": zod.string().nullable(),
+  "synthesisEnabled": zod.literal(false)
+}),zod.null()]).optional().describe('Immutable voice selection metadata only; null for older jobs. Never a narration source.')
 })
 
 
@@ -3146,6 +3227,87 @@ export const RequestCharacterUploadResponse = zod.object({
   "uploadId": zod.string(),
   "uploadURL": zod.string()
 })
+
+
+export const GetCharacterVoiceResponse = zod.object({
+  "characterId": zod.string().nullable(),
+  "version": zod.number().int(),
+  "status": zod.enum(['NO_SAMPLE', 'SAMPLE_SAVED_AUTOMATION_DISABLED']),
+  "sampleUrl": zod.string().nullable(),
+  "durationSeconds": zod.number().nullable(),
+  "updatedAt": zod.string().nullable(),
+  "providerEnabled": zod.literal(false)
+})
+
+
+
+export const saveCharacterVoiceBodyOneExpectedVersionMin = 0;
+
+
+
+
+export const SaveCharacterVoiceBody = zod.object({
+  "characterId": zod.string().min(1),
+  "expectedVersion": zod.number().int().min(saveCharacterVoiceBodyOneExpectedVersionMin)
+}).and(zod.object({
+  "uploadId": zod.string().min(1),
+  "consent": zod.literal(true)
+}))
+
+export const SaveCharacterVoiceResponse = zod.object({
+  "characterId": zod.string().nullable(),
+  "version": zod.number().int(),
+  "status": zod.enum(['NO_SAMPLE', 'SAMPLE_SAVED_AUTOMATION_DISABLED']),
+  "sampleUrl": zod.string().nullable(),
+  "durationSeconds": zod.number().nullable(),
+  "updatedAt": zod.string().nullable(),
+  "providerEnabled": zod.literal(false)
+})
+
+
+
+export const deleteCharacterVoiceBodyExpectedVersionMin = 0;
+
+
+
+export const DeleteCharacterVoiceBody = zod.object({
+  "characterId": zod.string().min(1),
+  "expectedVersion": zod.number().int().min(deleteCharacterVoiceBodyExpectedVersionMin)
+})
+
+export const DeleteCharacterVoiceResponse = zod.object({
+  "characterId": zod.string().nullable(),
+  "version": zod.number().int(),
+  "status": zod.enum(['NO_SAMPLE', 'SAMPLE_SAVED_AUTOMATION_DISABLED']),
+  "sampleUrl": zod.string().nullable(),
+  "durationSeconds": zod.number().nullable(),
+  "updatedAt": zod.string().nullable(),
+  "providerEnabled": zod.literal(false)
+})
+
+
+
+export const requestVoiceSampleUploadBodyOneExpectedVersionMin = 0;
+
+export const requestVoiceSampleUploadBodyTwoSizeMax = 10485760;
+
+
+
+export const RequestVoiceSampleUploadBody = zod.object({
+  "characterId": zod.string().min(1),
+  "expectedVersion": zod.number().int().min(requestVoiceSampleUploadBodyOneExpectedVersionMin)
+}).and(zod.object({
+  "size": zod.number().int().min(1).max(requestVoiceSampleUploadBodyTwoSizeMax),
+  "contentType": zod.enum(['audio/webm', 'audio/ogg', 'audio/mp4', 'audio/x-m4a', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/aac'])
+}))
+
+export const RequestVoiceSampleUploadResponse = zod.object({
+  "uploadId": zod.string(),
+  "uploadURL": zod.string()
+})
+
+
+export const GetVoiceSampleResponse = zod.unknown()
 
 
 export const GetCharacterPhotoResponse = zod.unknown()
