@@ -41,7 +41,7 @@ DR's content-check policy is "gak perlu gw yg cek, biar mereka aja sendiri, yg b
 
 **Why:** DR explicitly removed the separate reviewer dependency to keep the internal creator workflow practical.
 
-**How to apply:** Keep automatic KB/fact, material-consent, security and usage checks. Label a creator confirmation as self-checked, not independently reviewed or approved by DR/company. A changed output needs a fresh check; preserve historical review records. Do not confuse this policy decision with permission to implement or publish immediately.
+**How to apply:** Keep security and usage checks and the owner's internal material permission policy. KB is reference-only in the shared creator workflow, not a generation gate. Label a creator confirmation as self-checked, not independently reviewed or approved by DR/company. A changed output needs a fresh check; preserve historical review records. Do not confuse this policy decision with permission to implement or publish immediately.
 
 DR wants manual Delete on every video so users can prevent videos from accumulating in storage.
 
@@ -53,7 +53,7 @@ For the shared-studio character-photo checkbox and its explanation, DR said "ni 
 
 **Why:** The user asked to remove this repeated permission step.
 
-**How to apply:** Treat character photos and supporting materials in the shared studio as covered by the owner's internal permission policy, not as separately checked uploader declarations. Keep that distinction in records. This does not authorize external AI-provider transfers, weaken file/access/KB validation or remove the private/admin workflow's protections.
+**How to apply:** Treat character photos and supporting materials in the shared studio as covered by the owner's internal permission policy, not as separately checked uploader declarations. Keep that distinction in records. This does not authorize external AI-provider transfers, weaken file/access protections or remove the private/admin workflow's protections.
 
 DR requested "bagianlogo dihilangkan aja bro gak perlu" for the shared studio.
 
@@ -71,7 +71,13 @@ DR also requested hiding the KB fact picker and additional settings from the mai
 
 **Why:** DR wants a simple, uncluttered internal workflow.
 
-**How to apply:** Keep these details out of the normal form. Do not silently bypass KB validation or assert unsupported claims; provide a correction path when validation fails.
+**How to apply:** Keep these details out of the normal form. The later KB reference-only decision below supersedes the earlier fact-validation generation gate; do not claim that a generated video has passed factual verification.
+
+DR clarified: "fungsi KB itu menjadi knowledge kalau naskah diisi yg berkaitan dengan kb aja, bukan sebagai penghambat ... atau memeriksa hingga menolak membuat, KB itu literasi aja."
+
+**Why:** DR explicitly said KB must inform creators, not block video creation.
+
+**How to apply:** Use KB as optional, relevant reference information in the shared studio. Missing matches, unselected facts, or KB reference changes must not by themselves reject generation. Do not force creators to declare a script fact-free, invent facts, rewrite their script without permission, or label output factually approved. Keep technical rendering checks, private source access, file security and quotas separate from nonblocking KB advice. This records the desired policy, not proof that code has already changed.
 
 DR approved a limited Phase E: measure existing production, improve economical compositing and technical checks, reuse existing dashboard/review/history, and offer visible opt-in rule/template suggestions. Paid-provider quality comparisons and AI identity consistency remain untested until separately approved real-provider trials.
 
@@ -83,4 +89,4 @@ In the shared studio, DR chose to add captions, CTA and disclaimers manually aft
 
 **Why:** DR requested no caption/disclaimer input for users and selected the manual-before-posting option after the existing mandatory in-video disclaimer was explained.
 
-**How to apply:** New shared-studio renders should omit CTA/disclaimer overlays and not require those inputs. Preserve saved concept text and old jobs' original behavior. Keep KB fact checks and private/admin workflow protections; do not claim an exported video already includes its publication disclaimer.
+**How to apply:** New shared-studio renders should omit CTA/disclaimer overlays and not require those inputs. Preserve saved concept text and old jobs' original behavior. Keep KB advisory rather than blocking in the shared studio, and preserve private/admin workflow protections; do not claim an exported video already includes its publication disclaimer.
