@@ -8,8 +8,11 @@
 import type { VideoCue } from './videoCue';
 import type { VideoRenderOptionsLogoPosition } from './videoRenderOptionsLogoPosition';
 import type { VideoRenderOptionsMotion } from './videoRenderOptionsMotion';
+import type { VideoRenderOptionsPostTextMode } from './videoRenderOptionsPostTextMode';
 
 export interface VideoRenderOptions {
+  /** Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders. */
+  postTextMode?: VideoRenderOptionsPostTextMode;
   motion: VideoRenderOptionsMotion;
   logoPosition: VideoRenderOptionsLogoPosition;
   /** @minLength 1 */

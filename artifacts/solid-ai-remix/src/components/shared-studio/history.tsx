@@ -51,7 +51,10 @@ function SelfCheck({ folderId, job, dirty, revision }: { folderId: string; job: 
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   async function check() {
     if (busy || dirty) return;
-    if (!window.confirm('Sudah memeriksa wajah, logo, angka/fakta, subtitle, suara, CTA dan disclaimer? Ini pemeriksaan pembuat, bukan persetujuan DR atau perusahaan.')) return;
+    const manualText = job.options.postTextMode === 'MANUAL_AFTER_DOWNLOAD';
+    if (!window.confirm(manualText
+      ? 'Sudah memeriksa wajah, logo, angka/fakta, subtitle dan suara? Caption, CTA dan disclaimer perlu dilengkapi manual sebelum posting. Ini pemeriksaan pembuat, bukan persetujuan DR atau perusahaan.'
+      : 'Sudah memeriksa wajah, logo, angka/fakta, subtitle, suara, CTA dan disclaimer? Ini pemeriksaan pembuat, bukan persetujuan DR atau perusahaan.')) return;
     setBusy(true); setError('');
     try { await saveStudioSelfCheck(folderId, job.id, { confirmed: true, conceptVersion: job.conceptVersion }); await status.refetch(); }
     catch (e) { setError(errMsg(e)); }

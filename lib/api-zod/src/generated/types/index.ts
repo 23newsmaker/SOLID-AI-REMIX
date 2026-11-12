@@ -103,6 +103,7 @@ export * from './videoQualityCheckStatus';
 export * from './videoRenderOptions';
 export * from './videoRenderOptionsLogoPosition';
 export * from './videoRenderOptionsMotion';
+export * from './videoRenderOptionsPostTextMode';
 export * from './videoSettingsInput';
 export * from './videoUsage';
 export * from './videoUsageMember';

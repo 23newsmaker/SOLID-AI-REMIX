@@ -60,8 +60,6 @@ export function StudioWorkspace({ folder, onUsageChange }: { folder: StudioFolde
           {w.facts.filter(f => f.usable && (f.segment === 'COMPANY' || w.form.segments.includes(f.segment as CreativeSegment))).map(f => <label className="ss-check-row" key={f.id}><input type="checkbox" checked={w.form.factIds?.includes(f.id) ?? false} onChange={e => w.patch({ factIds: e.target.checked ? [...(w.form.factIds ?? []), f.id] : w.form.factIds?.filter(id => id !== f.id) })} disabled={w.busy} />{f.claim}</label>)}
           {!w.facts.some(f => f.usable) && <p className="ss-helper">Belum ada fakta siap pakai. Jangan membuat klaim angka/produk tanpa fakta yang disetujui.</p>}
         </details>}
-        <label className="ss-field"><span className="ss-label">Disclaimer sesuai ketentuan perusahaan</span><textarea rows={2} maxLength={220} value={w.form.disclaimer ?? ''} onChange={e => w.patch({ disclaimer: e.target.value })} disabled={w.busy} required /></label>
-        <label className="ss-field"><span className="ss-label">CTA / ajakan penutup (opsional)</span><input maxLength={90} value={w.form.cta} onChange={e => w.patch({ cta: e.target.value })} disabled={w.busy} /></label>
         {!w.form.publicMode && <p className="ss-warning">Konsep lama ini masih internal. <button className="ss-text-btn" onClick={() => w.patch({ publicMode: true })}>Gunakan sebagai konten publik dan validasi ulang</button></p>}
         <details className="ss-tech"><summary>Pengaturan tambahan</summary><div className="ss-tech-content">
           <label className="ss-field"><span className="ss-label">Kategori konten</span><select value={w.form.categoryId} onChange={e => w.patch({ categoryId: e.target.value, templateId: null })}><option value="">Kategori aktif bawaan</option>{w.library?.categories.filter(c => c.active).map(c => <option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
@@ -93,7 +91,7 @@ export function StudioWorkspace({ folder, onUsageChange }: { folder: StudioFolde
       onNewVersion={id => { void w.versionFrom(id); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
     <AlertDialog open={w.summary} onOpenChange={w.setSummary}>
       <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Buat video untuk {folder.name}?</AlertDialogTitle>
-        <AlertDialogDescription>Mode Hemat · 9:16 · {w.form.durationSeconds} detik. Foto karakter dan bahan diproses oleh compositor lokal; tidak dikirim ke provider AI. Naskah, logo, CTA, dan disclaimer mengikuti konsep tersimpan. Proses ini memakai satu kuota harian, termasuk jika gagal atau dibatalkan. CPU/storage tetap dapat berbiaya; totalnya belum terukur.</AlertDialogDescription>
+        <AlertDialogDescription>Mode Hemat · 9:16 · {w.form.durationSeconds} detik. Foto karakter dan bahan diproses oleh compositor lokal; tidak dikirim ke provider AI. Video memuat naskah dan logo; caption, CTA, dan disclaimer ditambahkan manual sebelum posting. Proses ini memakai satu kuota harian, termasuk jika gagal atau dibatalkan. CPU/storage tetap dapat berbiaya; totalnya belum terukur.</AlertDialogDescription>
       </AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Batal</AlertDialogCancel><AlertDialogAction onClick={() => void w.render()} disabled={w.busy} data-testid="button-confirm-studio-render">Konfirmasi & buat video</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
     </AlertDialog>
   </main>;

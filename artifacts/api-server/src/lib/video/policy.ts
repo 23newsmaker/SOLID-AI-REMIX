@@ -5,6 +5,7 @@ import { buildCreative, parseConcept, staleReasons, type CreativeSnapshot } from
 import { checkVersion, CreativeError, requireOwnerEditor } from "../creative-policy";
 import { readConcept, readyMaterials, type CreativeTx } from "../creative-service";
 import { studioConfigured } from "../studio-access";
+import { videoPostText } from "./post-text";
 
 export const costNote = "Provider video/TTS/LLM: tidak dipanggil. Biaya CPU rendering dan penyimpanan belum diukur, bukan gratis atau total USD0. Batas anggaran mengontrol biaya provider yang diketahui; komputasi juga dibatasi 3 job/hari dan satu renderer.";
 export function quotaDay(at = new Date()) {
@@ -39,7 +40,7 @@ export async function eligibleConcept(id: string, version: number, me: MemberRec
       [...reasons, ...built.blockers].join(" "));
   }
   if (data.format !== "9:16" || data.durationSeconds < 10 || data.durationSeconds > 15) throw new CreativeError(400, "Profil Hemat awal: vertikal9:16, durasi10–15detik. Edit konsep dan review ulang.");
-  if (!data.disclaimer?.trim() || data.disclaimer.length > 220 || data.cta.length > 90) throw new CreativeError(400, "Isi disclaimer di konsep (maks220 karakter); CTA maksimal90 karakter, lalu review ulang.");
+  const postText = videoPostText(data, options.postTextMode, !!folder);
   const chunks = subtitleChunks(data.subtitle.trim() || data.narration);
   if (!chunks.length || chunks.length > 12 || options.cues.length !== chunks.length || chunks.some(c => c.length > 160)) {
     throw new CreativeError(400, "Subtitle maksimal108 kata, kelompok9kata, maksimal160karakter per kelompok. Jumlah cue harus sama.");
@@ -55,5 +56,5 @@ export async function eligibleConcept(id: string, version: number, me: MemberRec
   if (!logo?.finalPath) throw new CreativeError(400, "Pilih logo asli dari gambar bahan yang sudah direview. Tidak membuat ulang logo perusahaan.");
   const [character] = await conn.select().from(characters).where(and(eq(characters.id, data.characterId), eq(characters.userId, me.id)));
   if (!character) throw new CreativeError(409, "Foto karakter tidak tersedia.");
-  return { row, data, materials, character, logo, chunks };
+  return { row, data: { ...data, ...postText }, materials, character, logo, chunks };
 }

@@ -1128,6 +1128,10 @@ components:
       type: object
       required: [motion, logoPosition, logoAttachmentId, cues]
       properties:
+        postTextMode:
+          type: string
+          enum: [IN_VIDEO, MANUAL_AFTER_DOWNLOAD]
+          description: Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.
         motion: {type: string, enum: [ZOOM_IN, ZOOM_OUT, PAN_LEFT, PAN_RIGHT]}
         logoPosition: {type: string, enum: [TOP_LEFT, TOP_RIGHT]}
         logoAttachmentId: {type: string, minLength: 1}

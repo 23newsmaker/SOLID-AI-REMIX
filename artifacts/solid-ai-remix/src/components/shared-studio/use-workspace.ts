@@ -23,7 +23,7 @@ export function useWorkspace(folder: StudioFolder, onRendered: () => void) {
   const [form, setForm] = useState<CreativeConceptInput>(initial), [concept, setConcept] = useState<CreativeConcept | null>(null);
   const [saving, setSaving] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('');
   const [summary, setSummary] = useState(false), [pendingFiles, setPendingFiles] = useState(false);
-  const [renderOptions, setRenderOptions] = useState<Omit<VideoRenderOptions, 'cues'>>({ motion: 'ZOOM_IN', logoPosition: 'TOP_RIGHT', logoAttachmentId: '' });
+  const [renderOptions, setRenderOptions] = useState<Omit<VideoRenderOptions, 'cues'>>({ motion: 'ZOOM_IN', logoPosition: 'TOP_RIGHT', logoAttachmentId: '', postTextMode: 'MANUAL_AFTER_DOWNLOAD' });
   const formRef = useRef(form), rowRef = useRef(concept), savedSig = useRef(''), hydrated = useRef(false);
   const edited = useRef(false);
   const savingRef = useRef<Promise<CreativeConcept> | null>(null), newIntent = useRef(false);
@@ -91,7 +91,6 @@ export function useWorkspace(folder: StudioFolder, onRendered: () => void) {
       const current = await saveDraft();
       const problems = [...current.blockers, ...current.staleReasons];
       if (current.durationSeconds < 10 || current.durationSeconds > 15) problems.push('Pilih durasi 10–15 detik.');
-      if (!current.disclaimer?.trim()) problems.push('Isi disclaimer yang disetujui perusahaan.');
       if (!renderOptions.logoAttachmentId || !current.attachments.some(a => a.id === renderOptions.logoAttachmentId && a.state === 'READY')) problems.push('Pilih gambar logo resmi dari bahan tersimpan.');
       if (!chunkScript(current).length || chunkScript(current).length > 12) problems.push('Naskah maksimal 108 kata, dengan kelompok subtitle yang tidak terlalu panjang.');
       if (current.attachments.some(a => a.state !== 'READY')) problems.push('Selesaikan atau hapus unggahan tertunda.');

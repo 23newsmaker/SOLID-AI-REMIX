@@ -60,3 +60,9 @@ DR approved a limited Phase E: measure existing production, improve economical c
 **Why:** Avoid building broad optimization features without real video/cost evidence, adding routine LLM costs, or delaying practical delivery.
 
 **How to apply:** Distinguish technical decode PASS from human approval for publication; unknown money/time values stay unknown. Do not present local photo compositing as evidence of generative face consistency or claim a winning provider without actual trials.
+
+In the shared studio, DR chose to add captions, CTA and disclaimers manually after downloading the video and before posting.
+
+**Why:** DR requested no caption/disclaimer input for users and selected the manual-before-posting option after the existing mandatory in-video disclaimer was explained.
+
+**How to apply:** New shared-studio renders should omit CTA/disclaimer overlays and not require those inputs. Preserve saved concept text and old jobs' original behavior. Keep KB fact checks and private/admin workflow protections; do not claim an exported video already includes its publication disclaimer.

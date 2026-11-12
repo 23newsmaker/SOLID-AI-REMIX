@@ -314,6 +314,7 @@ export const GetOperationsReportResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -638,6 +639,7 @@ export const GetRetentionPreviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -766,6 +768,7 @@ export const ApproveRetentionPolicyResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -1088,6 +1091,7 @@ export const GetFinalVideoReviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -1205,6 +1209,7 @@ export const TransitionFinalVideoReviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -1322,6 +1327,7 @@ export const ListVideoJobsResponseItem = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -1352,6 +1358,7 @@ export const CreateVideoJobBody = zod.object({
   "mode": zod.enum(['HEMAT', 'AI']),
   "requestKey": zod.string().uuid(),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -1437,6 +1444,7 @@ export const CreateVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -1526,6 +1534,7 @@ export const GetVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
@@ -1624,6 +1633,7 @@ export const CancelVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
   "logoAttachmentId": zod.string().min(1),
