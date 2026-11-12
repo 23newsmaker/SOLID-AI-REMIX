@@ -26,13 +26,16 @@ export function SignInPage() {
   return (
     <AuthFrame title="Studio Anda menunggu.">
       <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+      <p className="mt-5 text-center text-sm text-muted-foreground" data-testid="text-owner-signin-help">
+        Pemilik aplikasi: gunakan akun yang ditetapkan sebagai Super Admin. Tidak perlu membuat akun kedua. Jika lupa password, gunakan pilihan pemulihan pada formulir masuk.
+      </p>
     </AuthFrame>
   );
 }
 
 export function SignUpPage() {
   return (
-    <AuthFrame title="Daftar, lalu tunggu aktivasi.">
+    <AuthFrame title="Daftar akun internal Anda.">
       <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
     </AuthFrame>
   );

@@ -63,7 +63,7 @@ export default function Studio({ me }: { me: Member }) {
               { ok: o.characterReady, t: 'Karakter tersimpan', v: o.characterReady ? 'Selesai' : 'Belum' },
               { ok: o.sourceCount > 0, t: 'Sumber pengetahuan terindeks', v: `${o.sourceCount} dokumen` },
               { ok: o.approvedPublicCount > 0, t: 'Sumber disetujui untuk publik', v: `${o.approvedPublicCount} disetujui` },
-              { ok: o.activeMembers > 0, t: 'Anggota aktif', v: `${o.activeMembers} dari ${o.maxMembers}` },
+              { ok: o.activeMembers > 0, t: 'Anggota aktif', v: o.maxMembers === null ? `${o.activeMembers} anggota` : `${o.activeMembers} dari ${o.maxMembers}` },
               { ok: o.generationEnabled, t: 'Pembuatan video', v: 'Nonaktif' },
             ].map((r) => (
               <li key={r.t} className="flex items-center gap-3 px-5 py-4">

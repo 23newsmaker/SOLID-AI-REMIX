@@ -7,7 +7,7 @@ import { videoConfig } from "../lib/video/service";
 
 export const overviewRouter = Router();
 overviewRouter.get("/app-info", (_req, res) => res.json(GetAppInfoResponse.parse({
-  name: "SOLID AI REMIX", stage: "Tahap E terbatas — Optimasi Mode Hemat", generationEnabled: true, llmEnabled: false, dailyLimit: 3, maxMembers: 10,
+  name: "SOLID AI REMIX", stage: "Tahap E terbatas — Optimasi Mode Hemat", generationEnabled: true, llmEnabled: false, dailyLimit: 3, maxMembers: null,
 })));
 overviewRouter.get("/me", requireMember, (req, res) => {
   res.json(GetMeResponse.parse({ ...req.member, createdAt: req.member!.createdAt.toISOString() }));
@@ -23,7 +23,7 @@ overviewRouter.get("/overview", requireMember, requireActive, async (req, res) =
   const video = await videoConfig(req.member!);
   res.json(GetOverviewResponse.parse({
     characterReady: !!character, sourceCount, approvedPublicCount, activeMembers,
-    maxMembers: 10, dailyLimit: video.dailyLimit, dailyUsed: video.dailyUsed, generationEnabled: !video.paused, llmEnabled: false,
+    maxMembers: null, dailyLimit: video.dailyLimit, dailyUsed: video.dailyUsed, generationEnabled: !video.paused, llmEnabled: false,
     phase: "E terbatas",
     nextStep: "Konsep yang disetujui dapat dirender melalui halaman Video dalam Mode Hemat. AI/TTS berbayar belum diaktifkan.",
   }));

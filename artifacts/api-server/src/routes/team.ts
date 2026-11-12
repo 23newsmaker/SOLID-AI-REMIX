@@ -29,10 +29,6 @@ teamRouter.patch("/team/:id", async (req, res) => {
       const [{ total }] = await tx.select({ total: sql<number>`count(*)::int` }).from(members).where(and(eq(members.role, "SUPER_ADMIN"), eq(members.status, "ACTIVE")));
       if (total <= 1) return { status: 409, error: "Admin utama aktif terakhir tidak boleh dinonaktifkan." } as const;
     }
-    if (target.status !== "ACTIVE" && input.status === "ACTIVE") {
-      const [{ total }] = await tx.select({ total: sql<number>`count(*)::int` }).from(members).where(eq(members.status, "ACTIVE"));
-      if (total >= 10) return { status: 409, error: "Batas sepuluh anggota aktif telah tercapai." } as const;
-    }
     const [updated] = await tx.update(members).set(input).where(eq(members.id, id)).returning();
     await audit(req.member!.id, "MEMBER_ACCESS_CHANGED", id, { role: target.role, status: target.status }, { role: input.role, status: input.status }, tx);
     await tx.insert(auditLog).values({ id: randomUUID(), userId: req.member!.id, action: "MEMBERSHIP_UPDATED", description: `Hak anggota diperbarui menjadi ${input.role} / ${input.status}.` });

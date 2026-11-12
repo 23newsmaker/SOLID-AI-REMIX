@@ -8,7 +8,7 @@ export default function Landing() {
   const steps = [
     { icon: UserRound, t: 'Simpan karakter Anda', d: 'Satu foto milik Anda sendiri, dengan izin tertulis. Bisa diganti atau dihapus kapan saja.' },
     { icon: BookOpenText, t: 'Pelajari sumber resmi', d: 'Indeks pengetahuan internal Solid Gold, lengkap dengan status validasi tiap dokumen.' },
-    { icon: Lock, t: 'Tim kecil, akses tertutup', d: 'Maksimal sepuluh anggota. Setiap akun baru diaktifkan manual oleh Super Admin.' },
+    { icon: Lock, t: 'Tim internal, akses tertutup', d: 'Tidak dibatasi sepuluh anggota. Setiap akun baru tetap perlu diaktifkan Admin atau Super Admin.' },
   ];
   return (
     <div className="min-h-[100dvh] overflow-hidden">
@@ -57,14 +57,14 @@ export default function Landing() {
       <section className="mx-auto max-w-6xl px-5 pb-20">
         <div className="grid gap-6 rounded-3xl bg-sidebar p-8 text-sidebar-foreground md:grid-cols-[1fr_auto] md:items-center md:p-12">
           <div>
-            <Pill tone="sun">Belum tersedia</Pill>
-            <h2 className="font-display mt-4 text-3xl font-extrabold md:text-4xl">Pembuatan video belum dinyalakan.</h2>
+            <Pill tone="sun">{info.data?.generationEnabled ? 'Mode Hemat' : 'Produksi belum aktif'}</Pill>
+            <h2 className="font-display mt-4 text-3xl font-extrabold md:text-4xl">{info.data?.generationEnabled ? 'Studio video untuk tim Solid Gold.' : 'Siapkan konten bersama tim.'}</h2>
             <p className="mt-3 max-w-xl text-sidebar-foreground/70">
-              Fase ini hanya fondasi: akun, karakter, dan pengetahuan. Tidak ada video, model bahasa, atau layanan berbayar yang berjalan.
-              {info.data ? ` Saat nanti aktif, batasnya ${info.data.dailyLimit} per hari untuk tim maksimal ${info.data.maxMembers} orang.` : ''}
+              Kelola karakter, sumber pengetahuan, dan konsep konten melalui akun internal. Jumlah anggota tidak dibatasi sepuluh; kontrol anggaran tetap berlaku.
+              {info.data ? ` Batas pembuatan maksimal ${info.data.dailyLimit} video per orang per hari. AI video berbayar belum diaktifkan.` : ''}
             </p>
           </div>
-          <div className="font-display text-7xl font-extrabold text-sidebar-primary md:text-8xl" aria-hidden="true">A</div>
+          <div className="font-display text-5xl font-extrabold text-sidebar-primary md:text-6xl" aria-hidden="true">SOLID</div>
         </div>
         <p className="mt-6 text-center font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Khusus internal Solid Gold</p>
       </section>

@@ -89,11 +89,11 @@ export default function Team({ me }: { me: Member }) {
 
   return (
     <>
-      <PageHead eyebrow="Tim" title="Keanggotaan">Aktifkan atau tangguhkan karyawan non-admin dan atur perannya. Hanya Super Admin yang dapat mengubah peran admin. Maksimal sepuluh anggota aktif.</PageHead>
+      <PageHead eyebrow="Tim" title="Keanggotaan">Aktifkan atau tangguhkan karyawan non-admin dan atur perannya. Hanya Super Admin yang dapat mengubah peran admin.</PageHead>
       {team.isLoading ? <div className="space-y-2">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}</div>
         : team.isError ? <ErrorBox message={errMsg(team.error)} onRetry={() => team.refetch()} /> : (
           <>
-            <p className="mb-6 font-mono text-xs text-muted-foreground" data-testid="text-active-count">{active} anggota aktif dari 10</p>
+            <p className="mb-6 font-mono text-xs text-muted-foreground" data-testid="text-active-count">{active} anggota aktif</p>
             {pending.length > 0 && (
               <section className="mb-8">
                 <h2 className="font-display mb-3 text-xl font-bold">Menunggu aktivasi <span className="text-primary">{pending.length}</span></h2>

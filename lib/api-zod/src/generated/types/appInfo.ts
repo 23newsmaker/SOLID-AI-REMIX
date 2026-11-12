@@ -12,5 +12,9 @@ export interface AppInfo {
   generationEnabled: boolean;
   llmEnabled: boolean;
   dailyLimit: number;
-  maxMembers: number;
+  /**
+     * Null berarti tidak ada batas jumlah anggota yang ditetapkan aplikasi.
+     * @nullable
+     */
+  maxMembers: number | null;
 }

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useClerk } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { LayoutGrid, UserRound, BookOpenText, Users, LogOut, Download, Clapperboard, Film, Gauge, Plug, ScrollText, BadgeCheck } from 'lucide-react';
+import { LayoutGrid, UserRound, BookOpenText, Users, LogOut, Download, Clapperboard, Film, Gauge, Plug, ScrollText, BadgeCheck, Crown } from 'lucide-react';
 import type { Member } from '@workspace/api-client-react';
 import { Wordmark } from '@/components/brand';
 import { roleLabel, initials } from '@/lib/labels';
@@ -25,6 +25,7 @@ export function AppShell({ me, children }: { me: Member; children: ReactNode }) 
   const signOut = useSignOut();
   const { canInstall, install } = useInstallPrompt();
   const nav = [
+    ...(me.role === 'SUPER_ADMIN' ? [{ href: '/operations', label: 'Dashboard Super Admin', icon: Crown }] : []),
     { href: '/studio', label: 'Studio', icon: LayoutGrid },
     { href: '/creative', label: 'Kreatif', icon: Clapperboard },
     { href: '/videos', label: 'Video', icon: Film },
@@ -33,7 +34,7 @@ export function AppShell({ me, children }: { me: Member; children: ReactNode }) 
     { href: '/team', label: 'Tim', icon: Users, show: me.role === 'SUPER_ADMIN' || me.role === 'ADMIN' },
     { href: '/video-review', label: 'Review', icon: BadgeCheck, show: me.role !== 'VIEWER' },
     { href: '/facts', label: 'Fakta', icon: ScrollText, show: me.role === 'SUPER_ADMIN' || me.role === 'ADMIN' || me.role === 'REVIEWER_COMPLIANCE' },
-    { href: '/operations', label: 'Operasional', icon: Gauge, show: me.role === 'SUPER_ADMIN' || me.role === 'ADMIN' },
+    { href: '/operations', label: 'Operasional', icon: Gauge, show: me.role === 'ADMIN' },
     { href: '/providers', label: 'Provider', icon: Plug, show: me.role === 'SUPER_ADMIN' },
   ].filter((n) => n.show !== false);
   const active = (h: string) => loc === h || loc.startsWith(h + '/');
@@ -82,9 +83,18 @@ export function AppShell({ me, children }: { me: Member; children: ReactNode }) 
 
       <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-background/90 px-4 py-3 backdrop-blur md:hidden">
         <Wordmark />
+        <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 rounded-full bg-sidebar py-1 pl-1 pr-3 text-sidebar-foreground" data-testid="badge-me-mobile">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary font-display text-xs font-bold text-primary-foreground">{initials(me.name)}</div>
+            <div className="min-w-0 leading-tight">
+              <div className="max-w-[96px] truncate text-xs font-semibold" data-testid="text-me-name-mobile">{me.name}</div>
+              <div className={cn('font-mono text-[9px] uppercase tracking-wider', me.role === 'SUPER_ADMIN' ? 'text-sidebar-primary' : 'text-sidebar-foreground/60')} data-testid="text-me-role-mobile">{roleLabel[me.role]}</div>
+            </div>
+          </div>
         <button onClick={signOut} aria-label="Keluar" data-testid="button-signout-mobile" className="grid h-10 w-10 place-items-center rounded-full bg-muted">
           <LogOut className="h-4 w-4" aria-hidden="true" />
         </button>
+        </div>
       </header>
 
       <main className="px-4 pb-28 pt-6 md:px-10 md:pb-12 md:pt-10">

@@ -15,6 +15,12 @@ Clean up only the exact test identities and data recorded during setup. Match th
 
 **How to apply:** Record synthetic identities at creation, verify those exact identities before deletion, and preserve real users, source approvals, and unrelated data.
 
+Programmatic login can preserve mixed case in a generated email suffix while the app stores its canonical lowercase form.
+
+**Why:** A safety gate stopped a valid synthetic login solely because the generated suffix had uppercase characters; this was not evidence of a different account.
+
+**How to apply:** Generate test emails lowercase from the start. Compare trimmed, lowercase emails while keeping exact ID checks and the other identity checks; do not mistake case-only differences for the separate Clerk-profile mismatch described below.
+
 Overridden programmatic Clerk login claims can differ from the profile returned by Clerk's user API. A test manifest's claimed email/name is not proof that a disposable Clerk profile with those attributes was created.
 
 **Why:** Cleanup encountered a mismatch between the recorded test claims and the actual Clerk profile. Deleting that profile would have relied on an unverified ownership assumption.

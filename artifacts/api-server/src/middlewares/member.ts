@@ -3,6 +3,7 @@ import { db, members, adminGrants, auditLog, sessionAudits, type MemberRecord } 
 import { eq, sql } from "drizzle-orm";
 import { randomUUID, createHash } from "node:crypto";
 import { audit } from "../lib/operations/audit";
+import { activatePendingOwner } from "../lib/bootstrapAdmin";
 import type { Request, RequestHandler } from "express";
 
 declare global {
@@ -17,13 +18,13 @@ export const requireMember: RequestHandler = async (req, res, next) => {
     if (!userId) { res.status(401).json({ error: "Silakan masuk terlebih dahulu." }); return; }
     const existing = await db.select().from(members).where(eq(members.id, userId)).limit(1);
     if (existing[0]) {
-      req.member = existing[0];
+      req.member = await activatePendingOwner(existing[0]);
       const sessionId = getAuth(req).sessionId;
       if (sessionId) {
         const key = createHash("sha256").update(`${userId}:${sessionId}`).digest("hex");
         await db.transaction(async tx => {
           const inserted = await tx.insert(sessionAudits).values({ key, userId }).onConflictDoNothing().returning();
-          if (inserted.length) await audit(userId, "AUTHENTICATED_APP_SESSION", userId, null, { status: existing[0]!.status }, tx);
+          if (inserted.length) await audit(userId, "AUTHENTICATED_APP_SESSION", userId, null, { status: req.member!.status }, tx);
         });
       }
       next(); return;
@@ -41,8 +42,7 @@ export const requireMember: RequestHandler = async (req, res, next) => {
       if (known) return known;
       const [grant] = await tx.select().from(adminGrants).where(eq(adminGrants.email, email)).for("update");
       const isOwner = !!grant && grant.consumedBy === null;
-      const [{ total }] = await tx.select({ total: sql<number>`count(*)::int` }).from(members).where(eq(members.status, "ACTIVE"));
-      const activate = isOwner && total < 10;
+      const activate = isOwner;
       const [created] = await tx.insert(members).values({
         id: userId,
         email,

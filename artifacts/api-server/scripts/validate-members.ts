@@ -12,8 +12,7 @@ function record(test: string) { checks.push({ test, status: "PASS", method: "Rea
 async function main() {
   assert.notEqual(process.env.NODE_ENV, "production");
   const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(members).where(eq(members.status, "ACTIVE"));
-  assert(n >= 1 && n <= 8, "Need room for isolated membership boundary test");
-  for (let i = 0; i < 11 - n; i++) ids.push(`f-test-${randomUUID()}`);
+  for (let i = 0; i < Math.max(3, 11 - n); i++) ids.push(`f-test-${randomUUID()}`);
   const rows = await db.insert(members).values(ids.map((id, i) => ({
     id, name: "F SYNTHETIC", email: `${randomUUID()}@example.com`,
     role: i === 0 ? "SUPER_ADMIN" : "CREATOR",
@@ -28,12 +27,11 @@ async function main() {
     await handler({ member: actor, params: { id }, body }, res);
     return code;
   }
-  assert.equal(await patch(manager, pending.id, { status: "ACTIVE", role: "CREATOR" }), 409);
-  assert.equal((await db.select().from(members).where(eq(members.id, pending.id)))[0]!.status, "PENDING");
-  record("Eleventh active member rejected without changing pending member");
-  await db.update(members).set({ status: "SUSPENDED" }).where(eq(members.id, rows[1]!.id));
   assert.equal(await patch(manager, pending.id, { status: "ACTIVE", role: "CREATOR" }), 200);
-  record("Approval activates member when a slot exists");
+  assert.equal((await db.select().from(members).where(eq(members.id, pending.id)))[0]!.status, "ACTIVE");
+  const [{ active }] = await db.select({ active: sql<number>`count(*)::int` }).from(members).where(eq(members.status, "ACTIVE"));
+  assert(active > 10);
+  record("Eleventh or later member activates; no application member cap");
   assert.equal(await patch(manager, manager.id, { status: "SUSPENDED", role: "VIEWER" }), 400);
   record("Admin cannot change own access");
   assert.equal(await patch({ ...manager, role: "ADMIN" }, pending.id, { status: "ACTIVE", role: "SUPER_ADMIN" }), 403);

@@ -844,7 +844,11 @@ export interface AppInfo {
   generationEnabled: boolean;
   llmEnabled: boolean;
   dailyLimit: number;
-  maxMembers: number;
+  /**
+     * Null berarti tidak ada batas jumlah anggota yang ditetapkan aplikasi.
+     * @nullable
+     */
+  maxMembers: number | null;
 }
 
 export type Role = typeof Role[keyof typeof Role];
@@ -974,7 +978,11 @@ export interface Overview {
   sourceCount: number;
   approvedPublicCount: number;
   activeMembers: number;
-  maxMembers: number;
+  /**
+     * Null berarti tidak ada batas jumlah anggota yang ditetapkan aplikasi.
+     * @nullable
+     */
+  maxMembers: number | null;
   dailyLimit: number;
   dailyUsed: number;
   generationEnabled: boolean;

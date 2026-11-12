@@ -2880,7 +2880,7 @@ export const GetAppInfoResponse = zod.object({
   "generationEnabled": zod.boolean(),
   "llmEnabled": zod.boolean(),
   "dailyLimit": zod.number().int(),
-  "maxMembers": zod.number().int()
+  "maxMembers": zod.number().int().nullable().describe('Null berarti tidak ada batas jumlah anggota yang ditetapkan aplikasi.')
 })
 
 
@@ -2899,7 +2899,7 @@ export const GetOverviewResponse = zod.object({
   "sourceCount": zod.number().int(),
   "approvedPublicCount": zod.number().int(),
   "activeMembers": zod.number().int(),
-  "maxMembers": zod.number().int(),
+  "maxMembers": zod.number().int().nullable().describe('Null berarti tidak ada batas jumlah anggota yang ditetapkan aplikasi.'),
   "dailyLimit": zod.number().int(),
   "dailyUsed": zod.number().int(),
   "generationEnabled": zod.boolean(),

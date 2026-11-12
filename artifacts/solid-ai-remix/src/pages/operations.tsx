@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Download, RotateCcw } from 'lucide-react';
+import { useClerk } from '@clerk/react';
+import { AlertTriangle, Download, RotateCcw, Users, Plug, ArrowUpRight } from 'lucide-react';
+import { Link } from 'wouter';
 import {
   useGetOperationsReport, getGetOperationsReportQueryKey, exportOperationsReport,
   useGetOperationsSettings, getGetOperationsSettingsQueryKey, useUpdateOperationsSettings,
@@ -17,12 +19,26 @@ import { usd } from '@/lib/video';
 import { NoAccess, Panel, Empty, Label, Stat, LIVE, btnPrimary, btnMuted, btnDanger, inputCls, invalidatePrefixes, isAdminRole, isSuper } from '@/components/ops-kit';
 
 export default function OperationsPage({ me }: { me: Member }) {
+  const clerk = useClerk();
   if (!isAdminRole(me)) return <NoAccess eyebrow="Tahap D — operasional" title="Operasional">Laporan, pengaturan, audit, dan retensi hanya untuk Admin dan Super Admin.</NoAccess>;
+  const owner = isSuper(me);
   return (
     <>
-      <PageHead eyebrow="Tahap D — operasional" title="Operasional">
+      <PageHead eyebrow={owner ? 'Kendali pemilik' : 'Tahap D — operasional'} title={owner ? 'Dashboard Super Admin' : 'Operasional'}>
         Laporan pemakaian, batas harian, anggaran, audit, dan kebijakan retensi. Biaya yang tidak diketahui tetap ditandai tidak diketahui, tidak dianggap nol.
       </PageHead>
+      {owner && (
+        <nav aria-label="Kendali Super Admin" className="mb-6 grid gap-3 sm:grid-cols-2" data-testid="nav-owner-controls">
+          <OwnerLink href="/team" icon={Users} title="Kelola tim" desc="Aktifkan anggota, atur peran dan status." testid="link-owner-team" />
+          <OwnerLink href="/providers" icon={Plug} title="Kelola provider" desc="Nyalakan atau matikan renderer dengan alasan tercatat." testid="link-owner-providers" />
+        </nav>
+      )}
+      {owner && (
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl bg-card p-4 ring-1 ring-card-border">
+          <button type="button" onClick={() => clerk.openUserProfile()} className={btnMuted} data-testid="button-owner-account">Akun & password saya</button>
+          <p className="max-w-xl text-xs text-muted-foreground">Atur akun masuk Anda sendiri melalui pengaturan keamanan. Jika tersedia, tambahkan atau ubah password di sana; jangan bagikan password kepada tim atau melalui chat.</p>
+        </div>
+      )}
       <div className="space-y-6">
         <Report />
         <SettingsForm />
@@ -30,6 +46,19 @@ export default function OperationsPage({ me }: { me: Member }) {
         <Audit />
       </div>
     </>
+  );
+}
+
+function OwnerLink({ href, icon: Icon, title, desc, testid }: { href: string; icon: typeof Users; title: string; desc: string; testid: string }) {
+  return (
+    <Link href={href} data-testid={testid} className="group flex items-center gap-4 rounded-2xl bg-sidebar p-4 text-sidebar-foreground transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-sidebar-primary">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+      <span className="min-w-0 flex-1">
+        <span className="font-display block text-lg font-bold">{title}</span>
+        <span className="block text-xs text-sidebar-foreground/70">{desc}</span>
+      </span>
+      <ArrowUpRight className="h-5 w-5 shrink-0 text-sidebar-primary transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+    </Link>
   );
 }
 
