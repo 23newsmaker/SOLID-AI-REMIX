@@ -77,7 +77,7 @@ export function StudioWorkspace({ folder, onUsageChange }: { folder: StudioFolde
         {w.error && <p className="ss-alert" role="alert">{w.error}</p>}
         {(w.error || showDetails) && <button type="button" className="ss-text-btn" onClick={() => setShowDetails(value => !value)}>{showDetails ? 'Tutup rincian' : 'Periksa rincian naskah'}</button>}
         {cfg.isError && <p className="ss-alert" role="alert">{errMsg(cfg.error)}</p>}
-        <button className="ss-btn gold" onClick={() => void w.prepare()} disabled={w.busy || w.pendingFiles || !w.character || !remaining || !!cfg.data?.paused || !cfg.data} data-testid="button-studio-summary">{w.busy ? 'Memeriksa...' : 'Periksa ringkasan'}<ArrowRight size={16} /></button>
+        <button className="ss-btn gold" onClick={() => void w.prepare()} disabled={w.busy || w.pendingFiles || !w.character || !remaining || !!cfg.data?.paused || !cfg.data} data-testid="button-studio-summary">{w.busy ? 'Memeriksa...' : 'Buat video'}<ArrowRight size={16} /></button>
       </section>
     </div></div>
     <StudioHistory folderId={folder.id} refreshKey={refreshKey} currentVersion={w.concept?.version ?? 0} currentConceptId={w.concept?.id ?? null} dirty={w.dirty || w.saving}
