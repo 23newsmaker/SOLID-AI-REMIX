@@ -4,3 +4,4 @@
 - [HTTP query dates](http-query-dates.md) — keep date query parameters as ISO strings; generated date validators may incorrectly expect JavaScript Date objects.
 - [Raster text bounds](text-rendering.md) — SVG textLength is ignored by local rasterization; fit using glyph-aware wrapping and inspect actual dimensions.
 - [Worker lifecycle boundary](worker-lifecycle-boundary.md) — idle optimization and page-close tests do not prove that renders survive Autoscale instance shutdown.
+- [PWA offline verification](pwa-offline-verification.md) — page-target offline emulation may leave worker navigation online; verify actual fetch failure before changing caching.

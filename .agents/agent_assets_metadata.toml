@@ -224,3 +224,17 @@ mtime_ms = 1794460601610
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/0382d9f1-b54d-4275-b96d-fd1d6ca89278/52eb0895-a2e0-4be2-a998-e255edb4faf2"
 storage_version_token = "1794460972046501"
 content_type = "text/html"
+
+[[outputs]]
+id = "vAt3J6PkJUn_7JIkN5HCo"
+uri = "file://generated-artifacts/pwa-acceptance/laporan-pwa.html"
+type = "html"
+title = "Laporan verifikasi PWA"
+description = "Hasil browser produksi, pemeriksaan cache privat dan pemulihan offline; pemasangan Android/iPhone fisik belum diuji."
+logical_id = "e039c07f-a709-40a0-89ec-1eb7432692bd"
+content_hash = "sha256:efdd0f9c7775701b1b63fb7476769700658dc9a1b9973b4c061b9f94aa2a8e87"
+size = 5570
+mtime_ms = 1794462243738
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:5288811b-570c-404d-9696-1ef244b2a291/e039c07f-a709-40a0-89ec-1eb7432692bd/c55b67c1-890b-4c25-bcee-f5993251a312"
+storage_version_token = "1794462363677745"
+content_type = "text/html"

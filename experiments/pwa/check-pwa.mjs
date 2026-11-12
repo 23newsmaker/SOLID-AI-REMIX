@@ -13,10 +13,19 @@ for (const icon of manifest.icons) {
   assert.equal(bytes.readUInt32BE(20), h);
 }
 await access(new URL('icons/apple-touch-icon.png', root));
+const apple = await readFile(new URL('icons/apple-touch-icon.png', root));
+assert.equal(apple.readUInt32BE(16), 180);
+assert.equal(apple.readUInt32BE(20), 180);
+assert(manifest.icons.some(i => i.purpose === 'maskable' && i.sizes === '512x512'));
 const code = await readFile(new URL('sw.js', root), 'utf8');
 for (const scope of ['https://example.test/', 'https://example.test/remix/']) {
   const events = {}, removed = [], cached = [];
-  const cache = { addAll: async paths => cached.push(...paths), match: async path => ({ offline: path }) };
+  const cache = {
+    addAll: async paths => cached.push(...paths),
+    match: async path => ({ offline: path }),
+    put: () => assert.fail('Runtime responses must never enter Cache Storage'),
+    add: () => assert.fail('Only the explicit install allowlist may populate Cache Storage'),
+  };
   let fail = false;
   vm.runInNewContext(code, {
     URL,
@@ -30,6 +39,11 @@ for (const scope of ['https://example.test/', 'https://example.test/remix/']) {
   events.install({ waitUntil: p => { wait = p; } }); await wait;
   assert(cached.includes(new URL('offline.html', scope).pathname));
   assert(cached.every(p => !p.includes('/api') && p.startsWith(new URL(scope).pathname)));
+  assert.equal(cached.length, 8);
+  for (const path of cached) {
+    const relative = path.slice(new URL(scope).pathname.length);
+    await access(new URL(relative, root));
+  }
   events.activate({ waitUntil: p => { wait = p; } }); await wait;
   assert.deepEqual(removed, ['sar-static-v1']);
   function request(path, mode = 'cors', method = 'GET') {
@@ -41,9 +55,13 @@ for (const scope of ['https://example.test/', 'https://example.test/remix/']) {
     assert.equal(request(path), undefined, 'Private data must never use the cache');
   }
   assert.equal(request('icon.svg?token=private'), undefined);
+  assert.equal(request('studio?signature=private', 'navigate'), undefined);
+  assert.equal(request('https://private.example.test/photo.png'), undefined);
   assert.equal(request('icon.svg', 'cors', 'POST'), undefined);
   assert.equal((await request('studio', 'navigate')).network, true);
+  assert.equal((await request('private/page.html', 'navigate')).network, true);
   fail = true;
   assert.equal((await request('studio', 'navigate')).offline, new URL('offline.html', scope).pathname);
+  assert.equal((await request('private/page.html', 'navigate')).offline, new URL('offline.html', scope).pathname);
 }
-console.log('PASS: PNG icon sizes, standalone manifest, scoped public cache, network-only private data, generic offline fallback, unrelated caches preserved.');
+console.log('PASS: PNG/Apple/maskable sizes; all 8 public assets exist; root/subpath scope; private HTML/API/media, query URLs, cross-origin and non-GET never cached; generic offline fallback; unrelated caches preserved.');
