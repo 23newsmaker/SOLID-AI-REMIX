@@ -271,6 +271,16 @@ export const VideoJobMode = {
 } as const;
 
 /**
+ * Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.
+ */
+export type VideoRenderOptionsReferencePolicy = typeof VideoRenderOptionsReferencePolicy[keyof typeof VideoRenderOptionsReferencePolicy];
+
+
+export const VideoRenderOptionsReferencePolicy = {
+  STUDIO_REFERENCE_ONLY_V1: 'STUDIO_REFERENCE_ONLY_V1',
+} as const;
+
+/**
  * Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.
  */
 export type VideoRenderOptionsBrandingMode = typeof VideoRenderOptionsBrandingMode[keyof typeof VideoRenderOptionsBrandingMode];
@@ -324,6 +334,10 @@ export interface VideoCue {
 }
 
 export interface VideoRenderOptions {
+  /** Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks. */
+  readonly referencePolicy?: VideoRenderOptionsReferencePolicy;
+  /** Authenticated folder persisted by the server for the reference policy; caller values are discarded. */
+  readonly studioFolderId?: string;
   /** Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs. */
   brandingMode?: VideoRenderOptionsBrandingMode;
   /**

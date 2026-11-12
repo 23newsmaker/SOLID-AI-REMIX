@@ -1128,6 +1128,15 @@ components:
       type: object
       required: [motion, logoPosition, cues]
       properties:
+        referencePolicy:
+          type: string
+          enum: [STUDIO_REFERENCE_ONLY_V1]
+          readOnly: true
+          description: Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.
+        studioFolderId:
+          type: string
+          readOnly: true
+          description: Authenticated folder persisted by the server for the reference policy; caller values are discarded.
         brandingMode:
           type: string
           enum: [LOGO, NONE]

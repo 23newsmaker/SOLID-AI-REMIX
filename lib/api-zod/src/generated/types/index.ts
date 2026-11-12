@@ -105,6 +105,7 @@ export * from './videoRenderOptionsBrandingMode';
 export * from './videoRenderOptionsLogoPosition';
 export * from './videoRenderOptionsMotion';
 export * from './videoRenderOptionsPostTextMode';
+export * from './videoRenderOptionsReferencePolicy';
 export * from './videoSettingsInput';
 export * from './videoUsage';
 export * from './videoUsageMember';

@@ -85,10 +85,10 @@ creativeUploadRouter.post("/concepts/:id/uploads/:uploadId", async (req, res) =>
         description: "Bahan disimpan berdasarkan izin internal pemilik studio.",
         after: materialConsentEvidence(materialConsent, req.studioFolderId),
       });
-      return rebuildConcept({ ...row, data: { ...data, materialConsent } }, me, tx);
+      return rebuildConcept({ ...row, data: { ...data, materialConsent } }, me, tx, req.studioFolderId);
     });
     committed = true;
-    res.json(await serializeConcept(result, me));
+    res.json(await serializeConcept(result, me, req.studioFolderId));
   } catch (error) {
     if (createdFinal && !committed) {
       // The pending ticket survives rollback, recording this orphan for retry
@@ -128,9 +128,9 @@ creativeUploadRouter.delete("/concepts/:id/uploads/:uploadId", async (req, res) 
       description: "Bahan dilepas; bahan studio lainnya mengikuti izin internal pemilik.",
       after: materialConsentEvidence(materialConsent, req.studioFolderId),
     });
-    return rebuildConcept({ ...row, data: { ...data, materialConsent } }, me, tx);
+    return rebuildConcept({ ...row, data: { ...data, materialConsent } }, me, tx, req.studioFolderId);
   });
-  res.json(await serializeConcept(result, me));
+  res.json(await serializeConcept(result, me, req.studioFolderId));
 });
 creativeUploadRouter.get("/concepts/:id/attachments/:uploadId", async (req, res, next) => {
   const { id, uploadId } = GetConceptAttachmentParams.parse(req.params);

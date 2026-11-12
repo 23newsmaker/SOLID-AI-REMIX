@@ -15,7 +15,7 @@ export const videoRouter = Router();
 videoRouter.use("/video", requireMember, requireActive);
 videoRouter.get("/video/config", async (req, res) => { res.json(GetVideoConfigResponse.parse(await videoConfig(req.member!))); });
 videoRouter.get("/video/jobs", async (req, res) => { res.json(ListVideoJobsResponse.parse(await Promise.all((await listJobs(req.member!)).map(j => serializeJob(j, req.member!))))); });
-videoRouter.post("/video/jobs", async (req, res) => { res.json(CreateVideoJobResponse.parse(await serializeJob(await createJob(req.body, req.member!), req.member!))); });
+videoRouter.post("/video/jobs", async (req, res) => { res.json(CreateVideoJobResponse.parse(await serializeJob(await createJob(req.body, req.member!, req.studioFolderId), req.member!))); });
 videoRouter.get("/video/jobs/:id", async (req, res) => {
   const { id } = GetVideoJobParams.parse(req.params);
   res.json(GetVideoJobResponse.parse(await serializeJob(await readJob(id, req.member!), req.member!)));

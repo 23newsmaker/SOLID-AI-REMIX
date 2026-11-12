@@ -12,6 +12,7 @@ import { prepareText, TextLayoutError } from "./layout";
 import { notifyVideoWork } from "./signals";
 import { CLEANUP_PENDING, previousVideoError, cleanVideoObjects } from "./result-cleanup";
 import { legacyLogoIds } from "./branding";
+import { STUDIO_REFERENCE_POLICY } from "../studio-references";
 
 export const globalVideoLock = (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => tx.execute(sql`SELECT pg_advisory_xact_lock(7101700)`);
 export const videoAdmin = (me: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(me.role);
@@ -74,7 +75,7 @@ export async function readJob(id: string, me: MemberRecord) {
     !(me.role === "REVIEWER_COMPLIANCE" && (job.reviewerId === me.id || (job.publicationStatus === "WAITING_FINAL_REVIEW" && !job.reviewerId))))) throw new CreativeError(404, "Video tidak ditemukan atau tidak diizinkan.");
   return job;
 }
-export async function createJob(raw: unknown, me: MemberRecord) {
+export async function createJob(raw: unknown, me: MemberRecord, studioFolderId?: string) {
   const input = CreateVideoJobBody.parse(raw);
   if (me.status !== "ACTIVE" || me.role === "VIEWER" || !input.confirmed) throw new CreativeError(403, "Hak tulis aktif dan konfirmasi pekerjaan diperlukan.");
   if (input.mode !== "HEMAT") throw new CreativeError(409, "AI belum memiliki provider disetujui. Mock adalah simulasi, bukan hasil video AI.");
@@ -87,10 +88,16 @@ export async function createJob(raw: unknown, me: MemberRecord) {
       if (old.requestHash !== requestHash) throw new CreativeError(409, "Kunci permintaan sudah digunakan dengan isi berbeda. Buat versi baru secara sadar.");
       return old;
     }
-    const valid = await eligibleConcept(input.conceptId, input.version, me, input.options, tx);
+    const valid = await eligibleConcept(input.conceptId, input.version, me, input.options, tx, studioFolderId);
     // Ignore caller-supplied exclusions: only this owner's recorded old logos
     // from this concept may be excluded. Persist the result for worker restarts.
     const renderOptions = { ...input.options };
+    delete renderOptions.referencePolicy;
+    delete renderOptions.studioFolderId;
+    if (studioFolderId) {
+      renderOptions.referencePolicy = STUDIO_REFERENCE_POLICY;
+      renderOptions.studioFolderId = studioFolderId;
+    }
     delete renderOptions.legacyLogoAttachmentIds;
     if (renderOptions.brandingMode === "NONE") {
       delete renderOptions.logoAttachmentId;

@@ -44,27 +44,28 @@ export function StudioWorkspace({ folder, onUsageChange }: { folder: StudioFolde
       <section className="ss-form-section">
         <div className="ss-step-head"><span className="ss-step-num">2</span><h2>Naskah & tampilan</h2></div>
         <label className="ss-field"><span className="ss-label">Naskah yang ditampilkan sebagai subtitle</span>
-          <textarea className="ss-textarea" rows={5} maxLength={4000} value={w.form.narration} onChange={e => w.patch({ narration: e.target.value, subtitle: e.target.value })} disabled={w.busy} placeholder="Tulis naskah pendek yang sudah diperiksa faktanya. Tidak diubah oleh chat AI." data-testid="input-studio-script" />
+          <textarea className="ss-textarea" rows={5} maxLength={4000} value={w.form.narration} onChange={e => w.patch({ narration: e.target.value, subtitle: e.target.value })} disabled={w.busy} placeholder="Tulis naskah pendek milikmu. Naskah tidak diubah otomatis." data-testid="input-studio-script" />
         </label>
         <p className="ss-helper" role="status">{w.saving ? 'Menyimpan otomatis...' : w.dirty ? 'Ada perubahan belum tersimpan.' : w.concept ? 'Tersimpan otomatis.' : 'Karakter dan naskah akan disimpan bersama konsep.'}</p>
         {!!w.form.subtitle && w.form.subtitle !== w.form.narration && <p className="ss-warning">Konsep lama memiliki subtitle terpisah. Saat naskah diedit di sini, subtitle akan mengikuti naskah baru.</p>}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="ss-field"><span className="ss-label">Durasi</span><select value={w.form.durationSeconds} onChange={e => w.patch({ durationSeconds: Number(e.target.value) })} disabled={w.busy}>{[10, 11, 12, 13, 14, 15].map(n => <option value={n} key={n}>{n} detik</option>)}</select></label>
-          <label className="ss-field"><span className="ss-label">Topik produk</span><select value={w.form.segments[0]} onChange={e => w.patch({ segments: [e.target.value as CreativeSegment], factIds: [], sourceIds: [], noFactualClaims: false })} disabled={w.busy}>
+          <label className="ss-field"><span className="ss-label">Topik produk</span><select value={w.form.segments[0]} onChange={e => w.patch({ segments: [e.target.value as CreativeSegment] })} disabled={w.busy}>
             <option value="NONE">Umum / perusahaan</option><option value="MIKRO">Mikro</option><option value="MINI">Mini</option><option value="REGULAR">Regular</option>
           </select></label>
         </div>
-        <label className="ss-check-row"><input type="checkbox" checked={w.form.noFactualClaims ?? false} onChange={e => w.patch({ noFactualClaims: e.target.checked, factIds: e.target.checked ? [] : w.form.factIds })} disabled={w.busy} />Naskah umum ini tidak memuat klaim faktual produk/perusahaan.</label>
-        {!w.form.noFactualClaims && showDetails && <details className="ss-tech" open>
-          <summary>Pilih fakta KB yang mendukung naskah</summary>
-          {w.facts.filter(f => f.usable && (f.segment === 'COMPANY' || w.form.segments.includes(f.segment as CreativeSegment))).map(f => <label className="ss-check-row" key={f.id}><input type="checkbox" checked={w.form.factIds?.includes(f.id) ?? false} onChange={e => w.patch({ factIds: e.target.checked ? [...(w.form.factIds ?? []), f.id] : w.form.factIds?.filter(id => id !== f.id) })} disabled={w.busy} />{f.claim}</label>)}
-          {!w.facts.some(f => f.usable) && <p className="ss-helper">Belum ada fakta siap pakai. Jangan membuat klaim angka/produk tanpa fakta yang disetujui.</p>}
-        </details>}
-        {!w.form.publicMode && <p className="ss-warning">Konsep lama ini masih internal. <button className="ss-text-btn" onClick={() => w.patch({ publicMode: true })}>Gunakan sebagai konten publik dan validasi ulang</button></p>}
+        <details className="ss-tech">
+          <summary>Referensi KB opsional</summary>
+          <p className="ss-helper">Cocok berdasarkan topik/segmen, bukan pemahaman atau verifikasi naskah. Tidak perlu dipilih; hasil bukan persetujuan perusahaan.</p>
+          {w.referenceError ? <p className="ss-helper">Referensi belum dapat dimuat. Pembuatan video tetap tersedia.</p>
+            : w.referencesLoading ? <p className="ss-helper">Memuat referensi opsional...</p>
+            : w.references.filter(s => s.segment === 'COMPANY' || w.form.segments.includes(s.segment as CreativeSegment)).slice(0, 3).map(s => <p className="ss-helper" key={s.id}>{s.title} · {s.sourceId} · {s.version}</p>)}
+          {!w.referencesLoading && !w.referenceError && !w.references.some(s => s.segment === 'COMPANY' || w.form.segments.includes(s.segment as CreativeSegment)) && <p className="ss-helper">Belum ada rujukan yang cocok. Ini bukan verifikasi faktual berhasil dan tidak menghalangi video.</p>}
+          {w.concept?.warnings.filter(message => message.startsWith('Rujukan KB tersimpan')).map(message => <p className="ss-helper" key={message}>{message}</p>)}
+        </details>
         {showDetails && <details className="ss-tech"><summary>Pengaturan tambahan</summary><div className="ss-tech-content">
           <label className="ss-field"><span className="ss-label">Kategori konten</span><select value={w.form.categoryId} onChange={e => w.patch({ categoryId: e.target.value, templateId: null })}><option value="">Kategori aktif bawaan</option>{w.library?.categories.filter(c => c.active).map(c => <option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
           {w.form.templateId && <button className="ss-text-btn" onClick={() => w.patch({ templateId: null })}>Lepaskan template lama, pakai naskah sendiri</button>}
-          {w.form.sourceIds.length > 0 && <button className="ss-text-btn" onClick={() => w.patch({ sourceIds: [], factIds: [], noFactualClaims: false })}>Lepaskan rujukan lama dan pilih fakta KB ulang</button>}
           <label className="ss-field"><span className="ss-label">Gerakan kamera</span><select value={w.renderOptions.motion} onChange={e => w.setRenderOptions({ ...w.renderOptions, motion: e.target.value as VideoRenderOptionsMotion })}>{Object.entries(motionLabel).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</select></label>
           <label className="ss-field"><span className="ss-label">Arahan visual (catatan, bukan perintah ke model AI)</span><textarea rows={2} value={w.form.direction} maxLength={8000} onChange={e => w.patch({ direction: e.target.value })} /></label>
           <label className="ss-field"><span className="ss-label">Tujuan konten</span><input maxLength={2000} value={w.form.purpose} onChange={e => w.patch({ purpose: e.target.value })} /></label>

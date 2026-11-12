@@ -4,7 +4,7 @@ import { db, videoJobs, finalReviews, members, type MemberRecord, type VideoJobR
 import { TransitionFinalVideoReviewBody, type VideoRenderOptions } from "@workspace/api-zod";
 import { CreativeError, libraryAdmin } from "../creative-policy";
 import { readJob, serializeJob } from "../video/service";
-import { eligibleConcept } from "../video/policy";
+import { eligibleConcept, jobReferenceFolder } from "../video/policy";
 import { videoFile } from "../video/storage";
 import { readyMaterials, type CreativeTx } from "../creative-service";
 import { audit } from "./audit";
@@ -18,8 +18,10 @@ async function currentDigest(job: VideoJobRow, tx?: CreativeTx) {
   if (!job.conceptId || job.status !== "COMPLETED" || job.deleted || job.simulation) throw new CreativeError(409, "MP4 final tidak tersedia.");
   const [owner] = await (tx ?? db).select().from(members).where(eq(members.id, job.ownerId));
   if (!owner) throw new CreativeError(409, "Pembuat tidak tersedia.");
-  const valid = await eligibleConcept(job.conceptId, job.conceptVersion, owner, job.options as VideoRenderOptions, tx);
-  if (valid.row.snapshot && (valid.row.snapshot as { policyVersion?: number }).policyVersion !== 2) throw new CreativeError(409, "Konsep lama perlu review fakta spesifik.");
+  const options = job.options as VideoRenderOptions;
+  const folderId = jobReferenceFolder(options);
+  const valid = await eligibleConcept(job.conceptId, job.conceptVersion, owner, options, tx, folderId);
+  if (!folderId && valid.row.snapshot && (valid.row.snapshot as { policyVersion?: number }).policyVersion !== 2) throw new CreativeError(409, "Konsep lama perlu review fakta spesifik.");
   return createHash("sha256").update(JSON.stringify({
     data: valid.row.data, snapshot: valid.row.snapshot, prompt: valid.row.prompt,
     materials: valid.materials.map(m => [m.id, m.finalPath, m.size]), resultHash: job.resultHash,

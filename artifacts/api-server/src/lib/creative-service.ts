@@ -2,7 +2,7 @@ import { and, eq, inArray, asc, sql } from "drizzle-orm";
 import { db, creativeConcepts, conceptAttachments, creativeReviews, members, knowledgeSources, type MemberRecord } from "@workspace/db";
 import { GetCreativeConceptResponse } from "@workspace/api-zod";
 import { CreativeError, canReadConcept } from "./creative-policy";
-import { buildCreative, parseConcept, staleReasons, type CreativeSnapshot } from "./creative-builder";
+import { buildCreative, parseConcept, staleReasons, referenceChanges, type CreativeSnapshot } from "./creative-builder";
 import { captureVersion } from "./operations/versions";
 
 export type CreativeRow = typeof creativeConcepts.$inferSelect;
@@ -19,11 +19,11 @@ export async function readConcept(id: string, member: MemberRecord, tx?: Creativ
 export async function readyMaterials(id: string, tx?: CreativeTx) {
   return (tx ?? db).select().from(conceptAttachments).where(and(eq(conceptAttachments.conceptId, id), eq(conceptAttachments.state, "READY"))).orderBy(asc(conceptAttachments.createdAt));
 }
-export async function rebuildConcept(row: CreativeRow, member: MemberRecord, tx: CreativeTx) {
+export async function rebuildConcept(row: CreativeRow, member: MemberRecord, tx: CreativeTx, studioFolderId?: string) {
   await captureVersion(row, tx);
   const input = parseConcept(row.data);
   const materials = await readyMaterials(row.id, tx);
-  const built = await buildCreative(input, member, tx, materials);
+  const built = await buildCreative(input, member, tx, materials, studioFolderId);
   const [updated] = await tx.update(creativeConcepts).set({
     data: input, snapshot: built.snapshot, prompt: built.prompt,
     warnings: built.warnings, blockers: built.blockers, status: "DRAFT",
@@ -31,11 +31,17 @@ export async function rebuildConcept(row: CreativeRow, member: MemberRecord, tx:
   }).where(eq(creativeConcepts.id, row.id)).returning();
   return updated!;
 }
-export async function serializeConcept(row: CreativeRow, viewer: MemberRecord) {
+export async function serializeConcept(row: CreativeRow, viewer: MemberRecord, studioFolderId?: string) {
   const input = parseConcept(row.data);
   const snapshot = row.snapshot as CreativeSnapshot;
-  const reasons = await staleReasons(snapshot);
-  if (input.publicMode && snapshot.policyVersion !== 2) reasons.push("Persetujuan lama belum mengikat fakta spesifik; simpan dan review ulang.");
+  // Studio responses evaluate technical requirements without modifying the saved
+  // concept, its historical prompt, version, or evidence.
+  const studio = studioFolderId ? await buildCreative(input, viewer, db, [], studioFolderId) : null;
+  if (studio && (await referenceChanges(snapshot)).length) {
+    studio.warnings.push("Rujukan KB tersimpan berubah atau tidak tersedia. Ini informasi, bukan penolakan teknis atau verifikasi fakta.");
+  }
+  const reasons = await staleReasons(snapshot, db, !studio);
+  if (!studio && input.publicMode && snapshot.policyVersion !== 2) reasons.push("Persetujuan lama belum mengikat fakta spesifik; simpan dan review ulang.");
   const [owner] = await db.select({ name: members.name }).from(members).where(eq(members.id, row.ownerId));
   const attachments = await db.select().from(conceptAttachments).where(and(
     eq(conceptAttachments.conceptId, row.id), inArray(conceptAttachments.state, ["PENDING", "READY"]),
@@ -44,7 +50,7 @@ export async function serializeConcept(row: CreativeRow, viewer: MemberRecord) {
   // Snapshot permissions can be revoked after a save. Never expose an old
   // internal/restricted source merely because it was once readable.
   let redacted = false;
-  if (snapshot.sources.length) {
+  if (!studio && snapshot.sources.length) {
     const sources = await db.select().from(knowledgeSources).where(inArray(knowledgeSources.id, snapshot.sources.map(s => s.id)));
     redacted = snapshot.sources.some(saved => {
       const s = sources.find(s => s.id === saved.id);
@@ -56,9 +62,9 @@ export async function serializeConcept(row: CreativeRow, viewer: MemberRecord) {
   return GetCreativeConceptResponse.parse({
     ...input, id: row.id, version: row.version, ownerId: row.ownerId, ownerName: owner?.name ?? "Anggota",
     characterName: snapshot.character.name, categoryName: snapshot.category.name, templateName: snapshot.template?.name ?? null,
-    status: row.status, prompt: redacted ? "Prompt disembunyikan karena izin sumber berubah. Pembuat harus memvalidasi ulang." : row.prompt,
-    warnings: row.warnings, blockers: [
-      ...row.blockers, ...reasons, ...(redacted ? ["Akses sumber berubah."] : []),
+    status: row.status, prompt: studio?.prompt ?? (redacted ? "Prompt disembunyikan karena izin sumber berubah. Pembuat harus memvalidasi ulang." : row.prompt),
+    warnings: studio?.warnings ?? row.warnings, blockers: [
+      ...(studio?.blockers ?? row.blockers), ...reasons, ...(redacted ? ["Akses sumber berubah."] : []),
       ...(attachments.some(a => a.state === "PENDING") ? ["Ada unggahan tertunda; selesaikan atau hapus sebelum review."] : []),
     ],
     stale: reasons.length > 0 || redacted, staleReasons: reasons,

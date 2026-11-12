@@ -24,12 +24,12 @@ creativeConceptRouter.get("/concepts", async (req, res) => {
       ? sql`${creativeConcepts.ownerId} = ${me.id} OR (${creativeConcepts.submittedAt} IS NOT NULL AND ${creativeConcepts.status} <> 'DRAFT')`
       : eq(creativeConcepts.ownerId, me.id);
   const rows = await db.select().from(creativeConcepts).where(filter).orderBy(desc(creativeConcepts.updatedAt));
-  res.json(ListCreativeConceptsResponse.parse(await Promise.all(rows.filter(r => canReadConcept(me, r)).map(r => serializeConcept(r, me)))));
+  res.json(ListCreativeConceptsResponse.parse(await Promise.all(rows.filter(r => canReadConcept(me, r)).map(r => serializeConcept(r, me, req.studioFolderId)))));
 });
 creativeConceptRouter.post("/preview", async (req, res) => {
   if (req.member!.role === "VIEWER") throw new CreativeError(403, "Pengamat hanya memiliki akses baca.");
   const input = parseConcept(PreviewCreativePromptBody.parse(req.body));
-  const built = await buildCreative(input, req.member!);
+  const built = await buildCreative(input, req.member!, db, [], req.studioFolderId);
   res.json(PreviewCreativePromptResponse.parse(built));
 });
 creativeConceptRouter.post("/concepts", async (req, res) => {
@@ -41,7 +41,7 @@ creativeConceptRouter.post("/concepts", async (req, res) => {
     await ownerLock(tx, me.id);
     const [count] = await tx.select({ total: sql<number>`count(*)::int` }).from(creativeConcepts).where(eq(creativeConcepts.ownerId, me.id));
     if (count!.total >= limits.maxConcepts) throw new CreativeError(409, "Maksimal 10 konsep tersimpan. Hapus konsep yang tidak diperlukan.");
-    const built = await buildCreative(input, me, tx);
+    const built = await buildCreative(input, me, tx, [], req.studioFolderId);
     const [saved] = await tx.insert(creativeConcepts).values({
       id: randomUUID(), ownerId: me.id, data: input, snapshot: built.snapshot,
       prompt: built.prompt, warnings: built.warnings, blockers: built.blockers,
@@ -51,12 +51,12 @@ creativeConceptRouter.post("/concepts", async (req, res) => {
       after: materialConsentEvidence(input.materialConsent, req.studioFolderId) });
     return saved!;
   });
-  res.json(await serializeConcept(row, me));
+  res.json(await serializeConcept(row, me, req.studioFolderId));
 });
 creativeConceptRouter.get("/concepts/:id", async (req, res) => {
   const { id } = GetCreativeConceptParams.parse(req.params);
   const row = await readConcept(id, req.member!);
-  res.json(await serializeConcept(row, req.member!));
+  res.json(await serializeConcept(row, req.member!, req.studioFolderId));
 });
 creativeConceptRouter.put("/concepts/:id", async (req, res) => {
   const { id } = UpdateCreativeConceptParams.parse(req.params);
@@ -71,7 +71,7 @@ creativeConceptRouter.put("/concepts/:id", async (req, res) => {
     checkVersion(row.version, version);
     await captureVersion(row, tx);
     const materials = await readyMaterials(id, tx);
-    const built = await buildCreative(input, me, tx, materials);
+    const built = await buildCreative(input, me, tx, materials, req.studioFolderId);
     const [result] = await tx.update(creativeConcepts).set({
       data: input, snapshot: built.snapshot, prompt: built.prompt,
       warnings: built.warnings, blockers: built.blockers,
@@ -82,7 +82,7 @@ creativeConceptRouter.put("/concepts/:id", async (req, res) => {
       after: materialConsentEvidence(input.materialConsent, req.studioFolderId) });
     return result!;
   });
-  res.json(await serializeConcept(saved, me));
+  res.json(await serializeConcept(saved, me, req.studioFolderId));
 });
 creativeConceptRouter.delete("/concepts/:id", async (req, res) => {
   const { id } = DeleteCreativeConceptParams.parse(req.params);

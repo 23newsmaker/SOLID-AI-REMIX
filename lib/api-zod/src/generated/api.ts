@@ -316,6 +316,8 @@ export const GetOperationsReportResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(getOperationsReportResponseJobsItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -645,6 +647,8 @@ export const GetRetentionPreviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(getRetentionPreviewResponseCandidatesItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -778,6 +782,8 @@ export const ApproveRetentionPolicyResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(approveRetentionPolicyResponseCandidatesItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -1105,6 +1111,8 @@ export const GetFinalVideoReviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(getFinalVideoReviewResponseJobOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -1227,6 +1235,8 @@ export const TransitionFinalVideoReviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(transitionFinalVideoReviewResponseJobOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -1349,6 +1359,8 @@ export const ListVideoJobsResponseItem = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(listVideoJobsResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -1384,6 +1396,8 @@ export const CreateVideoJobBody = zod.object({
   "mode": zod.enum(['HEMAT', 'AI']),
   "requestKey": zod.string().uuid(),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(createVideoJobBodyOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -1474,6 +1488,8 @@ export const CreateVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(createVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -1568,6 +1584,8 @@ export const GetVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(getVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
@@ -1671,6 +1689,8 @@ export const CancelVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
+  "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(cancelVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),

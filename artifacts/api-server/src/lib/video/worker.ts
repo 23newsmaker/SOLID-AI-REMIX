@@ -11,7 +11,7 @@ import { CreativeError } from "../creative-policy";
 import { boundedMaterial } from "../creative-storage";
 import { setObjectAclPolicy } from "../objectAcl";
 import { videoFile, videoStorage } from "./storage";
-import { eligibleConcept } from "./policy";
+import { eligibleConcept, jobReferenceFolder } from "./policy";
 import { renderHemat, VideoQualityError } from "./renderer";
 import { emptyDiagnostics } from "./quality";
 import { settings, monthlyUsage } from "./service";
@@ -28,7 +28,8 @@ async function validateJob(job: VideoJobRow) {
   if (!job.conceptId) throw new CreativeError(409, "Konsep sudah dihapus.");
   const [owner] = await db.select().from(members).where(eq(members.id, job.ownerId));
   if (!owner) throw new CreativeError(409, "Pembuat tidak tersedia.");
-  return eligibleConcept(job.conceptId, job.conceptVersion, owner, job.options as VideoRenderOptions);
+  const options = job.options as VideoRenderOptions;
+  return eligibleConcept(job.conceptId, job.conceptVersion, owner, options, undefined, jobReferenceFolder(options));
 }
 async function reconcile(job: VideoJobRow) {
   const file = videoFile(finalPath(job));

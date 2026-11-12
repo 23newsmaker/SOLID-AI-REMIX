@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  getCharacter, getCreativeLibrary, listPublicFacts, listCreativeConcepts, getCreativeConcept,
+  getCharacter, getCreativeLibrary, listKnowledge, listCreativeConcepts, getCreativeConcept,
   createCreativeConcept, updateCreativeConcept, createVideoJob,
   type CreativeConcept, type CreativeConceptInput, type StudioFolder, type VideoRenderOptions,
 } from '@workspace/api-client-react';
@@ -18,7 +18,7 @@ export function useWorkspace(folder: StudioFolder, onRendered: () => void) {
   const options = { headers: { 'X-Solid-Folder': folder.id } };
   const character = useQuery({ queryKey: ['shared', folder.id, 'character'], queryFn: ({ signal }) => getCharacter({ ...options, signal }), retry: false });
   const library = useQuery({ queryKey: ['shared', folder.id, 'library'], queryFn: ({ signal }) => getCreativeLibrary({ ...options, signal }), retry: false });
-  const facts = useQuery({ queryKey: ['shared', folder.id, 'facts'], queryFn: ({ signal }) => listPublicFacts({ ...options, signal }), retry: false });
+  const references = useQuery({ queryKey: ['shared', folder.id, 'references'], queryFn: ({ signal }) => listKnowledge({ mode: 'PUBLIC' }, { ...options, signal }), retry: false, staleTime: 0, refetchOnWindowFocus: true });
   const concepts = useQuery({ queryKey: ['shared', folder.id, 'concepts'], queryFn: ({ signal }) => listCreativeConcepts({ ...options, signal }), retry: false });
   const [form, setForm] = useState<CreativeConceptInput>(initial), [concept, setConcept] = useState<CreativeConcept | null>(null);
   const [saving, setSaving] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -29,8 +29,8 @@ export function useWorkspace(folder: StudioFolder, onRendered: () => void) {
   const savingRef = useRef<Promise<CreativeConcept> | null>(null), newIntent = useRef(false);
   formRef.current = form; rowRef.current = concept;
   const initialized = !character.isLoading && !library.isLoading && !concepts.isLoading;
-  const loading = !initialized || facts.isLoading;
-  const loadError = character.error ?? library.error ?? concepts.error ?? facts.error;
+  const loading = !initialized;
+  const loadError = character.error ?? library.error ?? concepts.error;
   useEffect(() => {
     if (!initialized || loadError || hydrated.current) return;
     hydrated.current = true;
@@ -133,7 +133,9 @@ export function useWorkspace(folder: StudioFolder, onRendered: () => void) {
     await character.refetch(); onRendered();
   }
   return { form, patch, concept, acceptConcept, character: character.data?.character ?? null,
-    characterSaved, library: library.data, facts: facts.data ?? [], loading, loadError, dirty, saving, busy,
+    characterSaved, library: library.data, references: references.data?.items.filter(s => s.validation === 'APPROVED' && s.access === 'APPROVED_FOR_PUBLIC_CONTENT' && !s.warnings.length) ?? [],
+    referenceError: references.error, referencesLoading: references.isLoading,
+    loading, loadError, dirty, saving, busy,
     error, setError, saveDraft, summary, setSummary, prepare, render, versionFrom, renderOptions, setRenderOptions,
     pendingFiles, onPending };
 }

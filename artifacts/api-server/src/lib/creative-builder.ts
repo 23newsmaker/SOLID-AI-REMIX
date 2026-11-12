@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { checkSegments, CreativeError } from "./creative-policy";
 import { sourceRevision } from "./source-revision";
 import { selectedFacts, approvedSource } from "./operations/facts";
+import { referenceFolder, studioReferences, STUDIO_REFERENCE_POLICY } from "./studio-references";
 export { sourceRevision } from "./source-revision";
 
 type Db = Pick<typeof db, "select">;
@@ -14,6 +15,8 @@ export type CreativeSnapshot = {
   template: { id: string; name: string; version: number; [key: string]: unknown } | null;
   sources: { id: string; revision: string; segment: string }[];
   policyVersion?: number;
+  referencePolicy?: typeof STUDIO_REFERENCE_POLICY;
+  studioFolderId?: string;
   facts?: { id: string; version: number; sourceId: string; sourceRevision: string; claim: string; quote: string }[];
 };
 export function parseConcept(data: unknown) {
@@ -24,7 +27,7 @@ export function parseConcept(data: unknown) {
   return input;
 }
 export async function buildCreative(input: CreativeConceptInput, member: MemberRecord, conn: Db = db,
-  materials: { id: string; name: string; contentType: string; size: number }[] = []) {
+  materials: { id: string; name: string; contentType: string; size: number }[] = [], studioFolderId?: string) {
   const [character] = await conn.select().from(characters).where(and(eq(characters.id, input.characterId), eq(characters.userId, member.id)));
   if (!character) throw new CreativeError(400, "Pilih karakter pribadi yang masih tersedia.");
   const [category] = await conn.select().from(creativeCategories).where(eq(creativeCategories.id, input.categoryId));
@@ -43,6 +46,38 @@ export async function buildCreative(input: CreativeConceptInput, member: MemberR
   const blockers: string[] = [];
   if (!input.purpose.trim() || !input.scenes.trim() || !input.narration.trim()) {
     blockers.push("Tujuan, adegan, dan narasi perlu diisi sebelum review; draft yang belum lengkap tetap boleh disimpan.");
+  }
+  if (studioFolderId) {
+    await referenceFolder(member, studioFolderId, conn);
+    const references = await studioReferences(input, conn);
+    warnings.push(references.length
+      ? "Rujukan KB opsional cocok berdasarkan metadata topik/segmen, bukan pemahaman atau verifikasi naskah."
+      : "Tidak ada rujukan KB layak yang cocok. Naskah belum diverifikasi faktual; pembuatan video tetap tersedia.");
+    warnings.push("Naskah milik pembuat, tidak ditulis ulang. Hasil bukan persetujuan perusahaan; periksa sendiri sebelum digunakan.");
+    const snapshot: CreativeSnapshot = {
+      policyVersion: 3, referencePolicy: STUDIO_REFERENCE_POLICY, studioFolderId,
+      character: { id: character.id, name: character.name, revision: character.updatedAt.toISOString() },
+      category: { id: category.id, name: category.name, version: category.version },
+      template: template ? { ...template } : null,
+      sources: references.map(s => ({ id: s.id, revision: s.revision, segment: s.segment })),
+      facts: [],
+    };
+    const prompt = JSON.stringify({
+      schema: "solid-studio/1", referencePolicy: STUDIO_REFERENCE_POLICY,
+      identity: snapshot.character, category: snapshot.category,
+      creative: { purpose: input.purpose, direction: input.direction, scenes: input.scenes,
+        characterMotion: input.characterMotion, cameraMotion: input.cameraMotion, visual: input.visual,
+        style: input.style, mode: input.mode },
+      narration: { text: input.narration, validation: "UNVALIDATED_USER_TEXT" },
+      subtitle: { text: input.subtitle, validation: "UNVALIDATED_USER_TEXT" },
+      cta: input.cta, disclaimer: input.disclaimer,
+      references, referenceStatus: references.length ? "OPTIONAL_METADATA_MATCH" : "UNAVAILABLE",
+      factualVerification: "NOT_PERFORMED", companyApproval: false,
+      materials: materials.map(m => ({ ...m, validation: "NOT_INTERPRETED" })),
+      technical: { format: input.format, targetDurationSeconds: input.durationSeconds },
+      validation: { warnings, blockers },
+    }, null, 2);
+    return { prompt, snapshot, warnings, blockers };
   }
   const publicSources = await conn.select({ id: knowledgeSources.id }).from(knowledgeSources).where(and(
     eq(knowledgeSources.active, true), eq(knowledgeSources.validation, "APPROVED"),
@@ -142,7 +177,7 @@ export async function buildCreative(input: CreativeConceptInput, member: MemberR
   return { prompt, snapshot, warnings, blockers };
 }
 
-export async function staleReasons(snapshot: CreativeSnapshot, conn: Db = db) {
+export async function staleReasons(snapshot: CreativeSnapshot, conn: Db = db, includeReferences = true) {
   const reasons: string[] = [];
   const [character] = await conn.select().from(characters).where(eq(characters.id, snapshot.character.id));
   if (!character || character.updatedAt.toISOString() !== snapshot.character.revision) reasons.push("Karakter dihapus atau revisinya berubah.");
@@ -152,6 +187,12 @@ export async function staleReasons(snapshot: CreativeSnapshot, conn: Db = db) {
     const [template] = await conn.select().from(creativeTemplates).where(eq(creativeTemplates.id, snapshot.template.id));
     if (!template?.active || template.version !== snapshot.template.version) reasons.push("Template berubah atau dinonaktifkan.");
   }
+  if (includeReferences) reasons.push(...await referenceChanges(snapshot, conn));
+  return [...new Set(reasons)];
+}
+
+export async function referenceChanges(snapshot: CreativeSnapshot, conn: Db = db) {
+  const reasons: string[] = [];
   const claims = await selectedFacts((snapshot.facts ?? []).map(f => f.id), conn);
   for (const saved of snapshot.facts ?? []) {
     const current = claims.find(f => f.id === saved.id);

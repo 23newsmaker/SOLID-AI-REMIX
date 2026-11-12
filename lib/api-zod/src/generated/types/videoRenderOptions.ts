@@ -10,8 +10,13 @@ import type { VideoRenderOptionsBrandingMode } from './videoRenderOptionsBrandin
 import type { VideoRenderOptionsLogoPosition } from './videoRenderOptionsLogoPosition';
 import type { VideoRenderOptionsMotion } from './videoRenderOptionsMotion';
 import type { VideoRenderOptionsPostTextMode } from './videoRenderOptionsPostTextMode';
+import type { VideoRenderOptionsReferencePolicy } from './videoRenderOptionsReferencePolicy';
 
 export interface VideoRenderOptions {
+  /** Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks. */
+  readonly referencePolicy?: VideoRenderOptionsReferencePolicy;
+  /** Authenticated folder persisted by the server for the reference policy; caller values are discarded. */
+  readonly studioFolderId?: string;
   /** Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs. */
   brandingMode?: VideoRenderOptionsBrandingMode;
   /**
