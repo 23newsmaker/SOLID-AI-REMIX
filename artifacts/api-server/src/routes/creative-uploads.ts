@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
-import { db, conceptAttachments, creativeConcepts } from "@workspace/db";
+import { db, conceptAttachments, creativeConcepts, auditLog } from "@workspace/db";
 import { rateLimit } from "express-rate-limit";
 import {
   RequestConceptUploadParams, RequestConceptUploadBody, RequestConceptUploadResponse,
@@ -14,6 +14,7 @@ import { setObjectAclPolicy } from "../lib/objectAcl";
 import { ownerLock, readConcept, rebuildConcept, serializeConcept } from "../lib/creative-service";
 import { captureVersion } from "../lib/operations/versions";
 import { parseConcept } from "../lib/creative-builder";
+import { materialConsentForSave, materialConsentEvidence } from "../lib/studio-policy";
 
 export const creativeUploadRouter = Router();
 creativeUploadRouter.post("/concepts/:id/uploads", rateLimit({
@@ -78,7 +79,13 @@ creativeUploadRouter.post("/concepts/:id/uploads/:uploadId", async (req, res) =>
       await setObjectAclPolicy(creativeFile(finalPath), { owner: me.id, visibility: "private" });
       await tx.update(conceptAttachments).set({ state: "READY", finalPath, size: validated.length }).where(eq(conceptAttachments.id, ticket.id));
       const data = parseConcept(row.data);
-      return rebuildConcept({ ...row, data: { ...data, materialConsent: false } }, me, tx);
+      const materialConsent = materialConsentForSave(false, req.studioFolderId);
+      if (req.studioFolderId) await tx.insert(auditLog).values({
+        id: randomUUID(), userId: me.id, action: "STUDIO_MATERIAL_ADDED", objectId: uploadId,
+        description: "Bahan disimpan berdasarkan izin internal pemilik studio.",
+        after: materialConsentEvidence(materialConsent, req.studioFolderId),
+      });
+      return rebuildConcept({ ...row, data: { ...data, materialConsent } }, me, tx);
     });
     committed = true;
     res.json(await serializeConcept(result, me));
@@ -115,7 +122,13 @@ creativeUploadRouter.delete("/concepts/:id/uploads/:uploadId", async (req, res) 
       state: "REMOVED", expiresAt: sql`LEAST(${conceptAttachments.expiresAt}, NOW() + INTERVAL '16 minutes')`,
     }).where(eq(conceptAttachments.id, attachment.id));
     const data = parseConcept(row.data);
-    return rebuildConcept({ ...row, data: { ...data, materialConsent: false } }, me, tx);
+    const materialConsent = materialConsentForSave(false, req.studioFolderId);
+    if (req.studioFolderId) await tx.insert(auditLog).values({
+      id: randomUUID(), userId: me.id, action: "STUDIO_MATERIAL_REMOVED", objectId: uploadId,
+      description: "Bahan dilepas; bahan studio lainnya mengikuti izin internal pemilik.",
+      after: materialConsentEvidence(materialConsent, req.studioFolderId),
+    });
+    return rebuildConcept({ ...row, data: { ...data, materialConsent } }, me, tx);
   });
   res.json(await serializeConcept(result, me));
 });

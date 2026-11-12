@@ -13,6 +13,7 @@ import { canReadConcept, checkTransition, checkVersion, CreativeError, requireOw
 import { readConcept, readyMaterials, serializeConcept, ownerLock } from "../lib/creative-service";
 import { captureVersion } from "../lib/operations/versions";
 import { audit } from "../lib/operations/audit";
+import { materialConsentForSave, materialConsentEvidence } from "../lib/studio-policy";
 
 export const creativeConceptRouter = Router();
 creativeConceptRouter.get("/concepts", async (req, res) => {
@@ -34,7 +35,8 @@ creativeConceptRouter.post("/preview", async (req, res) => {
 creativeConceptRouter.post("/concepts", async (req, res) => {
   const me = req.member!;
   if (me.role === "VIEWER") throw new CreativeError(403, "Pengamat tidak dapat membuat konsep.");
-  const input = parseConcept(req.body);
+  const parsed = parseConcept(req.body);
+  const input = { ...parsed, materialConsent: materialConsentForSave(parsed.materialConsent, req.studioFolderId) };
   const row = await db.transaction(async tx => {
     await ownerLock(tx, me.id);
     const [count] = await tx.select({ total: sql<number>`count(*)::int` }).from(creativeConcepts).where(eq(creativeConcepts.ownerId, me.id));
@@ -45,7 +47,8 @@ creativeConceptRouter.post("/concepts", async (req, res) => {
       prompt: built.prompt, warnings: built.warnings, blockers: built.blockers,
     }).returning();
     await captureVersion(saved!, tx);
-    await tx.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "CONCEPT_CREATED", description: "Draft konsep disimpan, tanpa generasi media." });
+    await tx.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "CONCEPT_CREATED", description: "Draft konsep disimpan, tanpa generasi media.",
+      after: materialConsentEvidence(input.materialConsent, req.studioFolderId) });
     return saved!;
   });
   res.json(await serializeConcept(row, me));
@@ -58,7 +61,8 @@ creativeConceptRouter.get("/concepts/:id", async (req, res) => {
 creativeConceptRouter.put("/concepts/:id", async (req, res) => {
   const { id } = UpdateCreativeConceptParams.parse(req.params);
   const { version, ...data } = UpdateCreativeConceptBody.parse(req.body);
-  const input = parseConcept(data);
+  const parsed = parseConcept(data);
+  const input = { ...parsed, materialConsent: materialConsentForSave(parsed.materialConsent, req.studioFolderId) };
   const me = req.member!;
   const saved = await db.transaction(async tx => {
     await ownerLock(tx, me.id);
@@ -74,7 +78,8 @@ creativeConceptRouter.put("/concepts/:id", async (req, res) => {
       version: version + 1, status: row.status === "DRAFT" ? "DRAFT" : "REVISED", submittedAt: null, updatedAt: new Date(),
     }).where(eq(creativeConcepts.id, id)).returning();
     await captureVersion(result!, tx);
-    await tx.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "CONCEPT_UPDATED", description: "Isi konsep diperbarui; persetujuan lama tidak berlaku, status kembali Draft." });
+    await tx.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "CONCEPT_UPDATED", description: "Isi konsep diperbarui; persetujuan lama tidak berlaku, status kembali Draft.",
+      after: materialConsentEvidence(input.materialConsent, req.studioFolderId) });
     return result!;
   });
   res.json(await serializeConcept(saved, me));

@@ -61,6 +61,18 @@ DR requested "bagianlogo dihilangkan aja bro gak perlu" for the shared studio.
 
 **How to apply:** Do not require logo selection/upload or stamp a logo on new shared-studio videos. Preserve existing logo assets, old jobs and private/admin behavior. Do not substitute automatic company-logo setup for the requested removal.
 
+DR asked to hide the studio's production-summary sidebar and its two informational cards so the UI stays clean.
+
+**Why:** DR explicitly requested a cleaner UI/UX.
+
+**How to apply:** Do not restore these always-visible sidebar panels. Keep the generation confirmation, quota enforcement and underlying safety checks functional without them.
+
+DR also requested hiding the KB fact picker and additional settings from the main studio form, so users can proceed to adding their assets.
+
+**Why:** DR wants a simple, uncluttered internal workflow.
+
+**How to apply:** Keep these details out of the normal form. Do not silently bypass KB validation or assert unsupported claims; provide a correction path when validation fails.
+
 DR approved a limited Phase E: measure existing production, improve economical compositing and technical checks, reuse existing dashboard/review/history, and offer visible opt-in rule/template suggestions. Paid-provider quality comparisons and AI identity consistency remain untested until separately approved real-provider trials.
 
 **Why:** Avoid building broad optimization features without real video/cost evidence, adding routine LLM costs, or delaying practical delivery.

@@ -1126,8 +1126,18 @@ components:
         end: {type: number, minimum: 0, maximum: 15}
     VideoRenderOptions:
       type: object
-      required: [motion, logoPosition, logoAttachmentId, cues]
+      required: [motion, logoPosition, cues]
       properties:
+        brandingMode:
+          type: string
+          enum: [LOGO, NONE]
+          description: Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.
+        legacyLogoAttachmentIds:
+          type: array
+          maxItems: 3
+          readOnly: true
+          items: {type: string}
+          description: Server-recorded old logo assets excluded from scenes in a new unbranded studio job.
         postTextMode:
           type: string
           enum: [IN_VIDEO, MANUAL_AFTER_DOWNLOAD]

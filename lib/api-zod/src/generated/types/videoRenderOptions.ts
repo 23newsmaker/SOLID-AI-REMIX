@@ -6,17 +6,25 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { VideoCue } from './videoCue';
+import type { VideoRenderOptionsBrandingMode } from './videoRenderOptionsBrandingMode';
 import type { VideoRenderOptionsLogoPosition } from './videoRenderOptionsLogoPosition';
 import type { VideoRenderOptionsMotion } from './videoRenderOptionsMotion';
 import type { VideoRenderOptionsPostTextMode } from './videoRenderOptionsPostTextMode';
 
 export interface VideoRenderOptions {
+  /** Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs. */
+  brandingMode?: VideoRenderOptionsBrandingMode;
+  /**
+     * Server-recorded old logo assets excluded from scenes in a new unbranded studio job.
+     * @maxItems 3
+     */
+  readonly legacyLogoAttachmentIds?: readonly string[];
   /** Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders. */
   postTextMode?: VideoRenderOptionsPostTextMode;
   motion: VideoRenderOptionsMotion;
   logoPosition: VideoRenderOptionsLogoPosition;
   /** @minLength 1 */
-  logoAttachmentId: string;
+  logoAttachmentId?: string;
   /**
      * @minItems 1
      * @maxItems 12

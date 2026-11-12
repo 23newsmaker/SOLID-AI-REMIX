@@ -271,6 +271,17 @@ export const VideoJobMode = {
 } as const;
 
 /**
+ * Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.
+ */
+export type VideoRenderOptionsBrandingMode = typeof VideoRenderOptionsBrandingMode[keyof typeof VideoRenderOptionsBrandingMode];
+
+
+export const VideoRenderOptionsBrandingMode = {
+  LOGO: 'LOGO',
+  NONE: 'NONE',
+} as const;
+
+/**
  * Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.
  */
 export type VideoRenderOptionsPostTextMode = typeof VideoRenderOptionsPostTextMode[keyof typeof VideoRenderOptionsPostTextMode];
@@ -313,12 +324,19 @@ export interface VideoCue {
 }
 
 export interface VideoRenderOptions {
+  /** Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs. */
+  brandingMode?: VideoRenderOptionsBrandingMode;
+  /**
+     * Server-recorded old logo assets excluded from scenes in a new unbranded studio job.
+     * @maxItems 3
+     */
+  readonly legacyLogoAttachmentIds?: readonly string[];
   /** Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders. */
   postTextMode?: VideoRenderOptionsPostTextMode;
   motion: VideoRenderOptionsMotion;
   logoPosition: VideoRenderOptionsLogoPosition;
   /** @minLength 1 */
-  logoAttachmentId: string;
+  logoAttachmentId?: string;
   /**
      * @minItems 1
      * @maxItems 12

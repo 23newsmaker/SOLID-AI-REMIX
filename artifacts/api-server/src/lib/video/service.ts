@@ -11,6 +11,7 @@ import { finalStale, filePermission } from "../operations/final-review";
 import { prepareText, TextLayoutError } from "./layout";
 import { notifyVideoWork } from "./signals";
 import { CLEANUP_PENDING, previousVideoError, cleanVideoObjects } from "./result-cleanup";
+import { legacyLogoIds } from "./branding";
 
 export const globalVideoLock = (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => tx.execute(sql`SELECT pg_advisory_xact_lock(7101700)`);
 export const videoAdmin = (me: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(me.role);
@@ -87,6 +88,17 @@ export async function createJob(raw: unknown, me: MemberRecord) {
       return old;
     }
     const valid = await eligibleConcept(input.conceptId, input.version, me, input.options, tx);
+    // Ignore caller-supplied exclusions: only this owner's recorded old logos
+    // from this concept may be excluded. Persist the result for worker restarts.
+    const renderOptions = { ...input.options };
+    delete renderOptions.legacyLogoAttachmentIds;
+    if (renderOptions.brandingMode === "NONE") {
+      delete renderOptions.logoAttachmentId;
+      const previous = await tx.select({ options: videoJobs.options }).from(videoJobs).where(and(
+        eq(videoJobs.ownerId, me.id), eq(videoJobs.conceptId, input.conceptId),
+      ));
+      renderOptions.legacyLogoAttachmentIds = legacyLogoIds(previous.map(j => j.options as VideoRenderOptions), valid.materials);
+    }
     try { await prepareText(valid.chunks, valid.data.cta, valid.data.disclaimer ?? ""); }
     catch (err) {
       if (err instanceof TextLayoutError) throw new CreativeError(400, err.message);
@@ -101,7 +113,7 @@ export async function createJob(raw: unknown, me: MemberRecord) {
     const [job] = await tx.insert(videoJobs).values({
       id: randomUUID(), ownerId: me.id, conceptId: valid.row.id, conceptVersion: valid.row.version,
       characterId: valid.character.id, requestKey: input.requestKey, requestHash, title: valid.data.title,
-      options: input.options, durationSeconds: valid.data.durationSeconds, quotaDay: quotaDay(),
+      options: renderOptions, durationSeconds: valid.data.durationSeconds, quotaDay: quotaDay(),
       model: "ffmpeg-local", costSource: "LOCAL_NO_PAID_API", costDetails: { renderUsd: null, ttsUsd: 0, retryUsd: 0 },
     }).returning();
     await tx.insert(auditLog).values({ id: randomUUID(), userId: me.id, action: "VIDEO_QUEUED", description: `Pekerjaan Hemat ${job!.id} masuk antrean; tanpa panggilan AI berbayar.` });

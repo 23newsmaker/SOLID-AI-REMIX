@@ -8,7 +8,7 @@ import { emptyDiagnostics, inspectVideo } from "./quality";
 import { prepareText } from "./layout";
 
 export type RenderInput = {
-  duration: number; character: Buffer; logo: Buffer; options: VideoRenderOptions;
+  duration: number; character: Buffer; logo?: Buffer; options: VideoRenderOptions;
   scenes: { bytes: Buffer; video: boolean }[]; audio?: Buffer;
   chunks: string[]; cta: string; disclaimer: string;
 };
@@ -35,6 +35,7 @@ export async function renderHemat(input: RenderInput, consume: (path: string, di
   const diagnostics = emptyDiagnostics();
   const common = ["-hide_banner", "-loglevel", "error", "-y", "-threads", "1", "-filter_threads", "1", "-filter_complex_threads", "1"];
   try {
+    if (input.options.brandingMode !== "NONE" && !input.logo) throw new Error("Logo diperlukan untuk pekerjaan dengan profil lama.");
     const text = await prepareText(input.chunks, input.cta, input.disclaimer);
     const scenes = [{ bytes: input.character, video: false }, ...input.scenes];
     const frames = Math.floor(input.duration * 24 / scenes.length);
@@ -66,10 +67,12 @@ export async function renderHemat(input: RenderInput, consume: (path: string, di
     // Separate subtitle / CTA / disclaimer blocks; reserve bottom and right
     // for social UI. Platform UI varies, so final human review remains required.
     const graphic = `<svg width="720" height="1280" xmlns="http://www.w3.org/2000/svg"><rect x="48" y="688" width="568" height="392" rx="22" fill="#201728" fill-opacity=".88"/></svg>`;
-    const logo = await sharp(input.logo).rotate().resize(150, 100, { fit: "inside", withoutEnlargement: false }).png().toBuffer();
-    const logoInfo = await sharp(logo).metadata();
+    const logo = input.options.brandingMode !== "NONE" && input.logo
+      ? await sharp(input.logo).rotate().resize(150, 100, { fit: "inside", withoutEnlargement: false }).png().toBuffer()
+      : undefined;
+    const logoInfo = logo ? await sharp(logo).metadata() : undefined;
     await sharp(Buffer.from(graphic)).composite([
-      { input: logo, top: 140, left: input.options.logoPosition === "TOP_LEFT" ? 50 : 616 - logoInfo.width! },
+      ...(logo ? [{ input: logo, top: 140, left: input.options.logoPosition === "TOP_LEFT" ? 50 : 616 - logoInfo!.width! }] : []),
       ...(text.cta ? [{ input: text.cta.input, top: 902, left: text.cta.left }] : []),
       ...(text.disclaimer ? [{ input: text.disclaimer.input, top: 991, left: text.disclaimer.left }] : []),
     ]).png().toFile(join(dir, "graphic.png"));

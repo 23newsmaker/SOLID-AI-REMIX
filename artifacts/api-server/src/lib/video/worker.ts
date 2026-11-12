@@ -19,6 +19,7 @@ import { logger } from "../logger";
 import { runRetention } from "../operations/retention";
 import { DemandRunner, type WorkOutcome } from "../demand-runner";
 import { onVideoWork } from "./signals";
+import { sceneMaterials } from "./branding";
 
 let running = false;
 let lastMaintenanceAt = 0;
@@ -94,11 +95,10 @@ export async function runVideoWorker(): Promise<WorkOutcome> {
       const [characterMeta] = await characterFile.getMetadata();
       if (Number(characterMeta.size) > 5 * 1024 * 1024) throw new CreativeError(400, "Foto karakter terlalu besar.");
       const [character] = await characterFile.download();
-      const logo = await boundedMaterial(valid.logo.finalPath!, valid.logo.size);
+      const logo = valid.logo ? await boundedMaterial(valid.logo.finalPath!, valid.logo.size) : undefined;
       const scenes: { bytes: Buffer; video: boolean }[] = [];
       let audio: Buffer | undefined;
-      for (const material of valid.materials) {
-        if (material.id === valid.logo.id) continue;
+      for (const material of sceneMaterials(valid.materials, job.options as VideoRenderOptions, valid.logo?.id)) {
         const bytes = await boundedMaterial(material.finalPath!, material.size);
         if (material.contentType.startsWith("audio/")) audio = bytes;
         else scenes.push({ bytes, video: material.contentType === "video/mp4" });

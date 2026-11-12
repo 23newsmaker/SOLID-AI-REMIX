@@ -8,8 +8,8 @@ import { errMsg } from '@/lib/labels';
 
 type Pending = { id: string; file: File; failed: boolean; error?: string; ticket?: UploadTicket; conceptId?: string };
 const allowed = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'audio/mpeg', 'audio/wav'];
-export function StudioMaterials({ folderId, concept, consent, onConsent, saveDraft, onUpdated, onPending }: {
-  folderId: string; concept: CreativeConcept | null; consent: boolean; onConsent: (value: boolean) => void;
+export function StudioMaterials({ folderId, concept, saveDraft, onUpdated, onPending }: {
+  folderId: string; concept: CreativeConcept | null;
   saveDraft: () => Promise<CreativeConcept>; onUpdated: (value: CreativeConcept) => void;
   onPending: (pending: boolean) => void;
 }) {
@@ -28,7 +28,7 @@ export function StudioMaterials({ folderId, concept, consent, onConsent, saveDra
     if (fileRef.current) fileRef.current.value = '';
   }
   async function upload() {
-    if (busy || !queue.length || !consent) return;
+    if (busy || !queue.length) return;
     setBusy(true); setError('');
     try {
       let current = await saveDraft();
@@ -64,15 +64,14 @@ export function StudioMaterials({ folderId, concept, consent, onConsent, saveDra
   }
   return <section className="ss-form-section">
     <div className="ss-step-head"><span className="ss-step-num">3</span><h2>Bahan pendukung</h2></div>
-    <p className="ss-helper">Pilih bahan sejak awal. Konsep disimpan otomatis saat unggah; tidak perlu menyimpan draft manual. Sertakan logo resmi untuk hasil akhir.</p>
+    <p className="ss-helper">Tambahkan bahan jika diperlukan. Konsep disimpan otomatis saat unggah.</p>
     <button className="ss-upload" onClick={() => fileRef.current?.click()} disabled={busy}><Plus size={20} />Foto, screenshot, video, atau rekaman suara</button>
     <input ref={fileRef} type="file" multiple accept={allowed.join(',')} hidden onChange={e => pick(e.target.files)} />
-    <label className="ss-check-row"><input type="checkbox" checked={consent} onChange={e => onConsent(e.target.checked)} disabled={busy} />Saya berizin menggunakan dan membagikan semua bahan ini untuk konten perusahaan.</label>
     {queue.length > 0 && <div className="ss-files">{queue.map(item => <div className="ss-file" key={item.id}>
       <span className="ss-file-name">{item.file.name}<small>{item.failed ? item.error : 'Belum diunggah'}</small></span>
       <button className="ss-remove" aria-label={`Batal memilih ${item.file.name}`} disabled={busy} onClick={() => setQueue(old => old.filter(v => v.id !== item.id))}><X size={14} /></button>
     </div>)}</div>}
-    {queue.length > 0 && <button className="ss-btn small" disabled={busy || !consent} onClick={() => void upload()} data-testid="button-upload-studio-materials">{busy ? 'Mengunggah...' : 'Unggah bahan terpilih'}</button>}
+    {queue.length > 0 && <button className="ss-btn small" disabled={busy} onClick={() => void upload()} data-testid="button-upload-studio-materials">{busy ? 'Mengunggah...' : 'Unggah bahan terpilih'}</button>}
     <div className="ss-files">{concept?.attachments.map(a => <div className="ss-file" key={a.id}>
       <span className="ss-file-name">{a.name}<small>{a.state === 'READY' ? 'Tersimpan' : 'Unggahan belum selesai'} · {(a.size / 1024 / 1024).toFixed(1)} MiB</small></span>
       <button className="ss-remove" aria-label={`Hapus bahan ${a.name}`} disabled={busy} onClick={() => { if (window.confirm('Hapus bahan ini dari konsep? Tanda pemeriksaan hasil lama bisa tidak berlaku lagi.')) void remove(a.id); }}><X size={14} /></button>

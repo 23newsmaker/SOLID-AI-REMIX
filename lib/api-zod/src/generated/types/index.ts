@@ -101,6 +101,7 @@ export * from './videoJobStatus';
 export * from './videoQualityCheck';
 export * from './videoQualityCheckStatus';
 export * from './videoRenderOptions';
+export * from './videoRenderOptionsBrandingMode';
 export * from './videoRenderOptionsLogoPosition';
 export * from './videoRenderOptionsMotion';
 export * from './videoRenderOptionsPostTextMode';

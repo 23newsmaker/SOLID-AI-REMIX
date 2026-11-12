@@ -23,7 +23,7 @@ export function useWorkspace(folder: StudioFolder, onRendered: () => void) {
   const [form, setForm] = useState<CreativeConceptInput>(initial), [concept, setConcept] = useState<CreativeConcept | null>(null);
   const [saving, setSaving] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('');
   const [summary, setSummary] = useState(false), [pendingFiles, setPendingFiles] = useState(false);
-  const [renderOptions, setRenderOptions] = useState<Omit<VideoRenderOptions, 'cues'>>({ motion: 'ZOOM_IN', logoPosition: 'TOP_RIGHT', logoAttachmentId: '', postTextMode: 'MANUAL_AFTER_DOWNLOAD' });
+  const [renderOptions, setRenderOptions] = useState<Omit<VideoRenderOptions, 'cues'>>({ motion: 'ZOOM_IN', logoPosition: 'TOP_RIGHT', brandingMode: 'NONE', postTextMode: 'MANUAL_AFTER_DOWNLOAD' });
   const formRef = useRef(form), rowRef = useRef(concept), savedSig = useRef(''), hydrated = useRef(false);
   const edited = useRef(false);
   const savingRef = useRef<Promise<CreativeConcept> | null>(null), newIntent = useRef(false);
@@ -52,7 +52,7 @@ export function useWorkspace(folder: StudioFolder, onRendered: () => void) {
     const categoryId = current.categoryId || library.data?.categories.find(c => c.active)?.id;
     if (!categoryId) throw new Error('Kategori aktif belum tersedia. Admin perlu menyiapkan pustaka.');
     return { ...current, title: current.title.trim() || current.narration.trim().slice(0, 100) || `Video ${folder.name}`,
-      characterId: character.data.character.id, categoryId, mode: 'HEMAT', format: '9:16' };
+      characterId: character.data.character.id, categoryId, mode: 'HEMAT', format: '9:16', materialConsent: true };
   }
   const acceptConcept = useCallback((row: CreativeConcept) => {
     rowRef.current = row; setConcept(row); savedSig.current = signature(toInput(row));
@@ -91,7 +91,6 @@ export function useWorkspace(folder: StudioFolder, onRendered: () => void) {
       const current = await saveDraft();
       const problems = [...current.blockers, ...current.staleReasons];
       if (current.durationSeconds < 10 || current.durationSeconds > 15) problems.push('Pilih durasi 10–15 detik.');
-      if (!renderOptions.logoAttachmentId || !current.attachments.some(a => a.id === renderOptions.logoAttachmentId && a.state === 'READY')) problems.push('Pilih gambar logo resmi dari bahan tersimpan.');
       if (!chunkScript(current).length || chunkScript(current).length > 12) problems.push('Naskah maksimal 108 kata, dengan kelompok subtitle yang tidak terlalu panjang.');
       if (current.attachments.some(a => a.state !== 'READY')) problems.push('Selesaikan atau hapus unggahan tertunda.');
       if (problems.length) throw new Error([...new Set(problems)].join(' '));

@@ -6,6 +6,7 @@ import { checkVersion, CreativeError, requireOwnerEditor } from "../creative-pol
 import { readConcept, readyMaterials, type CreativeTx } from "../creative-service";
 import { studioConfigured } from "../studio-access";
 import { videoPostText } from "./post-text";
+import { resolveLogo } from "./branding";
 
 export const costNote = "Provider video/TTS/LLM: tidak dipanggil. Biaya CPU rendering dan penyimpanan belum diukur, bukan gratis atau total USD0. Batas anggaran mengontrol biaya provider yang diketahui; komputasi juga dibatasi 3 job/hari dan satu renderer.";
 export function quotaDay(at = new Date()) {
@@ -52,8 +53,7 @@ export async function eligibleConcept(id: string, version: number, me: MemberRec
     }
     previous = cue.end;
   }
-  const logo = materials.find(m => m.id === options.logoAttachmentId && m.contentType.startsWith("image/"));
-  if (!logo?.finalPath) throw new CreativeError(400, "Pilih logo asli dari gambar bahan yang sudah direview. Tidak membuat ulang logo perusahaan.");
+  const logo = resolveLogo(options, !!folder, materials);
   const [character] = await conn.select().from(characters).where(and(eq(characters.id, data.characterId), eq(characters.userId, me.id)));
   if (!character) throw new CreativeError(409, "Foto karakter tidak tersedia.");
   return { row, data: { ...data, ...postText }, materials, character, logo, chunks };

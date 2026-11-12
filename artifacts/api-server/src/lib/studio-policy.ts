@@ -10,3 +10,11 @@ export function equalStudioBinding(a: unknown, b: unknown) {
   const first = a as Record<string, unknown>, second = b as Record<string, unknown>;
   return ["digest", "resultHash", "md5", "generation"].every(k => typeof first[k] === "string" && first[k].length > 0 && first[k] === second[k]);
 }
+// folderId is set only by the authenticated shared-studio middleware.
+export function materialConsentForSave(declared: boolean, folderId?: string) {
+  return folderId ? true : declared;
+}
+export function materialConsentEvidence(granted: boolean, folderId?: string) {
+  return { materialConsent: granted, materialConsentBasis: !granted ? "NOT_GRANTED"
+    : folderId ? "STUDIO_OWNER_POLICY" : "UPLOADER_CONFIRMATION" };
+}

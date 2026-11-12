@@ -129,6 +129,8 @@ export const GetOperationsReportQueryParams = zod.object({
   "provider": zod.coerce.string().max(getOperationsReportQueryProviderMax).optional()
 })
 
+export const getOperationsReportResponseJobsItemOptionsLegacyLogoAttachmentIdsMax = 3;
+
 
 export const getOperationsReportResponseJobsItemOptionsCuesItemStartMin = 0;
 export const getOperationsReportResponseJobsItemOptionsCuesItemStartMax = 15;
@@ -314,10 +316,12 @@ export const GetOperationsReportResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(getOperationsReportResponseJobsItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(getOperationsReportResponseJobsItemOptionsCuesItemStartMin).max(getOperationsReportResponseJobsItemOptionsCuesItemStartMax),
   "end": zod.number().min(getOperationsReportResponseJobsItemOptionsCuesItemEndMin).max(getOperationsReportResponseJobsItemOptionsCuesItemEndMax)
@@ -549,6 +553,8 @@ export const getRetentionPreviewResponseSettingsOneWarningPercentMax = 100;
 
 export const getRetentionPreviewResponseSettingsOneRetentionDaysMax = 3650;
 
+export const getRetentionPreviewResponseCandidatesItemOptionsLegacyLogoAttachmentIdsMax = 3;
+
 
 export const getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMin = 0;
 export const getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMax = 15;
@@ -639,10 +645,12 @@ export const GetRetentionPreviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(getRetentionPreviewResponseCandidatesItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMin).max(getRetentionPreviewResponseCandidatesItemOptionsCuesItemStartMax),
   "end": zod.number().min(getRetentionPreviewResponseCandidatesItemOptionsCuesItemEndMin).max(getRetentionPreviewResponseCandidatesItemOptionsCuesItemEndMax)
@@ -677,6 +685,8 @@ export const approveRetentionPolicyResponseSettingsOneUserBudgetUsdMax = 10000;
 export const approveRetentionPolicyResponseSettingsOneWarningPercentMax = 100;
 
 export const approveRetentionPolicyResponseSettingsOneRetentionDaysMax = 3650;
+
+export const approveRetentionPolicyResponseCandidatesItemOptionsLegacyLogoAttachmentIdsMax = 3;
 
 
 export const approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMin = 0;
@@ -768,10 +778,12 @@ export const ApproveRetentionPolicyResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(approveRetentionPolicyResponseCandidatesItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMin).max(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemStartMax),
   "end": zod.number().min(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemEndMin).max(approveRetentionPolicyResponseCandidatesItemOptionsCuesItemEndMax)
@@ -1016,6 +1028,8 @@ export const GetFinalVideoReviewParams = zod.object({
   "id": zod.coerce.string().uuid()
 })
 
+export const getFinalVideoReviewResponseJobOptionsLegacyLogoAttachmentIdsMax = 3;
+
 
 export const getFinalVideoReviewResponseJobOptionsCuesItemStartMin = 0;
 export const getFinalVideoReviewResponseJobOptionsCuesItemStartMax = 15;
@@ -1091,10 +1105,12 @@ export const GetFinalVideoReviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(getFinalVideoReviewResponseJobOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(getFinalVideoReviewResponseJobOptionsCuesItemStartMin).max(getFinalVideoReviewResponseJobOptionsCuesItemStartMax),
   "end": zod.number().min(getFinalVideoReviewResponseJobOptionsCuesItemEndMin).max(getFinalVideoReviewResponseJobOptionsCuesItemEndMax)
@@ -1133,6 +1149,8 @@ export const TransitionFinalVideoReviewBody = zod.object({
   "note": zod.string().max(transitionFinalVideoReviewBodyNoteMax),
   "checklist": zod.array(zod.enum(['IDENTITY', 'VISUAL', 'LOGO', 'NUMBERS', 'PRODUCT', 'SUBTITLE', 'AUDIO', 'CTA', 'DISCLAIMER', 'CONCEPT'])).max(transitionFinalVideoReviewBodyChecklistMax)
 })
+
+export const transitionFinalVideoReviewResponseJobOptionsLegacyLogoAttachmentIdsMax = 3;
 
 
 export const transitionFinalVideoReviewResponseJobOptionsCuesItemStartMin = 0;
@@ -1209,10 +1227,12 @@ export const TransitionFinalVideoReviewResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(transitionFinalVideoReviewResponseJobOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(transitionFinalVideoReviewResponseJobOptionsCuesItemStartMin).max(transitionFinalVideoReviewResponseJobOptionsCuesItemStartMax),
   "end": zod.number().min(transitionFinalVideoReviewResponseJobOptionsCuesItemEndMin).max(transitionFinalVideoReviewResponseJobOptionsCuesItemEndMax)
@@ -1252,6 +1272,8 @@ export const GetVideoConfigResponse = zod.object({
   "narrationNote": zod.string()
 })
 
+
+export const listVideoJobsResponseOptionsLegacyLogoAttachmentIdsMax = 3;
 
 
 export const listVideoJobsResponseOptionsCuesItemStartMin = 0;
@@ -1327,10 +1349,12 @@ export const ListVideoJobsResponseItem = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(listVideoJobsResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(listVideoJobsResponseOptionsCuesItemStartMin).max(listVideoJobsResponseOptionsCuesItemStartMax),
   "end": zod.number().min(listVideoJobsResponseOptionsCuesItemEndMin).max(listVideoJobsResponseOptionsCuesItemEndMax)
@@ -1340,6 +1364,8 @@ export const ListVideoJobsResponseItem = zod.object({
 export const ListVideoJobsResponse = zod.array(ListVideoJobsResponseItem)
 
 
+
+export const createVideoJobBodyOptionsLegacyLogoAttachmentIdsMax = 3;
 
 
 export const createVideoJobBodyOptionsCuesItemStartMin = 0;
@@ -1358,10 +1384,12 @@ export const CreateVideoJobBody = zod.object({
   "mode": zod.enum(['HEMAT', 'AI']),
   "requestKey": zod.string().uuid(),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(createVideoJobBodyOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(createVideoJobBodyOptionsCuesItemStartMin).max(createVideoJobBodyOptionsCuesItemStartMax),
   "end": zod.number().min(createVideoJobBodyOptionsCuesItemEndMin).max(createVideoJobBodyOptionsCuesItemEndMax)
@@ -1369,6 +1397,8 @@ export const CreateVideoJobBody = zod.object({
 }),
   "confirmed": zod.boolean()
 })
+
+export const createVideoJobResponseOptionsLegacyLogoAttachmentIdsMax = 3;
 
 
 export const createVideoJobResponseOptionsCuesItemStartMin = 0;
@@ -1444,10 +1474,12 @@ export const CreateVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(createVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(createVideoJobResponseOptionsCuesItemStartMin).max(createVideoJobResponseOptionsCuesItemStartMax),
   "end": zod.number().min(createVideoJobResponseOptionsCuesItemEndMin).max(createVideoJobResponseOptionsCuesItemEndMax)
@@ -1459,6 +1491,8 @@ export const CreateVideoJobResponse = zod.object({
 export const GetVideoJobParams = zod.object({
   "id": zod.coerce.string().uuid()
 })
+
+export const getVideoJobResponseOptionsLegacyLogoAttachmentIdsMax = 3;
 
 
 export const getVideoJobResponseOptionsCuesItemStartMin = 0;
@@ -1534,10 +1568,12 @@ export const GetVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(getVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(getVideoJobResponseOptionsCuesItemStartMin).max(getVideoJobResponseOptionsCuesItemStartMax),
   "end": zod.number().min(getVideoJobResponseOptionsCuesItemEndMin).max(getVideoJobResponseOptionsCuesItemEndMax)
@@ -1558,6 +1594,8 @@ export const DeleteVideoResultResponse = zod.object({
 export const CancelVideoJobParams = zod.object({
   "id": zod.coerce.string().uuid()
 })
+
+export const cancelVideoJobResponseOptionsLegacyLogoAttachmentIdsMax = 3;
 
 
 export const cancelVideoJobResponseOptionsCuesItemStartMin = 0;
@@ -1633,10 +1671,12 @@ export const CancelVideoJobResponse = zod.object({
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
   "options": zod.object({
+  "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
+  "legacyLogoAttachmentIds": zod.array(zod.string()).max(cancelVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
-  "logoAttachmentId": zod.string().min(1),
+  "logoAttachmentId": zod.string().min(1).optional(),
   "cues": zod.array(zod.object({
   "start": zod.number().min(cancelVideoJobResponseOptionsCuesItemStartMin).max(cancelVideoJobResponseOptionsCuesItemStartMax),
   "end": zod.number().min(cancelVideoJobResponseOptionsCuesItemEndMin).max(cancelVideoJobResponseOptionsCuesItemEndMax)
