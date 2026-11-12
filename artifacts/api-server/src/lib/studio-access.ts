@@ -32,8 +32,14 @@ export function decodeStudioSession(token: string, key: Buffer, now = Date.now()
   } catch { return null; }
 }
 export function studioConfigured() {
+  return studioSetupProblem() === null;
+}
+// Safe setup diagnostics: return a policy result, never a secret or its length.
+export function studioSetupProblem() {
+  if (!process.env.STUDIO_PASSWORD) return "PASSWORD_MISSING";
+  if (!process.env.SESSION_SECRET) return "SESSION_KEY_MISSING";
   const length = process.env.STUDIO_PASSWORD?.length ?? 0;
-  return length >= 12 && length <= 256 && !!process.env.SESSION_SECRET;
+  return length >= 12 && length <= 256 ? null : "PASSWORD_POLICY";
 }
 function configuredKey() {
   if (!studioConfigured()) return null;
