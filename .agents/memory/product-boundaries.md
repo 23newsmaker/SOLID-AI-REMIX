@@ -49,11 +49,17 @@ DR wants manual Delete on every video so users can prevent videos from accumulat
 
 **How to apply:** Delete actual video files, not only their display entry. Confirm permanent deletion, preserve reusable character/supporting assets and usage/cost history, and leave a visible retry if physical cleanup fails. Deletion must not reset the daily generation quota.
 
-For the shared-studio character-photo checkbox and its explanation, DR said "ni gak perlu ditulisakan, otomatis semua dijinkan."
+For the shared-studio character-photo checkbox and its explanation, DR said "ni gak perlu ditulisakan, otomatis semua dijinkan." DR later requested the same for supporting materials: "box tulisan ijin dihilangkan ... semua otamatis diijinkan koq."
 
 **Why:** The user asked to remove this repeated permission step.
 
-**How to apply:** Treat saving a character photo in the shared studio as covered by the owner's internal permission policy, not as a separately checked uploader declaration. Keep that distinction in records. This does not authorize external AI-provider transfers or remove unrelated material checks.
+**How to apply:** Treat character photos and supporting materials in the shared studio as covered by the owner's internal permission policy, not as separately checked uploader declarations. Keep that distinction in records. This does not authorize external AI-provider transfers, weaken file/access/KB validation or remove the private/admin workflow's protections.
+
+DR requested "bagianlogo dihilangkan aja bro gak perlu" for the shared studio.
+
+**Why:** The user asked to remove this requirement.
+
+**How to apply:** Do not require logo selection/upload or stamp a logo on new shared-studio videos. Preserve existing logo assets, old jobs and private/admin behavior. Do not substitute automatic company-logo setup for the requested removal.
 
 DR approved a limited Phase E: measure existing production, improve economical compositing and technical checks, reuse existing dashboard/review/history, and offer visible opt-in rule/template suggestions. Paid-provider quality comparisons and AI identity consistency remain untested until separately approved real-provider trials.
 
