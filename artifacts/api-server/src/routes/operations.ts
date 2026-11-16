@@ -5,6 +5,7 @@ import { db, characters } from "@workspace/db";
 import { requireMember, requireActive } from "../middlewares/member";
 import { CreativeError, libraryAdmin } from "../lib/creative-policy";
 import { getSettings, settingsView, saveSettings, providerInfo, saveProvider } from "../lib/operations/controls";
+import { saveComfyProvider, testComfy } from "../lib/comfyui/provider";
 import { sources, reviewSource, facts, saveFact, reviewFact } from "../lib/operations/facts";
 import { retentionPreview, approveRetention } from "../lib/operations/retention";
 import { report, reportCsv, auditRows } from "../lib/operations/reports";
@@ -31,6 +32,11 @@ operationsRouter.get("/operations/providers", async (req, res) => {
   res.json(api.GetProviderControlsResponse.parse(await providerInfo()));
 });
 operationsRouter.patch("/operations/providers", async (req, res) => { res.json(api.UpdateProviderControlsResponse.parse(await saveProvider(req.body, req.member!))); });
+operationsRouter.patch("/operations/providers/comfyui", async (req, res) => {
+  await saveComfyProvider(req.body, req.member!);
+  res.json(api.UpdateComfyProviderResponse.parse(await providerInfo()));
+});
+operationsRouter.post("/operations/providers/comfyui/test", async (req, res) => { res.json(api.TestComfyProviderResponse.parse(await testComfy(req.member!))); });
 operationsRouter.get("/operations/retention", async (req, res) => { res.json(api.GetRetentionPreviewResponse.parse(await retentionPreview(req.member!))); });
 operationsRouter.post("/operations/retention", async (req, res) => { res.json(api.ApproveRetentionPolicyResponse.parse(await approveRetention(req.body, req.member!))); });
 operationsRouter.get("/operations/audit", async (req, res) => { res.json(api.GetOperationsAuditResponse.parse(await auditRows(req.member!))); });

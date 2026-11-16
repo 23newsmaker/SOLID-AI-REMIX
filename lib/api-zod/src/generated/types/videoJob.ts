@@ -5,6 +5,7 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
+import type { ComfyJobInfo } from './comfyJobInfo';
 import type { CostRecord } from './costRecord';
 import type { VideoDiagnostics } from './videoDiagnostics';
 import type { VideoJobMode } from './videoJobMode';
@@ -60,6 +61,8 @@ export interface VideoJob {
   deleted: boolean;
   /** File access revoked but storage cleanup still needs retry */
   cleanupPending?: boolean;
+  /** ComfyUI details for AI jobs; null for other modes */
+  ai?: ComfyJobInfo | null;
   options: VideoRenderOptions;
   /** Immutable voice selection metadata only; null for older jobs. Never a narration source. */
   voiceBinding?: VoiceJobBinding | null;

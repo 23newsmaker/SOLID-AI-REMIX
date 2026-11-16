@@ -3,6 +3,7 @@ import { logger } from "./lib/logger";
 import { prepareAdminGrant } from "./lib/bootstrapAdmin";
 import { startCreativeCleanup } from "./lib/creative-storage";
 import { startVideoWorker } from "./lib/video/worker";
+import { startComfyWorker } from "./lib/comfyui/worker";
 import { startVoiceCleanup } from "./lib/voice-storage";
 
 const rawPort = process.env["PORT"];
@@ -29,6 +30,7 @@ prepareAdminGrant().then(() => app.listen(port, (err) => {
   startCreativeCleanup();
   startVoiceCleanup();
   startVideoWorker();
+  startComfyWorker();
 })).catch(() => {
   logger.error("Cannot prepare internal access configuration");
   process.exit(1);

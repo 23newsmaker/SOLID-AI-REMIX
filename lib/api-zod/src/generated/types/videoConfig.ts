@@ -8,7 +8,10 @@
 
 export interface VideoConfig {
   paused: boolean;
+  /** True only when the AI provider is enabled by a Super admin, configured and online */
   aiEnabled: boolean;
+  /** @nullable */
+  aiUnavailableReason?: string | null;
   provider: string;
   dailyLimit: number;
   dailyUsed: number;

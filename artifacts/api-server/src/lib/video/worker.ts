@@ -59,7 +59,7 @@ export async function runVideoWorker(): Promise<WorkOutcome> {
   try {
     locked = (await conn.query("SELECT pg_try_advisory_lock(7101702) AS locked")).rows[0].locked;
     if (!locked) return "contended";
-    const interrupted = await db.select().from(videoJobs).where(inArray(videoJobs.status, ["PROCESSING", "SUBMITTED"]));
+    const interrupted = await db.select().from(videoJobs).where(and(eq(videoJobs.mode, "HEMAT"), inArray(videoJobs.status, ["PROCESSING", "SUBMITTED"])));
     for (const job of interrupted) await reconcile(job);
     if (Date.now() - lastMaintenanceAt >= 60 * 60_000) {
     // Orphan temporaries after process termination: only our namespace, older
@@ -77,7 +77,7 @@ export async function runVideoWorker(): Promise<WorkOutcome> {
     }
     const config = await settings();
     if (config.paused || !config.localEnabled) return "idle";
-    const [next] = await conn.query("SELECT id FROM solid_video_jobs WHERE status='QUEUED' ORDER BY created_at LIMIT 1").then(r => r.rows);
+    const [next] = await conn.query("SELECT id FROM solid_video_jobs WHERE status='QUEUED' AND mode='HEMAT' ORDER BY created_at LIMIT 1").then(r => r.rows);
     if (!next) return "idle";
     const [job] = await db.update(videoJobs).set({ status: "PROCESSING", attempts: 1, submittedAt: new Date(), updatedAt: new Date() })
       .where(and(eq(videoJobs.id, next.id), eq(videoJobs.status, "QUEUED"))).returning();

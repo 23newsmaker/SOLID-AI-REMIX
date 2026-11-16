@@ -315,11 +315,27 @@ export const GetOperationsReportResponse = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(getOperationsReportResponseJobsItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -518,7 +534,25 @@ export const GetProviderControlsResponseItem = zod.object({
   "price": zod.string(),
   "priceSource": zod.string(),
   "checkedAt": zod.string().nullable(),
-  "reason": zod.string()
+  "reason": zod.string(),
+  "comfy": zod.union([zod.object({
+  "configured": zod.boolean().describe('True when the three secrets are present; values are never returned'),
+  "online": zod.boolean(),
+  "comfyVersion": zod.string().nullable(),
+  "gpus": zod.array(zod.object({
+  "name": zod.string(),
+  "vramTotalMb": zod.number().int().nullable(),
+  "vramFreeMb": zod.number().int().nullable()
+})),
+  "queueRunning": zod.number().int().nullable(),
+  "queuePending": zod.number().int().nullable(),
+  "checkedAt": zod.string().nullable(),
+  "error": zod.union([zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "detail": zod.array(zod.string())
+}),zod.null()])
+}),zod.null()]).optional().describe('Live ComfyUI status; present only on the comfyui card')
 })
 export const GetProviderControlsResponse = zod.array(GetProviderControlsResponseItem)
 
@@ -544,9 +578,105 @@ export const UpdateProviderControlsResponseItem = zod.object({
   "price": zod.string(),
   "priceSource": zod.string(),
   "checkedAt": zod.string().nullable(),
-  "reason": zod.string()
+  "reason": zod.string(),
+  "comfy": zod.union([zod.object({
+  "configured": zod.boolean().describe('True when the three secrets are present; values are never returned'),
+  "online": zod.boolean(),
+  "comfyVersion": zod.string().nullable(),
+  "gpus": zod.array(zod.object({
+  "name": zod.string(),
+  "vramTotalMb": zod.number().int().nullable(),
+  "vramFreeMb": zod.number().int().nullable()
+})),
+  "queueRunning": zod.number().int().nullable(),
+  "queuePending": zod.number().int().nullable(),
+  "checkedAt": zod.string().nullable(),
+  "error": zod.union([zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "detail": zod.array(zod.string())
+}),zod.null()])
+}),zod.null()]).optional().describe('Live ComfyUI status; present only on the comfyui card')
 })
 export const UpdateProviderControlsResponse = zod.array(UpdateProviderControlsResponseItem)
+
+
+/**
+ * Super admin only. Opt-in switch for the ComfyUI AI provider; never exposes URL or credentials.
+ */
+export const updateComfyProviderBodyReasonMin = 10;
+export const updateComfyProviderBodyReasonMax = 500;
+
+
+
+export const UpdateComfyProviderBody = zod.object({
+  "enabled": zod.boolean(),
+  "reason": zod.string().min(updateComfyProviderBodyReasonMin).max(updateComfyProviderBodyReasonMax)
+})
+
+export const UpdateComfyProviderResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "model": zod.string(),
+  "enabled": zod.boolean(),
+  "simulation": zod.boolean(),
+  "connection": zod.string(),
+  "capabilities": zod.string(),
+  "price": zod.string(),
+  "priceSource": zod.string(),
+  "checkedAt": zod.string().nullable(),
+  "reason": zod.string(),
+  "comfy": zod.union([zod.object({
+  "configured": zod.boolean().describe('True when the three secrets are present; values are never returned'),
+  "online": zod.boolean(),
+  "comfyVersion": zod.string().nullable(),
+  "gpus": zod.array(zod.object({
+  "name": zod.string(),
+  "vramTotalMb": zod.number().int().nullable(),
+  "vramFreeMb": zod.number().int().nullable()
+})),
+  "queueRunning": zod.number().int().nullable(),
+  "queuePending": zod.number().int().nullable(),
+  "checkedAt": zod.string().nullable(),
+  "error": zod.union([zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "detail": zod.array(zod.string())
+}),zod.null()])
+}),zod.null()]).optional().describe('Live ComfyUI status; present only on the comfyui card')
+})
+export const UpdateComfyProviderResponse = zod.array(UpdateComfyProviderResponseItem)
+
+
+/**
+ * Super admin only. Live connection test plus node/model check for each bundled workflow.
+ */
+export const TestComfyProviderResponse = zod.object({
+  "status": zod.object({
+  "configured": zod.boolean().describe('True when the three secrets are present; values are never returned'),
+  "online": zod.boolean(),
+  "comfyVersion": zod.string().nullable(),
+  "gpus": zod.array(zod.object({
+  "name": zod.string(),
+  "vramTotalMb": zod.number().int().nullable(),
+  "vramFreeMb": zod.number().int().nullable()
+})),
+  "queueRunning": zod.number().int().nullable(),
+  "queuePending": zod.number().int().nullable(),
+  "checkedAt": zod.string().nullable(),
+  "error": zod.union([zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "detail": zod.array(zod.string())
+}),zod.null()])
+}),
+  "workflows": zod.array(zod.object({
+  "kind": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']),
+  "file": zod.string(),
+  "ready": zod.boolean(),
+  "missing": zod.array(zod.string())
+}))
+})
 
 
 export const getRetentionPreviewResponseSettingsOneDailyLimitMax = 3;
@@ -655,11 +785,27 @@ export const GetRetentionPreviewResponse = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(getRetentionPreviewResponseCandidatesItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -799,11 +945,27 @@ export const ApproveRetentionPolicyResponse = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(approveRetentionPolicyResponseCandidatesItemOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1137,11 +1299,27 @@ export const GetFinalVideoReviewResponse = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(getFinalVideoReviewResponseJobOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1270,11 +1448,27 @@ export const TransitionFinalVideoReviewResponse = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(transitionFinalVideoReviewResponseJobOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1317,7 +1511,8 @@ export const GetVideoReviewReferenceResponse = zod.unknown()
 
 export const GetVideoConfigResponse = zod.object({
   "paused": zod.boolean(),
-  "aiEnabled": zod.boolean(),
+  "aiEnabled": zod.boolean().describe('True only when the AI provider is enabled by a Super admin, configured and online'),
+  "aiUnavailableReason": zod.string().nullish(),
   "provider": zod.string(),
   "dailyLimit": zod.number().int(),
   "dailyUsed": zod.number().int(),
@@ -1403,11 +1598,27 @@ export const ListVideoJobsResponseItem = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(listVideoJobsResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1454,6 +1665,8 @@ export const CreateVideoJobBody = zod.object({
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(createVideoJobBodyOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1541,11 +1754,27 @@ export const CreateVideoJobResponse = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(createVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1646,11 +1875,27 @@ export const GetVideoJobResponse = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(getVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),
@@ -1760,11 +2005,27 @@ export const CancelVideoJobResponse = zod.object({
   "rawResultUrl": zod.string().nullable(),
   "deleted": zod.boolean(),
   "cleanupPending": zod.boolean().optional().describe('File access revoked but storage cleanup still needs retry'),
+  "ai": zod.union([zod.object({
+  "phase": zod.string(),
+  "workflowKind": zod.string(),
+  "workflowFile": zod.string(),
+  "workflowHash": zod.string().nullable(),
+  "seed": zod.number().int(),
+  "width": zod.number().int(),
+  "height": zod.number().int(),
+  "frameLength": zod.number().int(),
+  "errorCode": zod.string().nullable(),
+  "errorDetail": zod.array(zod.string()),
+  "technicalChecks": zod.array(zod.record(zod.string(), zod.unknown())).nullable().describe('ffprobe/decode checks; ComfyUI has no quality gate of its own'),
+  "pollCount": zod.number().int()
+}),zod.null()]).optional().describe('ComfyUI details for AI jobs; null for other modes'),
   "options": zod.object({
   "referencePolicy": zod.enum(['STUDIO_REFERENCE_ONLY_V1']).optional().describe('Server-bound optional KB policy for new shared studio jobs only. Omission preserves historical checks.'),
   "studioFolderId": zod.string().optional().describe('Authenticated folder persisted by the server for the reference policy; caller values are discarded.'),
   "brandingMode": zod.enum(['LOGO', 'NONE']).optional().describe('Omission preserves legacy mandatory-logo behavior. NONE is allowed only for shared studio jobs.'),
   "legacyLogoAttachmentIds": zod.array(zod.string()).max(cancelVideoJobResponseOptionsLegacyLogoAttachmentIdsMax).optional().describe('Server-recorded old logo assets excluded from scenes in a new unbranded studio job.'),
+  "aiWorkflow": zod.enum(['I2V', 'FIRST_LAST', 'REF2VA']).optional().describe('AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.'),
+  "aiQuality": zod.enum(['FAST', 'QUALITY']).optional().describe('AI mode only. Default FAST.'),
   "postTextMode": zod.enum(['IN_VIDEO', 'MANUAL_AFTER_DOWNLOAD']).optional().describe('Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.'),
   "motion": zod.enum(['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT']),
   "logoPosition": zod.enum(['TOP_LEFT', 'TOP_RIGHT']),

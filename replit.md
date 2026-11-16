@@ -1,7 +1,7 @@
 # SOLID AI REMIX
 
 Internal content-production studio for the Solid Gold creator/marketing team.
-Current delivery includes the Phase B Creative Engine. No LLM API or video provider is invoked.
+Current delivery includes the Phase B Creative Engine. No LLM API is invoked. One opt-in video provider exists: ComfyUI on the team's own GPU PC (see `docs/comfyui-integration.md`); it is off until a Super Admin enables it, and no paid provider is configured.
 See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 
 ## Run & Operate
@@ -9,6 +9,8 @@ See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 - `pnpm --filter @workspace/api-server run dev` — shared Express API, managed workflow.
 - `pnpm --filter @workspace/solid-ai-remix run dev` — frontend, managed workflow injects PORT/BASE_PATH.
 - `pnpm run typecheck` — all packages.
+- `pnpm --filter @workspace/api-server run test` — unit tests (ComfyUI client/runner use an in-process mock; no GPU or database needed except where a test says so).
+- `pnpm --filter @workspace/api-server run mock-comfyui` — fake ComfyUI for local development.
 - `pnpm --filter @workspace/api-spec run codegen` — API hooks/Zod from the contract.
 - `pnpm --filter @workspace/db run push` — development schema only; Publish owns production schema.
 - `pnpm --filter @workspace/api-server run validate-creative` — isolated real-handler/DB/storage checks; writes ignored evidence and cleans only its unique fixtures.
@@ -39,6 +41,7 @@ See `.agents/memory/product-boundaries.md` for owner-agreed scope and rationale.
 - Mode Hemat produces private 720×1280 MP4s with photo motion, compositing, subtitles and optional uploaded narration. No paid AI video/TTS provider is activated; mock/simulation is never real AI.
 - Phase D: `/operations` for Admin/Super reports, CSV, budgets, quota 1–3/day Jakarta, audit and retention proposals; `/providers` is Super-only; `/facts` manages individually sourced claims. Source approval is not approval of every claim in a document.
 - Limited Phase E: measured per-job preparation/render/decode/storage timings and byte counts, technical QC (not content approval), additive optimization metrics/filter/CSV inside `/operations`, mobile-safe text blocks, and opt-in before/after motion suggestions in the existing concept editor. Paid AI and face-consistency comparisons remain NOT TESTED; unknown CPU/storage costs remain unknown. Legacy jobs are not backfilled with guessed metrics. No speed improvement is promised from a small synthetic benchmark.
+- ComfyUI provider (`mode AI`, `provider comfyui`): MiniMax H3 workflows rendered on a remote GPU PC through Cloudflare Tunnel + Access. Secrets `COMFYUI_URL`, `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET` (server only, never logged or returned). Never run ComfyUI on Replit. Async only: submit → stored `prompt_id` → poll `/history` → stream `/view` to private storage; a stored `prompt_id` is resumed after restart and `POST /prompt` is never retried. Activation: Super only, in `/providers`, audited. Tables `solid_comfy_jobs`, `solid_provider_settings`. Code: `artifacts/api-server/src/lib/comfyui/` (pure `workflow.ts`/`plan.ts`, `client.ts`, `runner.ts`, `worker.ts`, mock server for tests). MP4/audio attachments are ignored; no RVC, lip-sync or identity gate exists in these workflows, so identity/voice/claims need human review. GPU cost is recorded as unmeasured. Hemat worker only claims `mode='HEMAT'` jobs.
 - Final video review at `/video-review` is independent from render COMPLETED. Publication approval binds the result hash and concept/material/fact versions; creators cannot approve their own work, including privileged creators. Review downloads remain private and do not imply permission to publish.
 - Retention defaults to manual. Automatic result deletion requires explicit Super approval of the exact policy version and at least24hours notice; do not treat phase approval as deletion consent. Original KB, character/material assets and evidence are preserved.
 - Local CPU/storage cost remains unknown. Provider-only zero is not total cost; unknown charges are not zero. Paid jobs without a reliable upper cost bound must be refused.

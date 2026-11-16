@@ -115,6 +115,89 @@ export interface ProviderControlInput {
   reason: string;
 }
 
+export interface ComfyProviderInput {
+  enabled: boolean;
+  /**
+     * @minLength 10
+     * @maxLength 500
+     */
+  reason: string;
+}
+
+export interface ComfyError {
+  code: string;
+  message: string;
+  detail: string[];
+}
+
+export interface ComfyGpu {
+  name: string;
+  /** @nullable */
+  vramTotalMb: number | null;
+  /** @nullable */
+  vramFreeMb: number | null;
+}
+
+export interface ComfyStatus {
+  /** True when the three secrets are present; values are never returned */
+  configured: boolean;
+  online: boolean;
+  /** @nullable */
+  comfyVersion: string | null;
+  gpus: ComfyGpu[];
+  /** @nullable */
+  queueRunning: number | null;
+  /** @nullable */
+  queuePending: number | null;
+  /** @nullable */
+  checkedAt: string | null;
+  error: ComfyError | null;
+}
+
+export type ComfyWorkflowCheckKind = typeof ComfyWorkflowCheckKind[keyof typeof ComfyWorkflowCheckKind];
+
+
+export const ComfyWorkflowCheckKind = {
+  I2V: 'I2V',
+  FIRST_LAST: 'FIRST_LAST',
+  REF2VA: 'REF2VA',
+} as const;
+
+export interface ComfyWorkflowCheck {
+  kind: ComfyWorkflowCheckKind;
+  file: string;
+  ready: boolean;
+  missing: string[];
+}
+
+export interface ComfyTestResult {
+  status: ComfyStatus;
+  workflows: ComfyWorkflowCheck[];
+}
+
+export type ComfyJobInfoTechnicalChecksItem = { [key: string]: unknown };
+
+export interface ComfyJobInfo {
+  phase: string;
+  workflowKind: string;
+  workflowFile: string;
+  /** @nullable */
+  workflowHash: string | null;
+  seed: number;
+  width: number;
+  height: number;
+  frameLength: number;
+  /** @nullable */
+  errorCode: string | null;
+  errorDetail: string[];
+  /**
+     * ffprobe/decode checks; ComfyUI has no quality gate of its own
+     * @nullable
+     */
+  technicalChecks: ComfyJobInfoTechnicalChecksItem[] | null;
+  pollCount: number;
+}
+
 export interface ProviderControl {
   id: string;
   name: string;
@@ -128,6 +211,8 @@ export interface ProviderControl {
   /** @nullable */
   checkedAt: string | null;
   reason: string;
+  /** Live ComfyUI status; present only on the comfyui card */
+  comfy?: ComfyStatus | null;
 }
 
 export interface OperationsAudit {
@@ -292,6 +377,29 @@ export const VideoRenderOptionsBrandingMode = {
 } as const;
 
 /**
+ * AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references.
+ */
+export type VideoRenderOptionsAiWorkflow = typeof VideoRenderOptionsAiWorkflow[keyof typeof VideoRenderOptionsAiWorkflow];
+
+
+export const VideoRenderOptionsAiWorkflow = {
+  I2V: 'I2V',
+  FIRST_LAST: 'FIRST_LAST',
+  REF2VA: 'REF2VA',
+} as const;
+
+/**
+ * AI mode only. Default FAST.
+ */
+export type VideoRenderOptionsAiQuality = typeof VideoRenderOptionsAiQuality[keyof typeof VideoRenderOptionsAiQuality];
+
+
+export const VideoRenderOptionsAiQuality = {
+  FAST: 'FAST',
+  QUALITY: 'QUALITY',
+} as const;
+
+/**
  * Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders.
  */
 export type VideoRenderOptionsPostTextMode = typeof VideoRenderOptionsPostTextMode[keyof typeof VideoRenderOptionsPostTextMode];
@@ -345,6 +453,10 @@ export interface VideoRenderOptions {
      * @maxItems 3
      */
   readonly legacyLogoAttachmentIds?: readonly string[];
+  /** AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references. */
+  aiWorkflow?: VideoRenderOptionsAiWorkflow;
+  /** AI mode only. Default FAST. */
+  aiQuality?: VideoRenderOptionsAiQuality;
   /** Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders. */
   postTextMode?: VideoRenderOptionsPostTextMode;
   motion: VideoRenderOptionsMotion;
@@ -420,6 +532,8 @@ export interface VideoJob {
   deleted: boolean;
   /** File access revoked but storage cleanup still needs retry */
   cleanupPending?: boolean;
+  /** ComfyUI details for AI jobs; null for other modes */
+  ai?: ComfyJobInfo | null;
   options: VideoRenderOptions;
   /** Immutable voice selection metadata only; null for older jobs. Never a narration source. */
   voiceBinding?: VoiceJobBinding | null;
@@ -635,7 +749,10 @@ export interface VideoJobInput {
 
 export interface VideoConfig {
   paused: boolean;
+  /** True only when the AI provider is enabled by a Super admin, configured and online */
   aiEnabled: boolean;
+  /** @nullable */
+  aiUnavailableReason?: string | null;
   provider: string;
   dailyLimit: number;
   dailyUsed: number;

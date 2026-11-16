@@ -15,6 +15,8 @@ import { legacyLogoIds } from "./branding";
 import { STUDIO_REFERENCE_POLICY } from "../studio-references";
 import { voiceJobBinding } from "../character-voice";
 import { voiceLock } from "../voice-storage";
+import { createAiJob, comfyInfo } from "../comfyui/service";
+import { comfyAvailability } from "../comfyui/provider";
 
 export const globalVideoLock = (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => tx.execute(sql`SELECT pg_advisory_xact_lock(7101700)`);
 export const videoAdmin = (me: Pick<MemberRecord, "role">) => ["SUPER_ADMIN", "ADMIN"].includes(me.role);
@@ -39,11 +41,12 @@ export async function monthlyUsage() {
 }
 export async function videoConfig(me: MemberRecord) {
   const config = await settings();
+  const ai = await comfyAvailability().catch(() => ({ available: false, reason: "Status ComfyUI tidak dapat diperiksa." }));
   const [count] = await db.select({ n: sql<number>`count(*)::int` }).from(videoJobs).where(and(
     eq(videoJobs.ownerId, me.id), eq(videoJobs.quotaDay, quotaDay()), eq(videoJobs.simulation, false),
   ));
   return {
-    paused: config.paused || !config.localEnabled, aiEnabled: false, provider: "local-compositor", dailyLimit: config.dailyLimit, dailyUsed: count!.n,
+    paused: config.paused || !config.localEnabled, aiEnabled: ai.available, aiUnavailableReason: ai.reason, provider: "local-compositor", dailyLimit: config.dailyLimit, dailyUsed: count!.n,
     timezone: "Asia/Jakarta", costNote,
     retentionNote: "Hasil privat disimpan sampai dihapus pemilik/admin; tidak ada penghapusan otomatis hasil asli. File temporer dibersihkan setelah proses.",
      narrationNote: "Suara otomatis karakter belum aktif. Sampel identitas tidak diputar sebagai narasi. Unggah satu MP3/WAV maksimal 5 MiB lewat bahan konsep untuk narasi manual, atau hasil tanpa narasi. Rekaman dipotong mengikuti durasi video; isi suara diperiksa manusia.",
@@ -64,6 +67,7 @@ export async function serializeJob(job: VideoJobRow, viewer?: MemberRecord) {
     createdAt: job.createdAt.toISOString(), updatedAt: job.updatedAt.toISOString(), submittedAt: job.submittedAt?.toISOString() ?? null,
     resultUrl: canServe && job.status === "COMPLETED" && !job.deleted && job.resultPath ? `/api/video/jobs/${job.id}/file` : null,
     rawResultUrl: null,
+    ai: await comfyInfo(job.id, job.mode),
   };
 }
 export async function listJobs(me: MemberRecord) {
@@ -80,7 +84,7 @@ export async function readJob(id: string, me: MemberRecord) {
 export async function createJob(raw: unknown, me: MemberRecord, studioFolderId?: string) {
   const input = CreateVideoJobBody.parse(raw);
   if (me.status !== "ACTIVE" || me.role === "VIEWER" || !input.confirmed) throw new CreativeError(403, "Hak tulis aktif dan konfirmasi pekerjaan diperlukan.");
-  if (input.mode !== "HEMAT") throw new CreativeError(409, "AI belum memiliki provider disetujui. Mock adalah simulasi, bukan hasil video AI.");
+  if (input.mode === "AI") return createAiJob(input, me, studioFolderId);
   const requestHash = createHash("sha256").update(JSON.stringify(input)).digest("hex");
   const queued = await db.transaction(async tx => {
     await ownerLock(tx, me.id);

@@ -4,7 +4,7 @@ import { db, videoJobs, finalReviews, members, type MemberRecord, type VideoJobR
 import { TransitionFinalVideoReviewBody, type VideoRenderOptions } from "@workspace/api-zod";
 import { CreativeError, libraryAdmin } from "../creative-policy";
 import { readJob, serializeJob } from "../video/service";
-import { eligibleConcept, jobReferenceFolder } from "../video/policy";
+import { eligibleConcept, eligibleAiConcept, jobReferenceFolder } from "../video/policy";
 import { videoFile } from "../video/storage";
 import { readyMaterials, type CreativeTx } from "../creative-service";
 import { audit } from "./audit";
@@ -20,7 +20,9 @@ async function currentDigest(job: VideoJobRow, tx?: CreativeTx) {
   if (!owner) throw new CreativeError(409, "Pembuat tidak tersedia.");
   const options = job.options as VideoRenderOptions;
   const folderId = jobReferenceFolder(options);
-  const valid = await eligibleConcept(job.conceptId, job.conceptVersion, owner, options, tx, folderId);
+  const valid = job.mode === "AI"
+    ? await eligibleAiConcept(job.conceptId, job.conceptVersion, owner, tx, folderId)
+    : await eligibleConcept(job.conceptId, job.conceptVersion, owner, options, tx, folderId);
   if (!folderId && valid.row.snapshot && (valid.row.snapshot as { policyVersion?: number }).policyVersion !== 2) throw new CreativeError(409, "Konsep lama perlu review fakta spesifik.");
   return createHash("sha256").update(JSON.stringify({
     data: valid.row.data, snapshot: valid.row.snapshot, prompt: valid.row.prompt,

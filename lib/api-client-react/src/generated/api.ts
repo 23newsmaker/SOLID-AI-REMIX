@@ -31,6 +31,8 @@ import type {
   CharacterInput,
   CharacterResult,
   CharacterVoice,
+  ComfyProviderInput,
+  ComfyTestResult,
   ComplianceSource,
   ConceptUploadInput,
   ConceptVersionEvidence,
@@ -1394,6 +1396,162 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getUpdateProviderControlsMutationOptions(options), queryClient);
+    }
+
+export const getUpdateComfyProviderUrl = () => {
+
+
+
+
+  return `/api/operations/providers/comfyui`
+}
+
+/**
+ * Super admin only. Opt-in switch for the ComfyUI AI provider; never exposes URL or credentials.
+ */
+export const updateComfyProvider = async (comfyProviderInput: ComfyProviderInput, options?: Parameters<typeof customFetch>[1]): Promise<ProviderControl[]> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<ProviderControl[]>(getUpdateComfyProviderUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(comfyProviderInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateComfyProviderMutationKey = () => ['updateComfyProvider'] as const;
+
+export const getUpdateComfyProviderMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateComfyProvider>>, TError,UpdateComfyProviderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateComfyProvider>>, TError,UpdateComfyProviderMutationVariables, TContext> => {
+
+const mutationKey = getUpdateComfyProviderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateComfyProvider>>, UpdateComfyProviderMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateComfyProvider(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateComfyProviderMutationResult = NonNullable<Awaited<ReturnType<typeof updateComfyProvider>>>
+    export type UpdateComfyProviderMutationBody = BodyType<ComfyProviderInput>
+    export type UpdateComfyProviderMutationError = ErrorType<unknown>
+    export type UpdateComfyProviderMutationVariables = {data: BodyType<ComfyProviderInput>}
+
+    export const useUpdateComfyProvider = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateComfyProvider>>, TError,UpdateComfyProviderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateComfyProvider>>,
+        TError,
+        UpdateComfyProviderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateComfyProviderMutationOptions(options), queryClient);
+    }
+
+export const getTestComfyProviderUrl = () => {
+
+
+
+
+  return `/api/operations/providers/comfyui/test`
+}
+
+/**
+ * Super admin only. Live connection test plus node/model check for each bundled workflow.
+ */
+export const testComfyProvider = async ( options?: Parameters<typeof customFetch>[1]): Promise<ComfyTestResult> => {
+
+  return customFetch<ComfyTestResult>(getTestComfyProviderUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getTestComfyProviderMutationKey = () => ['testComfyProvider'] as const;
+
+export const getTestComfyProviderMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof testComfyProvider>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof testComfyProvider>>, TError,void, TContext> => {
+
+const mutationKey = getTestComfyProviderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof testComfyProvider>>, void> = () => {
+
+
+          return  testComfyProvider(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TestComfyProviderMutationResult = NonNullable<Awaited<ReturnType<typeof testComfyProvider>>>
+
+    export type TestComfyProviderMutationError = ErrorType<unknown>
+
+
+    export const useTestComfyProvider = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof testComfyProvider>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof testComfyProvider>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getTestComfyProviderMutationOptions(options), queryClient);
     }
 
 export const getGetRetentionPreviewUrl = () => {

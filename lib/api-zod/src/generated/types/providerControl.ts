@@ -5,6 +5,7 @@
  * SOLID AI REMIX — fondasi internal tanpa generasi video.
  * OpenAPI spec version: 1.0.0
  */
+import type { ComfyStatus } from './comfyStatus';
 
 export interface ProviderControl {
   id: string;
@@ -19,4 +20,6 @@ export interface ProviderControl {
   /** @nullable */
   checkedAt: string | null;
   reason: string;
+  /** Live ComfyUI status; present only on the comfyui card */
+  comfy?: ComfyStatus | null;
 }

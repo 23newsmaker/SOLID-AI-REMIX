@@ -172,6 +172,31 @@ paths:
           content:
             application/json:
               schema: {type: array, items: {$ref: "#/components/schemas/ProviderControl"}}
+  /operations/providers/comfyui:
+    patch:
+      operationId: updateComfyProvider
+      description: Super admin only. Opt-in switch for the ComfyUI AI provider; never exposes URL or credentials.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ComfyProviderInput"}
+      responses:
+        "200":
+          description: Provider list after the change
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/ProviderControl"}}
+  /operations/providers/comfyui/test:
+    post:
+      operationId: testComfyProvider
+      description: Super admin only. Live connection test plus node/model check for each bundled workflow.
+      responses:
+        "200":
+          description: Connection and workflow readiness
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ComfyTestResult"}
   /operations/retention:
     get:
       operationId: getRetentionPreview
@@ -948,6 +973,71 @@ components:
       properties:
         localEnabled: {type: boolean}
         reason: {type: string, minLength: 10, maxLength: 500}
+    ComfyProviderInput:
+      type: object
+      required: [enabled, reason]
+      properties:
+        enabled: {type: boolean}
+        reason: {type: string, minLength: 10, maxLength: 500}
+    ComfyError:
+      type: object
+      required: [code, message, detail]
+      properties:
+        code: {type: string}
+        message: {type: string}
+        detail: {type: array, items: {type: string}}
+    ComfyGpu:
+      type: object
+      required: [name, vramTotalMb, vramFreeMb]
+      properties:
+        name: {type: string}
+        vramTotalMb: {type: [integer, "null"]}
+        vramFreeMb: {type: [integer, "null"]}
+    ComfyStatus:
+      type: object
+      required: [configured, online, comfyVersion, gpus, queueRunning, queuePending, checkedAt, error]
+      properties:
+        configured: {type: boolean, description: "True when the three secrets are present; values are never returned"}
+        online: {type: boolean}
+        comfyVersion: {type: [string, "null"]}
+        gpus: {type: array, items: {$ref: "#/components/schemas/ComfyGpu"}}
+        queueRunning: {type: [integer, "null"]}
+        queuePending: {type: [integer, "null"]}
+        checkedAt: {type: [string, "null"]}
+        error:
+          oneOf:
+            - {$ref: "#/components/schemas/ComfyError"}
+            - {type: "null"}
+    ComfyWorkflowCheck:
+      type: object
+      required: [kind, file, ready, missing]
+      properties:
+        kind: {type: string, enum: [I2V, FIRST_LAST, REF2VA]}
+        file: {type: string}
+        ready: {type: boolean}
+        missing: {type: array, items: {type: string}}
+    ComfyTestResult:
+      type: object
+      required: [status, workflows]
+      properties:
+        status: {$ref: "#/components/schemas/ComfyStatus"}
+        workflows: {type: array, items: {$ref: "#/components/schemas/ComfyWorkflowCheck"}}
+    ComfyJobInfo:
+      type: object
+      required: [phase, workflowKind, workflowFile, workflowHash, seed, width, height, frameLength, errorCode, errorDetail, technicalChecks, pollCount]
+      properties:
+        phase: {type: string}
+        workflowKind: {type: string}
+        workflowFile: {type: string}
+        workflowHash: {type: [string, "null"]}
+        seed: {type: integer}
+        width: {type: integer}
+        height: {type: integer}
+        frameLength: {type: integer}
+        errorCode: {type: [string, "null"]}
+        errorDetail: {type: array, items: {type: string}}
+        technicalChecks: {description: "ffprobe/decode checks; ComfyUI has no quality gate of its own", type: [array, "null"], items: {type: object, additionalProperties: true}}
+        pollCount: {type: integer}
     ProviderControl:
       type: object
       required: [id, name, model, enabled, simulation, connection, capabilities, price, priceSource, checkedAt, reason]
@@ -963,6 +1053,11 @@ components:
         priceSource: {type: string}
         checkedAt: {type: [string, "null"]}
         reason: {type: string}
+        comfy:
+          description: Live ComfyUI status; present only on the comfyui card
+          oneOf:
+            - {$ref: "#/components/schemas/ComfyStatus"}
+            - {type: "null"}
     OperationsAudit:
       type: object
       required: [id, userId, action, description, objectId, result, before, after, createdAt]
@@ -1201,6 +1296,14 @@ components:
           readOnly: true
           items: {type: string}
           description: Server-recorded old logo assets excluded from scenes in a new unbranded studio job.
+        aiWorkflow:
+          type: string
+          enum: [I2V, FIRST_LAST, REF2VA]
+          description: "AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references."
+        aiQuality:
+          type: string
+          enum: [FAST, QUALITY]
+          description: "AI mode only. Default FAST."
         postTextMode:
           type: string
           enum: [IN_VIDEO, MANUAL_AFTER_DOWNLOAD]
@@ -1260,6 +1363,11 @@ components:
         rawResultUrl: {type: [string, "null"]}
         deleted: {type: boolean}
         cleanupPending: {type: boolean, description: File access revoked but storage cleanup still needs retry}
+        ai:
+          description: ComfyUI details for AI jobs; null for other modes
+          oneOf:
+            - {$ref: "#/components/schemas/ComfyJobInfo"}
+            - {type: "null"}
         options: {$ref: "#/components/schemas/VideoRenderOptions"}
         voiceBinding:
           description: "Immutable voice selection metadata only; null for older jobs. Never a narration source."
@@ -1282,7 +1390,8 @@ components:
       required: [paused, aiEnabled, provider, dailyLimit, dailyUsed, timezone, costNote, retentionNote, narrationNote]
       properties:
         paused: {type: boolean}
-        aiEnabled: {type: boolean}
+        aiEnabled: {type: boolean, description: "True only when the AI provider is enabled by a Super admin, configured and online"}
+        aiUnavailableReason: {type: [string, "null"]}
         provider: {type: string}
         dailyLimit: {type: integer}
         dailyUsed: {type: integer}

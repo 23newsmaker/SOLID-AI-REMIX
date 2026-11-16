@@ -29,6 +29,8 @@ export function JobCard({ j, onCancel, onDelete, onNewVersion, pending, canManag
         </div>
       </div>
       {isActive(j) && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full w-1/3 animate-pulse rounded-full bg-accent" /></div>}
+      {isActive(j) && j.ai && <p className="mt-2 text-xs text-muted-foreground" data-testid={`text-ai-phase-${j.id}`}>{AI_PHASE[j.ai.phase] ?? j.ai.phase}{j.ai.pollCount > 0 ? ` · cek ke-${j.ai.pollCount}` : ''}. Render AI bisa memakan beberapa menit.</p>}
+      {j.ai?.errorDetail && j.ai.errorDetail.length > 0 && <ul className="mt-1 list-disc rounded-xl bg-destructive/8 p-2 pl-6 text-xs text-destructive">{j.ai.errorDetail.map((d) => <li key={d}>{d}</li>)}</ul>}
       {j.error && <p className="mt-2 rounded-xl bg-destructive/8 p-2 text-xs text-destructive" data-testid={`text-job-error-${j.id}`}>{j.error}</p>}
       {playable && j.resultUrl && (
         <video src={j.resultUrl} controls preload="metadata" className="mt-3 aspect-[9/16] max-h-[420px] w-full rounded-2xl bg-sidebar object-contain" data-testid={`video-result-${j.id}`} />
@@ -39,10 +41,19 @@ export function JobCard({ j, onCancel, onDelete, onNewVersion, pending, canManag
       <summary className={sharedMode ? 'cursor-pointer text-xs text-muted-foreground' : 'hidden'}>Rincian video dan pemeriksaan teknis</summary>
       <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
         <div><dt className="text-muted-foreground">Durasi</dt><dd>{j.durationSeconds} dtk · {j.width}x{j.height}</dd></div>
-        <div><dt className="text-muted-foreground">Gerak</dt><dd>{motionLabel[j.options.motion]}</dd></div>
+        <div><dt className="text-muted-foreground">{j.ai ? 'Workflow' : 'Gerak'}</dt><dd>{j.ai ? `${j.ai.workflowKind} · seed ${j.ai.seed}` : motionLabel[j.options.motion]}</dd></div>
         <div><dt className="text-muted-foreground">Percobaan</dt><dd>{j.attempts}</dd></div>
         <div><dt className="text-muted-foreground">Biaya total</dt><dd>{usd(actualCost(j))}</dd><dt className="text-muted-foreground">Provider saja</dt><dd>{usd(j.providerCostUsd)}</dd></div>
       </dl>
+      {j.ai && (
+        <details className="mt-3 rounded-xl bg-muted/40 p-3 text-xs" data-testid={`ai-details-${j.id}`}>
+          <summary className="cursor-pointer font-semibold">Asal hasil · provider {j.provider} · konsep v{j.conceptVersion}</summary>
+          <p className="mt-2">Workflow <span className="font-mono">{j.ai.workflowFile}</span> · {j.ai.width}x{j.ai.height} · {j.ai.frameLength} frame · seed {j.ai.seed}</p>
+          {j.ai.workflowHash && <p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">sha256 graf workflow: {j.ai.workflowHash}</p>}
+          {j.ai.technicalChecks && <ul className="mt-2 space-y-1">{j.ai.technicalChecks.map((q, i) => <li key={i}><strong>{q.ok ? 'LULUS' : 'GAGAL'} {String(q.id)}</strong> · {String(q.detail)}</li>)}</ul>}
+          <p className="mt-2 text-muted-foreground">ComfyUI tidak punya quality gate sendiri. Pemeriksaan di atas hanya teknis; identitas wajah, suara, dan klaim wajib dinilai manusia di review akhir.</p>
+        </details>
+      )}
       {j.diagnostics ? <details className="mt-3 rounded-xl bg-muted/40 p-3 text-xs" data-testid={`diagnostics-${j.id}`}>
         <summary className="cursor-pointer font-semibold">Waktu & pemeriksaan teknis · {j.diagnostics.rendererVersion}</summary>
         <p className="mt-2">Antre {time(j.diagnostics.queueMs)} · Bahan {time(j.diagnostics.materialMs)} · Render {time(j.diagnostics.renderMs)} · QC {time(j.diagnostics.validationMs)} · Simpan {time(j.diagnostics.storageMs)} · Total produksi {time(j.diagnostics.totalMs)} (tanpa antre).</p>
@@ -76,6 +87,10 @@ export function JobCard({ j, onCancel, onDelete, onNewVersion, pending, canManag
     </li>
   );
 }
+const AI_PHASE: Record<string, string> = {
+  QUEUED: 'Menunggu giliran', PREFLIGHT: 'Memeriksa node dan model di ComfyUI', UPLOADING: 'Mengunggah gambar ke GPU',
+  SUBMITTED: 'Sedang dirender di GPU', DOWNLOADING: 'Mengunduh dan memeriksa hasil',
+};
 const time = (v: number | null | undefined) => v == null ? 'belum terukur' : `${(v / 1000).toFixed(2)} dtk`;
 
 export function RetentionNotice({ j }: { j: VideoJob }) {

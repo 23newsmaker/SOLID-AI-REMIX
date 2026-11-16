@@ -17,7 +17,8 @@ export function subtitleChunks(text: string) {
   const words = text.trim().split(/\s+/).filter(Boolean);
   return Array.from({ length: Math.ceil(words.length / 9) }, (_, i) => words.slice(i * 9, i * 9 + 9).join(" "));
 }
-export async function eligibleConcept(id: string, version: number, me: MemberRecord, options: VideoRenderOptions, tx?: CreativeTx, referenceFolderId?: string) {
+// Shared by every render mode: ownership, approval, version and staleness checks.
+async function eligibleBase(id: string, version: number, me: MemberRecord, tx?: CreativeTx, referenceFolderId?: string) {
   const conn = tx ?? db;
   if (referenceFolderId) await referenceFolder(me, referenceFolderId, conn);
   const row = await readConcept(id, me, tx);
@@ -42,6 +43,20 @@ export async function eligibleConcept(id: string, version: number, me: MemberRec
     throw new CreativeError(409, "Bahan/rujukan berubah atau belum diizinkan. Perbaiki dan simpan ulang: " +
       [...reasons, ...built.blockers].join(" "));
   }
+  return { conn, row, folder, data, materials };
+}
+/** AI (ComfyUI) profile: same shared checks, but the concept must be an AI concept and Hemat-only rules (cues, logo) do not apply. */
+export async function eligibleAiConcept(id: string, version: number, me: MemberRecord, tx?: CreativeTx, referenceFolderId?: string) {
+  const { conn, row, data, materials } = await eligibleBase(id, version, me, tx, referenceFolderId);
+  if (data.mode !== "AI") throw new CreativeError(409, "Konsep ini bermode HEMAT. Ubah mode konsep ke AI, simpan, dan ajukan review ulang.");
+  if (data.durationSeconds < 5 || data.durationSeconds > 15) throw new CreativeError(400, "Profil AI: durasi 5–15 detik. Edit konsep dan review ulang.");
+  if (materials.some(m => m.ownerId !== me.id)) throw new CreativeError(403, "Bahan bukan milik folder ini.");
+  const [character] = await conn.select().from(characters).where(and(eq(characters.id, data.characterId), eq(characters.userId, me.id)));
+  if (!character) throw new CreativeError(409, "Foto karakter tidak tersedia.");
+  return { row, data, materials, character };
+}
+export async function eligibleConcept(id: string, version: number, me: MemberRecord, options: VideoRenderOptions, tx?: CreativeTx, referenceFolderId?: string) {
+  const { conn, row, folder, data, materials } = await eligibleBase(id, version, me, tx, referenceFolderId);
   if (data.format !== "9:16" || data.durationSeconds < 10 || data.durationSeconds > 15) throw new CreativeError(400, "Profil Hemat awal: vertikal9:16, durasi10–15detik. Edit konsep dan review ulang.");
   const postText = videoPostText(data, options.postTextMode, !!folder);
   const chunks = subtitleChunks(data.subtitle.trim() || data.narration);

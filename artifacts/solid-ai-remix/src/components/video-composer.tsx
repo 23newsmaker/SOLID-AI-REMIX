@@ -6,7 +6,7 @@ import {
   useGetCreativeConcept, getGetCreativeConceptQueryKey, useCreateVideoJob, getListVideoJobsQueryKey, getGetVideoConfigQueryKey, getListCreativeConceptsQueryKey, getGetVideoJobQueryKey,
 } from '@workspace/api-client-react';
 import type {
-  Character, CreativeConcept, VideoConfig, VideoCue, VideoJobInputMode, VideoRenderOptionsLogoPosition, VideoRenderOptionsMotion,
+  Character, CreativeConcept, VideoConfig, VideoCue, VideoJobInputMode, VideoRenderOptionsAiQuality, VideoRenderOptionsAiWorkflow, VideoRenderOptionsLogoPosition, VideoRenderOptionsMotion,
 } from '@workspace/api-client-react';
 import { ErrorBox } from '@/components/app-shell';
 import { Pill } from '@/components/brand';
@@ -21,6 +21,11 @@ import { conceptStatusLabel, conceptStatusTone } from '@/lib/creative';
 import { chunkScript, cueErrors, defaultCues, scriptWords, motionLabel, MAX_CTA, MAX_CUES, MAX_DISCLAIMER, MAX_SUBTITLE_WORDS } from '@/lib/video';
 import { cn } from '@/lib/utils';
 
+const AI_WORKFLOWS: { v: VideoRenderOptionsAiWorkflow; l: string; d: string }[] = [
+  { v: 'I2V', l: 'Foto karakter (disarankan)', d: 'Foto karakter jadi frame pertama; wajah paling terjaga. Lampiran gambar tidak dipakai.' },
+  { v: 'FIRST_LAST', l: 'Frame pertama + terakhir', d: 'Foto karakter di awal, gambar lampiran pertama di akhir.' },
+  { v: 'REF2VA', l: 'Gambar referensi', d: 'Foto karakter + hingga 3 gambar lampiran (produk/UI) sebagai referensi. Kemiripan wajah bisa lebih rendah.' },
+];
 const MOTIONS: VideoRenderOptionsMotion[] = ['ZOOM_IN', 'ZOOM_OUT', 'PAN_LEFT', 'PAN_RIGHT'];
 const inputCls = 'w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40';
 
@@ -44,6 +49,8 @@ function Composer({ c, character, config, canWrite, refetch, refreshing }: {
   const duration = c.durationSeconds;
   const logos = c.attachments.filter((a) => a.state === 'READY' && a.contentType.startsWith('image/'));
   const [mode, setMode] = useState<VideoJobInputMode>('HEMAT');
+  const [aiWorkflow, setAiWorkflow] = useState<VideoRenderOptionsAiWorkflow>('I2V');
+  const [aiQuality, setAiQuality] = useState<VideoRenderOptionsAiQuality>('FAST');
   const [motion, setMotion] = useState<VideoRenderOptionsMotion>('ZOOM_IN');
   const [logoPosition, setLogoPosition] = useState<VideoRenderOptionsLogoPosition>('TOP_RIGHT');
   const [logoId, setLogoId] = useState('');
@@ -58,27 +65,41 @@ function Composer({ c, character, config, canWrite, refetch, refreshing }: {
   const scenes = c.attachments.filter((a) => a.state === 'READY' && a.id !== logoId && (a.contentType.startsWith('image/') || a.contentType.startsWith('video/')));
   const audio = c.attachments.find((a) => a.state === 'READY' && a.contentType.startsWith('audio/'));
   const disclaimer = (c.disclaimer ?? '').trim();
+  const ai = mode === 'AI';
+  const aiImages = c.attachments.filter((a) => a.state === 'READY' && a.contentType.startsWith('image/'));
+  const aiIgnored = c.attachments.filter((a) => a.state === 'READY' && !a.contentType.startsWith('image/'));
 
   const blockers: { msg: string; fix: 'edit' | 'review' | null }[] = [];
   if (c.status !== 'APPROVED') blockers.push({ msg: `Konsep berstatus ${conceptStatusLabel[c.status]}; harus disetujui reviewer.`, fix: 'review' });
   if (c.stale) blockers.push({ msg: 'Persetujuan usang. Ajukan review ulang.', fix: 'review' });
-  if (c.format !== '9:16') blockers.push({ msg: 'Format harus 9:16 vertikal.', fix: 'edit' });
-  if (duration < 10 || duration > 15) blockers.push({ msg: 'Durasi harus 10–15 detik.', fix: 'edit' });
-  if (!chunks.length) blockers.push({ msg: 'Subtitle atau narasi kosong.', fix: 'edit' });
-  if (scriptWords(c).length > MAX_SUBTITLE_WORDS) blockers.push({ msg: `Naskah maksimal ${MAX_SUBTITLE_WORDS} kata.`, fix: 'edit' });
-  if (chunks.length > MAX_CUES) blockers.push({ msg: `Naskah menghasilkan ${chunks.length} cue; maksimal ${MAX_CUES}.`, fix: 'edit' });
-  if (c.cta.trim().length > MAX_CTA) blockers.push({ msg: `CTA maksimal ${MAX_CTA} karakter.`, fix: 'edit' });
-  if (!disclaimer) blockers.push({ msg: 'Disclaimer wajib diisi.', fix: 'edit' });
-  if (disclaimer.length > MAX_DISCLAIMER) blockers.push({ msg: `Disclaimer maksimal ${MAX_DISCLAIMER} karakter.`, fix: 'edit' });
-  if (!logos.length) blockers.push({ msg: 'Unggah logo resmi (gambar) sebagai bahan konsep, lalu ajukan review ulang.', fix: 'edit' });
+  if (ai) {
+    if (c.mode !== 'AI') blockers.push({ msg: 'Konsep ini bermode Hemat. Ubah mode konsep ke AI, simpan, lalu ajukan review ulang.', fix: 'edit' });
+    if (duration < 5 || duration > 15) blockers.push({ msg: 'Durasi AI harus 5–15 detik.', fix: 'edit' });
+    if (!c.narration.trim()) blockers.push({ msg: 'Narasi kosong; suara dibuat model dari narasi.', fix: 'edit' });
+    if (!config.aiEnabled) blockers.push({ msg: config.aiUnavailableReason ?? 'Provider AI tidak tersedia.', fix: null });
+    if (aiWorkflow !== 'I2V' && aiImages.length === 0) blockers.push({ msg: 'Workflow ini membutuhkan minimal satu lampiran gambar.', fix: 'edit' });
+  }
+  if (!ai && c.format !== '9:16') blockers.push({ msg: 'Format harus 9:16 vertikal.', fix: 'edit' });
+  if (!ai && (duration < 10 || duration > 15)) blockers.push({ msg: 'Durasi harus 10–15 detik.', fix: 'edit' });
+  if (!ai && !chunks.length) blockers.push({ msg: 'Subtitle atau narasi kosong.', fix: 'edit' });
+  if (!ai && scriptWords(c).length > MAX_SUBTITLE_WORDS) blockers.push({ msg: `Naskah maksimal ${MAX_SUBTITLE_WORDS} kata.`, fix: 'edit' });
+  if (!ai && chunks.length > MAX_CUES) blockers.push({ msg: `Naskah menghasilkan ${chunks.length} cue; maksimal ${MAX_CUES}.`, fix: 'edit' });
+  if (!ai && c.cta.trim().length > MAX_CTA) blockers.push({ msg: `CTA maksimal ${MAX_CTA} karakter.`, fix: 'edit' });
+  if (!ai && !disclaimer) blockers.push({ msg: 'Disclaimer wajib diisi.', fix: 'edit' });
+  if (!ai && disclaimer.length > MAX_DISCLAIMER) blockers.push({ msg: `Disclaimer maksimal ${MAX_DISCLAIMER} karakter.`, fix: 'edit' });
+  if (ai) { /* logo and cues are Hemat-only */ }
+  else if (!logos.length) blockers.push({ msg: 'Unggah logo resmi (gambar) sebagai bahan konsep, lalu ajukan review ulang.', fix: 'edit' });
   else if (!logo) blockers.push({ msg: 'Pilih logo dari bahan yang disetujui.', fix: null });
   if (!character) blockers.push({ msg: 'Karakter Anda tidak tersedia.', fix: null });
   if (config.paused) blockers.push({ msg: 'Produksi video sedang dijeda Admin.', fix: null });
   if (config.dailyUsed >= config.dailyLimit) blockers.push({ msg: `Kuota harian ${config.dailyLimit} sudah habis (${config.timezone}).`, fix: null });
-  const cueErr = cues.length === chunks.length ? cueErrors(cues, duration) : [];
+  const cueErr = !ai && cues.length === chunks.length ? cueErrors(cues, duration) : [];
   const ready = canWrite && blockers.length === 0 && cueErr.length === 0;
 
-  const input = { conceptId: c.id, version: c.version, mode, confirmed: true, options: { motion, logoPosition, logoAttachmentId: logoId, cues } };
+  // AI jobs ignore motion/logo/cues (required by the shared schema only), so send neutral values.
+  const input = ai
+    ? { conceptId: c.id, version: c.version, mode, confirmed: true, options: { motion: 'ZOOM_IN' as const, logoPosition: 'TOP_RIGHT' as const, cues: [{ start: 0, end: duration }], aiWorkflow, aiQuality } }
+    : { conceptId: c.id, version: c.version, mode, confirmed: true, options: { motion, logoPosition, logoAttachmentId: logoId, cues } };
   const sig = JSON.stringify(input);
 
   const setCue = (i: number, k: 'start' | 'end', v: string) => setCues((cs) => cs.map((x, j) => (j === i ? { ...x, [k]: Number(v) } : x)));
@@ -127,12 +148,29 @@ function Composer({ c, character, config, canWrite, refetch, refreshing }: {
 
       <div className="grid gap-5 md:grid-cols-[1fr_260px]">
         <div className="space-y-4 rounded-[28px] bg-card p-5 ring-1 ring-card-border">
-          <Block label="Mode">
+          <Block label="Mode" hint={!config.aiEnabled && config.aiUnavailableReason ? `AI: ${config.aiUnavailableReason}` : undefined}>
             <div className="grid grid-cols-2 rounded-xl bg-muted p-1">
               <button onClick={() => setMode('HEMAT')} aria-pressed={mode === 'HEMAT'} className={cn('rounded-lg py-1.5 text-sm font-medium', mode === 'HEMAT' && 'bg-card ring-1 ring-card-border')} data-testid="toggle-video-mode-HEMAT">Hemat (template)</button>
-              <button disabled title="AI belum aktif" className="cursor-not-allowed rounded-lg py-1.5 text-sm text-muted-foreground/60" data-testid="toggle-video-mode-AI">AI · nonaktif</button>
+              <button onClick={() => setMode('AI')} aria-pressed={mode === 'AI'} disabled={!config.aiEnabled} title={config.aiEnabled ? 'Render AI di GPU (ComfyUI)' : (config.aiUnavailableReason ?? 'AI belum aktif')} className={cn('rounded-lg py-1.5 text-sm font-medium', mode === 'AI' && 'bg-card ring-1 ring-card-border', !config.aiEnabled && 'cursor-not-allowed font-normal text-muted-foreground/60')} data-testid="toggle-video-mode-AI">{config.aiEnabled ? 'ComfyUI (AI)' : 'ComfyUI (AI) · nonaktif'}</button>
             </div>
           </Block>
+          {ai && (
+            <Block label="Workflow AI" hint="Video dan suara dibuat model MiniMax H3 di GPU milik tim lewat ComfyUI. Render bisa memakan beberapa menit.">
+              <div className="space-y-2" role="radiogroup" aria-label="Workflow AI">
+                {AI_WORKFLOWS.map((w) => (
+                  <label key={w.v} className={cn('flex cursor-pointer items-start gap-2 rounded-xl p-2 ring-1 ring-border', aiWorkflow === w.v && 'ring-2 ring-primary')}>
+                    <input type="radio" name="ai-workflow" checked={aiWorkflow === w.v} onChange={() => setAiWorkflow(w.v)} className="mt-1" data-testid={`radio-ai-workflow-${w.v}`} />
+                    <span className="text-sm"><span className="font-medium">{w.l}</span><span className="block text-xs text-muted-foreground">{w.d}</span></span>
+                  </label>
+                ))}
+                <div className="grid grid-cols-2 rounded-xl bg-muted p-1 sm:max-w-xs">
+                  {(['FAST', 'QUALITY'] as const).map((q) => <button key={q} onClick={() => setAiQuality(q)} aria-pressed={aiQuality === q} className={cn('rounded-lg py-1 text-xs', aiQuality === q && 'bg-card ring-1 ring-card-border')} data-testid={`toggle-ai-quality-${q}`}>{q === 'FAST' ? 'Cepat' : 'Kualitas (lebih lama)'}</button>)}
+                </div>
+                <p className="rounded-xl bg-accent/25 p-2 text-xs">Dikirim ke GPU: foto karakter{aiWorkflow !== 'I2V' ? ` dan ${aiWorkflow === 'FIRST_LAST' ? 1 : Math.min(aiImages.length, 3)} gambar lampiran` : ''}. Narasi dikirim sebagai teks ucapan bahasa Indonesia. {aiIgnored.length > 0 && `Tidak dipakai: ${aiIgnored.map((a) => a.name).join(', ')} (MP4/audio tidak didukung workflow).`} Hasil tetap wajib lewat review final; wajah, suara, dan klaim harus diperiksa manusia.</p>
+              </div>
+            </Block>
+          )}
+          {!ai && <>
           <Block label="Gerak kamera">
             <div className="flex flex-wrap gap-2">{MOTIONS.map((m) => <button key={m} onClick={() => setMotion(m)} aria-pressed={motion === m} className={cn('rounded-full px-3 py-1.5 text-sm ring-1 ring-border', motion === m ? 'bg-foreground text-background' : 'hover:bg-muted')} data-testid={`chip-motion-${m}`}>{motionLabel[m]}</button>)}</div>
           </Block>
@@ -174,10 +212,12 @@ function Composer({ c, character, config, canWrite, refetch, refreshing }: {
               {cueErr.map((e) => <p key={e} className="text-xs text-destructive">{e}</p>)}
             </div>
           </Block>
+          </>}
         </div>
         <div className="space-y-2">
-          <SafeAreaPreview photoUrl={character?.photoUrl} logoUrl={logo?.url} logoPosition={logoPosition} cue={chunks[activeCue]} cta={c.cta.trim()} disclaimer={disclaimer} />
-          <p className="text-center text-[11px] text-muted-foreground">Perkiraan penempatan area aman, bukan hasil render.</p>
+          {!ai && <SafeAreaPreview photoUrl={character?.photoUrl} logoUrl={logo?.url} logoPosition={logoPosition} cue={chunks[activeCue]} cta={c.cta.trim()} disclaimer={disclaimer} />}
+          {!ai && <p className="text-center text-[11px] text-muted-foreground">Perkiraan penempatan area aman, bukan hasil render.</p>}
+          {ai && character?.photoUrl && <img src={character.photoUrl} alt="Foto karakter yang dikirim sebagai frame pertama" className="w-full rounded-2xl object-cover ring-1 ring-border" />}
         </div>
       </div>
 
@@ -193,14 +233,15 @@ function Composer({ c, character, config, canWrite, refetch, refreshing }: {
               <div className="space-y-2 text-sm">
                 <dl className="grid grid-cols-2 gap-2">
                   <dt>Konsep</dt><dd className="font-medium">{c.title} (v{c.version})</dd>
-                  <dt>Mode</dt><dd>Hemat · {config.provider}</dd>
+                  <dt>Mode</dt><dd>{ai ? `AI · ComfyUI (${aiWorkflow})` : `Hemat · ${config.provider}`}</dd>
                   <dt>Format</dt><dd>9:16 · {duration} dtk</dd>
-                  <dt>Gerak</dt><dd>{motionLabel[motion]}</dd>
+                  {!ai && <><dt>Gerak</dt><dd>{motionLabel[motion]}</dd>
                   <dt>Logo</dt><dd>{logo?.name} · {logoPosition === 'TOP_LEFT' ? 'kiri atas' : 'kanan atas'}</dd>
-                  <dt>Cue</dt><dd>{cues.length}</dd>
+                  <dt>Cue</dt><dd>{cues.length}</dd></>}
                   <dt>Kuota</dt><dd>{config.dailyUsed}/{config.dailyLimit} hari ini</dd>
                 </dl>
-                <p className="rounded-xl bg-accent/25 p-2 text-xs">{config.costNote} Biaya yang tidak tercatat ditampilkan sebagai tidak diketahui, bukan nol.</p>
+                {ai && <p className="rounded-xl bg-accent/25 p-2 text-xs">Foto karakter dan gambar terpilih dikirim ke GPU milik tim lewat Cloudflare. Tidak ada tagihan provider; biaya listrik/GPU belum diukur (tidak diketahui, bukan nol).</p>}
+                {!ai && <p className="rounded-xl bg-accent/25 p-2 text-xs">{config.costNote} Biaya yang tidak tercatat ditampilkan sebagai tidak diketahui, bukan nol.</p>}
                 <p className="text-xs">{config.retentionNote} Hasil akhir tidak kedaluwarsa otomatis; hapus manual bila tidak dipakai. File sementara dibersihkan server.</p>
                 <label className="flex items-start gap-2 text-xs text-foreground"><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="mt-0.5" data-testid="checkbox-confirm-cost" /> Saya sudah memeriksa ringkasan, biaya, dan naskah ini.</label>
               </div>

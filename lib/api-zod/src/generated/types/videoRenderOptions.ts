@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { VideoCue } from './videoCue';
+import type { VideoRenderOptionsAiQuality } from './videoRenderOptionsAiQuality';
+import type { VideoRenderOptionsAiWorkflow } from './videoRenderOptionsAiWorkflow';
 import type { VideoRenderOptionsBrandingMode } from './videoRenderOptionsBrandingMode';
 import type { VideoRenderOptionsLogoPosition } from './videoRenderOptionsLogoPosition';
 import type { VideoRenderOptionsMotion } from './videoRenderOptionsMotion';
@@ -24,6 +26,10 @@ export interface VideoRenderOptions {
      * @maxItems 3
      */
   readonly legacyLogoAttachmentIds?: readonly string[];
+  /** AI mode only. I2V = character photo as first frame (identity kept); FIRST_LAST = character photo + first image attachment as last frame; REF2VA = character photo + up to 3 image attachments as references. */
+  aiWorkflow?: VideoRenderOptionsAiWorkflow;
+  /** AI mode only. Default FAST. */
+  aiQuality?: VideoRenderOptionsAiQuality;
   /** Omission preserves existing in-video text behavior. Manual text is allowed only for explicitly shared studio folders. */
   postTextMode?: VideoRenderOptionsPostTextMode;
   motion: VideoRenderOptionsMotion;

@@ -1,6 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { db, videoSettings, videoJobs, type MemberRecord, type VideoJobRow } from "@workspace/db";
 import { UpdateOperationsSettingsBody, UpdateProviderControlsBody } from "@workspace/api-zod";
+import { providerCard } from "../comfyui/provider";
 import { libraryAdmin, CreativeError } from "../creative-policy";
 import type { CreativeTx } from "../creative-service";
 import { mediaCommand } from "../video/renderer";
@@ -80,7 +81,8 @@ export async function providerInfo() {
     checkedAt: new Date(runtime.at).toISOString(), reason: c.providerReason },
   { id: "unapproved-ai", name: "AI belum disetujui", model: "Belum dipilih", enabled: false, simulation: true,
     connection: "NOT_CONFIGURED", capabilities: "Mock bukan generasi AI", price: "Tidak diketahui",
-    priceSource: "Belum ada konfigurasi/harga produksi disetujui", checkedAt: null, reason: "Persetujuan pemilik diperlukan; tidak ada aktivasi melalui halaman ini." }];
+    priceSource: "Belum ada konfigurasi/harga produksi disetujui", checkedAt: null, reason: "Persetujuan pemilik diperlukan; tidak ada aktivasi melalui halaman ini." },
+  await providerCard()];
 }
 export async function saveProvider(body: unknown, me: MemberRecord) {
   if (me.status !== "ACTIVE" || me.role !== "SUPER_ADMIN") throw new CreativeError(403, "Konfigurasi provider hanya admin utama.");
